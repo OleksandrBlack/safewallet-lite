@@ -164,15 +164,15 @@ public:
             return 0;            
         } 
 
-        QCoreApplication::setOrganizationName("zecwallet-org");
-        QCoreApplication::setApplicationName("zecwallet");
+        QCoreApplication::setOrganizationName("safewallet-org");
+        QCoreApplication::setApplicationName("safewallet");
 
         QString locale = QLocale::system().name();
         locale.truncate(locale.lastIndexOf('_'));   // Get the language code
         qDebug() << "Loading locale " << locale;
         
         QTranslator translator;
-        translator.load(QString(":/translations/res/zec_qt_wallet_") + locale);
+        translator.load(QString(":/translations/res/safe_qt_wallet_") + locale);
         a.installTranslator(&translator);
 
         QIcon icon(":/icons/res/icon.ico");
@@ -205,7 +205,7 @@ public:
         
 
         w = new MainWindow();
-        w->setWindowTitle("Zecwallet Lightclient v" + QString(APP_VERSION));
+        w->setWindowTitle("Safewallet Lightclient v" + QString(APP_VERSION));
 
         // If there was a payment URI on the command line, pay it
         if (parser.positionalArguments().length() > 0) {

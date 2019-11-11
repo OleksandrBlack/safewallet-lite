@@ -1,13 +1,13 @@
 [Desktop Entry]
-Name=Zecwallet-Lite
-Comment=Lightclient UI wallet for Zcash
+Name=Safewallet-Lite
+Comment=Lightclient UI wallet for Safecoin
 GenericName=Wallet
-Exec=/usr/local/bin/zecwallet-lite %u
-Icon=zecwallet-lite.xpm
+Exec=/usr/local/bin/safewallet-lite %u
+Icon=safewallet-lite.xpm
 Type=Application
 StartupNotify=true
-StartupWMClass=zecwallet-lite
+StartupWMClass=safewallet-lite
 Categories=Utility;
-MimeType=x-scheme-handler/zcash;
-Keywords=zecwallet;
+MimeType=x-scheme-handler/safecoin;
+Keywords=safewallet;
 
