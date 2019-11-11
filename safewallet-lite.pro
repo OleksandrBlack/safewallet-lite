@@ -142,7 +142,7 @@ libsodium.target = $$PWD/res/libsodium.a
 libsodium.commands = res/libsodium/buildlibsodium.sh
 
 unix:        librust.target   = $$PWD/lib/target/release/libsafewalletlite.a
-else:win32:  librust.target   = $$PWD/lib/target/x86_64-pc-windows-gnu/release/safewalletlite.lib
+else:win32:  librust.target   = $$PWD/lib/target/x86_64-pc-windows-gnu/release/zecwalletlite.lib
 
 unix:        librust.commands = $(MAKE) -C $$PWD/lib 
 else:win32:  librust.commands = $(MAKE) -C $$PWD/lib winrelease
@@ -160,7 +160,7 @@ win32: LIBS += -L$$PWD/lib/target/x86_64-pc-windows-gnu/release -lsafewalletlite
 else:macx: LIBS += -L$$PWD/lib/target/release -lsafewalletlite -framework Security -framework Foundation -L$$PWD/res/ -lsodium
 else:unix: LIBS += -L$$PWD/lib/target/release -lsafewalletlite -ldl -L$$PWD/res/ -lsodium
 
-win32: PRE_TARGETDEPS += $$PWD/lib/target/x86_64-pc-windows-gnu/release/safewalletlite.lib $$PWD/res/liblibsodium.a
+win32: PRE_TARGETDEPS += $$PWD/lib/target/x86_64-pc-windows-gnu/release/zecwalletlite.lib $$PWD/res/liblibsodium.a
 else:unix::PRE_TARGETDEPS += $$PWD/lib/target/release/libsafewalletlite.a $$PWD/res/libsodium.a
 
 INCLUDEPATH += $$PWD/res
