@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	    
     ui->setupUi(this);
-    logger = new Logger(this, QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("zec-qt-wallet.log"));
+    logger = new Logger(this, QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safe-qt-wallet-lite.log"));
 
     // Status Bar
     setupStatusBar();
@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // File a bug
     QObject::connect(ui->actionFile_a_bug, &QAction::triggered, [=]() {
-        QDesktopServices::openUrl(QUrl("https://github.com/adityapk00/zecwallet-lite/issues/new"));
+        QDesktopServices::openUrl(QUrl("https://github.com/OleksandrBlack/safewallet-lite/issues/new"));
     });
 
     // Set up check for updates action
@@ -68,12 +68,12 @@ MainWindow::MainWindow(QWidget *parent) :
         Recurring::getInstance()->showRecurringDialog(this);
     });
 
-    // Request zcash
+    // Request safecoin
     QObject::connect(ui->actionRequest_zcash, &QAction::triggered, [=]() {
         RequestDialog::showRequestZcash(this);
     });
 
-    // Pay Zcash URI
+    // Pay Safecoin URI
     QObject::connect(ui->actionPay_URI, &QAction::triggered, [=] () {
         payZcashURI();
     });
@@ -124,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setCurrentIndex(0);
 
 
-    // The zcashd tab is hidden by default, and only later added in if the embedded zcashd is started
+    // The safecoind tab is hidden by default, and only later added in if the embedded safecoind is started
     zcashdtab = ui->tabWidget->widget(4);
     ui->tabWidget->removeTab(4);
 
@@ -150,9 +150,9 @@ MainWindow::MainWindow(QWidget *parent) :
 }
  
 void MainWindow::createWebsocket(QString wormholecode) {
-    qDebug() << "Listening for app connections on port 8237";
+    qDebug() << "Listening for app connections on port 8787";
     // Create the websocket server, for listening to direct connections
-    wsserver = new WSServer(8237, false, this);
+    wsserver = new WSServer(8787, false, this);
 
     if (!wormholecode.isEmpty()) {
         // Connect to the wormhole service
@@ -398,7 +398,7 @@ void MainWindow::setupSettingsModal() {
         QObject::connect(settings.comboBoxTheme, &QComboBox::currentTextChanged, [=] (QString theme_name) {
             this->slot_change_theme(theme_name);
             // Tell the user to restart
-            QMessageBox::information(this, tr("Restart"), tr("Please restart ZecWallet to have the theme apply"), QMessageBox::Ok);
+            QMessageBox::information(this, tr("Restart"), tr("Please restart SafeWallet to have the theme apply"), QMessageBox::Ok);
         });
 
         // Check for updates
@@ -414,10 +414,10 @@ void MainWindow::setupSettingsModal() {
         // Connection tab by default
         settings.tabWidget->setCurrentIndex(0);
 
-        // Enable the troubleshooting options only if using embedded zcashd
+        // Enable the troubleshooting options only if using embedded safecoind
         if (!rpc->isEmbedded()) {
             settings.chkRescan->setEnabled(false);
-            settings.chkRescan->setToolTip(tr("You're using an external zcashd. Please restart zcashd with -rescan"));
+            settings.chkRescan->setToolTip(tr("You're using an external safecoind. Please restart safecoind with -rescan"));
         }
 
         if (settingsDialog.exec() == QDialog::Accepted) {
@@ -463,9 +463,9 @@ void MainWindow::donate() {
     ui->Address1->setText(Settings::getDonationAddr());
     ui->Address1->setCursorPosition(0);
     ui->Amount1->setText("0.01");
-    ui->MemoTxt1->setText(tr("Thanks for supporting ZecWallet!"));
+    ui->MemoTxt1->setText(tr("Thanks for supporting SafeWallet!"));
 
-    ui->statusBar->showMessage(tr("Donate 0.01 ") % Settings::getTokenName() % tr(" to support ZecWallet"));
+    ui->statusBar->showMessage(tr("Donate 0.01 ") % Settings::getTokenName() % tr(" to support SafeWallet"));
 
     // And switch to the send tab.
     ui->tabWidget->setCurrentIndex(1);
@@ -510,7 +510,7 @@ void MainWindow::balancesReady() {
     // There is a pending URI payment (from the command line, or from a secondary instance),
     // process it.
     if (!pendingURIPayment.isEmpty()) {
-        qDebug() << "Paying zcash URI";
+        qDebug() << "Paying safecoin URI";
         payZcashURI(pendingURIPayment);
         pendingURIPayment = "";
     }
@@ -533,7 +533,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
 }
 
 
-// Pay the Zcash URI by showing a confirmation window. If the URI parameter is empty, the UI
+// Pay the Safecoin URI by showing a confirmation window. If the URI parameter is empty, the UI
 // will prompt for one. If the myAddr is empty, then the default from address is used to send
 // the transaction.
 void MainWindow::payZcashURI(QString uri, QString myAddr) {
@@ -546,8 +546,8 @@ void MainWindow::payZcashURI(QString uri, QString myAddr) {
 
     // If there was no URI passed, ask the user for one.
     if (uri.isEmpty()) {
-        uri = QInputDialog::getText(this, tr("Paste Zcash URI"),
-            "Zcash URI" + QString(" ").repeated(180));
+        uri = QInputDialog::getText(this, tr("Paste Safecoin URI"),
+            "Safecoin URI" + QString(" ").repeated(180));
     }
 
     // If there's no URI, just exit
@@ -558,8 +558,8 @@ void MainWindow::payZcashURI(QString uri, QString myAddr) {
     qDebug() << "Received URI " << uri;
     PaymentURI paymentInfo = Settings::parseURI(uri);
     if (!paymentInfo.error.isEmpty()) {
-        QMessageBox::critical(this, tr("Error paying zcash URI"), 
-                tr("URI should be of the form 'zcash:<addr>?amt=x&memo=y") + "\n" + paymentInfo.error);
+        QMessageBox::critical(this, tr("Error paying safecoin URI"), 
+                tr("URI should be of the form 'safecoin:<addr>?amt=x&memo=y") + "\n" + paymentInfo.error);
         return;
     }
 
@@ -592,7 +592,7 @@ void MainWindow::payZcashURI(QString uri, QString myAddr) {
 //     pui.buttonBox->button(QDialogButtonBox::Save)->setVisible(false);
 //     pui.helpLbl->setText(QString() %
 //                         tr("Please paste your private keys (z-Addr or t-Addr) here, one per line") % ".\n" %
-//                         tr("The keys will be imported into your connected zcashd node"));  
+//                         tr("The keys will be imported into your connected safecoind node"));  
 
 //     if (d.exec() == QDialog::Accepted && !pui.privKeyTxt->toPlainText().trimmed().isEmpty()) {
 //         auto rawkeys = pui.privKeyTxt->toPlainText().trimmed().split("\n");
@@ -633,7 +633,7 @@ void MainWindow::payZcashURI(QString uri, QString myAddr) {
  */
 void MainWindow::exportTransactions() {
     // First, get the export file name
-    QString exportName = "zcash-transactions-" + QDateTime::currentDateTime().toString("yyyyMMdd") + ".csv";
+    QString exportName = "safecoin-transactions-" + QDateTime::currentDateTime().toString("yyyyMMdd") + ".csv";
 
     QUrl csvName = QFileDialog::getSaveFileUrl(this, 
             tr("Export transactions"), exportName, "CSV file (*.csv)");
@@ -681,7 +681,7 @@ void MainWindow::exportSeed() {
         // Wire up save button
         QObject::connect(pui.buttonBox->button(QDialogButtonBox::Save), &QPushButton::clicked, [=] () {
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                            "zcash-seed.txt");
+                            "safecoin-seed.txt");
             QFile file(fileName);
             if (!file.open(QIODevice::WriteOnly)) {
                 QMessageBox::information(this, tr("Unable to open file"), file.errorString());
@@ -742,7 +742,7 @@ void MainWindow::exportKeys(QString addr) {
         // Wire up save button
         QObject::connect(pui.buttonBox->button(QDialogButtonBox::Save), &QPushButton::clicked, [=] () {
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                            allKeys ? "zcash-all-privatekeys.txt" : "zcash-privatekey.txt");
+                            allKeys ? "safecoin-all-privatekeys.txt" : "safecoin-privatekey.txt");
             QFile file(fileName);
             if (!file.open(QIODevice::WriteOnly)) {
                 QMessageBox::information(this, tr("Unable to open file"), file.errorString());
@@ -811,7 +811,7 @@ void MainWindow::setupBalancesTab() {
 }
 
 void MainWindow::setupZcashdTab() {    
-    ui->zcashdlogo->setBasePixmap(QPixmap(":/img/res/zcashdlogo.gif"));
+    ui->safecoindlogo->setBasePixmap(QPixmap(":/img/res/safecoindlogo.gif"));
 }
 
 void MainWindow::setupTransactionsTab() {
@@ -860,7 +860,7 @@ void MainWindow::setupTransactionsTab() {
         });
 
         // Payment Request
-        if (!memo.isEmpty() && memo.startsWith("zcash:")) {
+        if (!memo.isEmpty() && memo.startsWith("safecoin:")) {
             menu.addAction(tr("View Payment Request"), [=] () {
                 RequestDialog::showPaymentConfirmation(this, memo);
             });

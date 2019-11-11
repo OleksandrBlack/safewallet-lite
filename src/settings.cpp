@@ -64,14 +64,14 @@ bool Settings::isZAddress(QString addr) {
     if (!isValidAddress(addr))
         return false;
         
-    return addr.startsWith("z");
+    return addr.startsWith("zs");
 }
 
 bool Settings::isTAddress(QString addr) {
     if (!isValidAddress(addr))
         return false;
         
-    return addr.startsWith("t");
+    return addr.startsWith("R");
 }
 
 int Settings::getZcashdVersion() {
@@ -160,9 +160,9 @@ QString Settings::getDefaultServer() {
 void Settings::openAddressInExplorer(QString address) {
     QString url;
     if (Settings::getInstance()->isTestnet()) {
-        url = "https://chain.so/address/ZECTEST/" + address;
+        url = "https://explorer.safecoin.org/address/" + address;
     } else {
-        url = "https://zcha.in/accounts/" + address;
+        url = "https://testnet.safecoin.org/address/" + address;
     }
     QDesktopServices::openUrl(QUrl(url));
 }
@@ -170,10 +170,10 @@ void Settings::openAddressInExplorer(QString address) {
 void Settings::openTxInExplorer(QString txid) {
     QString url;
     if (Settings::getInstance()->isTestnet()) {
-        url = "https://chain.so/tx/ZECTEST/" + txid;
+        url = "https://explorer.safecoin.org/tx/" + txid;
     }
     else {
-        url = "https://zcha.in/transactions/" + txid;
+        url = "https://testnet.safecoin.org/tx/" + txid;
     }
     QDesktopServices::openUrl(QUrl(url));
 }

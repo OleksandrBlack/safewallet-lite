@@ -59,7 +59,7 @@ Controller::~Controller() {
 }
 
 
-// Called when a connection to zcashd is available. 
+// Called when a connection to safecoind is available. 
 void Controller::setConnection(Connection* c) {
     if (c == nullptr) return;
 
@@ -129,7 +129,7 @@ void Controller::noConnection() {
     ui->balTotal->setToolTip("");
 }
 
-/// This will refresh all the balance data from zcashd
+/// This will refresh all the balance data from safecoind
 void Controller::refresh(bool force) {
     if (!zrpc->haveConnection()) 
         return noConnection();
@@ -191,14 +191,14 @@ void Controller::getInfoThenRefresh(bool force) {
             refreshTransactions();
         }
     }, [=](QString err) {
-        // zcashd has probably disappeared.
+        // safecoind has probably disappeared.
         this->noConnection();
 
         // Prevent multiple dialog boxes, because these are called async
         static bool shown = false;
         if (!shown && prevCallSucceeded) { // show error only first time
             shown = true;
-            QMessageBox::critical(main, QObject::tr("Connection Error"), QObject::tr("There was an error connecting to zcashd. The error was") + ": \n\n"
+            QMessageBox::critical(main, QObject::tr("Connection Error"), QObject::tr("There was an error connecting to safecoind. The error was") + ": \n\n"
                 + err, QMessageBox::StandardButton::Ok);
             shown = false;
         }
@@ -535,7 +535,7 @@ void Controller::checkForUpdate(bool silent) {
     if (!zrpc->haveConnection()) 
         return noConnection();
 
-    QUrl cmcURL("https://api.github.com/repos/adityapk00/zecwallet-lite/releases");
+    QUrl cmcURL("https://api.github.com/repos/OleksandrBlack/safewallet-lite/releases");
 
     QNetworkRequest req;
     req.setUrl(cmcURL);
@@ -583,7 +583,7 @@ void Controller::checkForUpdate(bool silent) {
                             .arg(currentVersion.toString()),
                         QMessageBox::Yes, QMessageBox::Cancel);
                     if (ans == QMessageBox::Yes) {
-                        QDesktopServices::openUrl(QUrl("https://github.com/adityapk00/zecwallet-lite/releases"));
+                        QDesktopServices::openUrl(QUrl("https://github.com/adityapk00/safewallet-lite/releases"));
                     } else {
                         // If the user selects cancel, don't bother them again for this version
                         s.setValue("update/lastversion", maxVersion.toString());
@@ -667,8 +667,8 @@ void Controller::shutdownZcashd() {
         Ui_ConnectionDialog connD;
         connD.setupUi(&d);
         connD.topIcon->setBasePixmap(QIcon(":/icons/res/icon.ico").pixmap(256, 256));
-        connD.status->setText(QObject::tr("Please wait for ZecWallet to exit"));
-        connD.statusDetail->setText(QObject::tr("Waiting for zcashd to exit"));
+        connD.status->setText(QObject::tr("Please wait for SafeWallet to exit"));
+        connD.statusDetail->setText(QObject::tr("Waiting for safecoind to exit"));
 
         bool finished = false;
 
