@@ -446,7 +446,7 @@ Tx MainWindow::createTxFromSendPage() {
         
         QString memo = ui->sendToWidgets->findChild<QLabel*>(QString("MemoTxt")  % QString::number(i+1))->text().trimmed();
         
-        tx.toAddrs.push_back( ToFields{addr, amt, memo} );
+        tx.toAddrs.push_back( ToFields{addr, amt, memo,} );
     }
 
     tx.fee = Settings::getMinerFee();

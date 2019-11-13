@@ -47,8 +47,8 @@ void RequestDialog::setupDialog(MainWindow* main, QDialog* d, Ui_RequestDialog* 
 void RequestDialog::showPaymentConfirmation(MainWindow* main, QString paymentURI) {
     PaymentURI payInfo = Settings::parseURI(paymentURI);
     if (!payInfo.error.isEmpty()) {
-        QMessageBox::critical(main, tr("Error paying zcash URI"), 
-                tr("URI should be of the form 'zcash:<addr>?amt=x&memo=y") + "\n" + payInfo.error);
+        QMessageBox::critical(main, tr("Error paying Safecoin URI"), 
+                tr("URI should be of the form 'safecoin:<addr>?amt=x&memo=y") + "\n" + payInfo.error);
         return;
     }
 
@@ -81,7 +81,7 @@ void RequestDialog::showPaymentConfirmation(MainWindow* main, QString paymentURI
     req.lblHeader->setText(tr("You are paying a payment request. Your address will not be visible to the person requesting this payment."));
 
     if (d.exec() == QDialog::Accepted) {
-        main->payZcashURI(paymentURI, req.cmbMyAddress->currentText());
+        main->paySafecoinURI(paymentURI, req.cmbMyAddress->currentText());
     }
 }
 
@@ -126,18 +126,18 @@ void RequestDialog::showRequestZcash(MainWindow* main) {
     req.txtFrom->setFocus();
 
     if (d.exec() == QDialog::Accepted) {
-        // Construct a zcash Payment URI with the data and pay it immediately.
+        // Construct a Safecoin Payment URI with the data and pay it immediately.
         CAmount amount = CAmount::fromDecimalString(req.txtAmount->text());
-        QString memoURI = "zcash:" + req.cmbMyAddress->currentText()
+        QString memoURI = "safecoin:" + req.cmbMyAddress->currentText()
                     + "?amt=" + amount.toDecimalString()
                     + "&memo=" + QUrl::toPercentEncoding(req.txtMemo->toPlainText());
 
-        QString sendURI = "zcash:" + AddressBook::addressFromAddressLabel(req.txtFrom->text()) 
+        QString sendURI = "safecoin:" + AddressBook::addressFromAddressLabel(req.txtFrom->text()) 
                     + "?amt=0.0001"
                     + "&memo=" + QUrl::toPercentEncoding(memoURI);
 
         // If the disclosed address in the memo doesn't have a balance, it will automatically fallback to the default
         // sapling address
-        main->payZcashURI(sendURI, req.cmbMyAddress->currentText());
+        main->paySafecoinURI(sendURI, req.cmbMyAddress->currentText());
     }
 }

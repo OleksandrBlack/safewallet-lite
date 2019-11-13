@@ -65,7 +65,7 @@ public:
 
     bool    isSaplingActive();
 
-    void    setZECPrice(double p) { zecPrice = p; }
+    void    setZECPrice(double p) { ZECPrice = p; }
     double  getZECPrice();
 
     // Static stuff

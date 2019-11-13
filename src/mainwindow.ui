@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ZecWallet-Lite</string>
+   <string>SafeWallet-Lite</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../application.qrc">
@@ -85,7 +85,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Verified</string>
+                    <string>Notarized</string>
                    </property>
                   </widget>
                  </item>
@@ -324,7 +324,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Total verified funds available:</string>
+              <string>Total notarized funds available:</string>
              </property>
             </widget>
            </item>
@@ -941,7 +941,7 @@
       </widget>
       <widget class="QWidget" name="tab_5">
        <attribute name="title">
-        <string>zcashd</string>
+        <string>Safecoin Daemon</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
@@ -971,7 +971,7 @@
              <item row="5" column="0" colspan="3">
               <widget class="QLabel" name="label_14">
                <property name="text">
-                <string>You are currently not mining</string>
+                <string>This is a Lightwallet, you cant mine with it!</string>
                </property>
               </widget>
              </item>
@@ -989,21 +989,21 @@
               </spacer>
              </item>
              <item row="2" column="2">
-              <widget class="QLabel" name="numconnections">
+              <widget class="QLabel" name="Vendor">
                <property name="text">
                 <string>Loading...</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="heightLabel">
+              <widget class="QLabel" name="Vendor">
                <property name="text">
-                <string>Block height</string>
+                <string>blockHeight</string>
                </property>
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLabel" name="solrate">
+              <widget class="QLabel" name="Version">
                <property name="text">
                 <string>Loading...</string>
                </property>
@@ -1012,19 +1012,19 @@
              <item row="3" column="0">
               <widget class="QLabel" name="label_12">
                <property name="text">
-                <string>Network solution rate</string>
+                <string>Version safecoinlightd</string>
                </property>
               </widget>
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_8">
                <property name="text">
-                <string>Connections</string>
+                <string>Vendor</string>
                </property>
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLabel" name="blockheight">
+              <widget class="QLabel" name="blockHeight">
                <property name="text">
                 <string>Loading...</string>
                </property>
@@ -1110,6 +1110,8 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionDonate"/>
+    <addaction name="actionDiscord"/>
+    <addaction name="actionWebsite"/>
     <addaction name="actionCheck_for_Updates"/>
     <addaction name="actionFile_a_bug"/>
     <addaction name="actionAbout"/>
@@ -1157,7 +1159,17 @@
   </action>
   <action name="actionDonate">
    <property name="text">
-    <string>&amp;Donate</string>
+    <string>&amp;Send DenioD Feedback</string>
+   </property>
+  </action>
+  <action name="actionDiscord">
+   <property name="text">
+    <string>&amp;Hush Discord</string>
+   </property>
+  </action>
+  <action name="actionWebsite">
+   <property name="text">
+    <string>&amp;Hush Website</string>
    </property>
   </action>
   <action name="actionCheck_for_Updates">
@@ -1190,7 +1202,7 @@
   </action>
   <action name="actionPay_URI">
    <property name="text">
-    <string>Pay zcash &amp;URI...</string>
+    <string>Pay safecoin &amp;URI...</string>
    </property>
   </action>
   <action name="actionConnect_Mobile_App">
@@ -1208,7 +1220,7 @@
   </action>
   <action name="actionRequest_zcash">
    <property name="text">
-    <string>Request zcash...</string>
+    <string>Request safecoin...</string>
    </property>
   </action>
   <action name="actionFile_a_bug">

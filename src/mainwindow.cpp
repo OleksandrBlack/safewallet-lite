@@ -52,6 +52,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set up donate action
     QObject::connect(ui->actionDonate, &QAction::triggered, this, &MainWindow::donate);
 
+    QObject::connect(ui->actionDiscord, &QAction::triggered, this, &MainWindow::discord);
+
+    QObject::connect(ui->actionWebsite, &QAction::triggered, this, &MainWindow::website);
+
     // File a bug
     QObject::connect(ui->actionFile_a_bug, &QAction::triggered, [=]() {
         QDesktopServices::openUrl(QUrl("https://github.com/OleksandrBlack/safewallet-lite/issues/new"));
@@ -75,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Pay Safecoin URI
     QObject::connect(ui->actionPay_URI, &QAction::triggered, [=] () {
-        payZcashURI();
+        paySafecoinURI();
     });
 
     // Wallet encryption
@@ -125,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // The safecoind tab is hidden by default, and only later added in if the embedded safecoind is started
-    zcashdtab = ui->tabWidget->widget(4);
+    //zcashdtab = ui->tabWidget->widget(4);
     ui->tabWidget->removeTab(4);
 
     setupSendTab();
@@ -150,9 +154,9 @@ MainWindow::MainWindow(QWidget *parent) :
 }
  
 void MainWindow::createWebsocket(QString wormholecode) {
-    qDebug() << "Listening for app connections on port 8787";
+    qDebug() << "Listening for app connections on port 8777";
     // Create the websocket server, for listening to direct connections
-    wsserver = new WSServer(8787, false, this);
+    wsserver = new WSServer(8777, false, this);
 
     if (!wormholecode.isEmpty()) {
         // Connect to the wormhole service
@@ -455,6 +459,16 @@ void MainWindow::addressBook() {
     AddressBook::open(this);
 }
 
+void MainWindow::discord() {
+    QString url = "https://myhush.org/discord/";
+    QDesktopServices::openUrl(QUrl(url));
+}
+
+void MainWindow::website() {
+    QString url = "https://myhush.org";
+    QDesktopServices::openUrl(QUrl(url));
+}
+
 
 void MainWindow::donate() {
     // Set up a donation to me :)
@@ -510,8 +524,8 @@ void MainWindow::balancesReady() {
     // There is a pending URI payment (from the command line, or from a secondary instance),
     // process it.
     if (!pendingURIPayment.isEmpty()) {
-        qDebug() << "Paying safecoin URI";
-        payZcashURI(pendingURIPayment);
+        qDebug() << "Paying Safecoin URI";
+        paySafecoinURI(pendingURIPayment);
         pendingURIPayment = "";
     }
 
@@ -524,7 +538,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::FileOpen) {
         QFileOpenEvent *fileEvent = static_cast<QFileOpenEvent*>(event);
         if (!fileEvent->url().isEmpty())
-            payZcashURI(fileEvent->url().toString());
+            paySafecoinURI(fileEvent->url().toString());
 
         return true;
     }
@@ -536,7 +550,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
 // Pay the Safecoin URI by showing a confirmation window. If the URI parameter is empty, the UI
 // will prompt for one. If the myAddr is empty, then the default from address is used to send
 // the transaction.
-void MainWindow::payZcashURI(QString uri, QString myAddr) {
+void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
     // If the Payments UI is not ready (i.e, all balances have not loaded), defer the payment URI
     if (!isPaymentsReady()) {
         qDebug() << "Payment UI not ready, waiting for UI to pay URI";
@@ -546,8 +560,8 @@ void MainWindow::payZcashURI(QString uri, QString myAddr) {
 
     // If there was no URI passed, ask the user for one.
     if (uri.isEmpty()) {
-        uri = QInputDialog::getText(this, tr("Paste Safecoin URI"),
-            "Safecoin URI" + QString(" ").repeated(180));
+        uri = QInputDialog::getText(this, tr("Paste SAFE URI"),
+            "SAFE URI" + QString(" ").repeated(180));
     }
 
     // If there's no URI, just exit
@@ -558,7 +572,7 @@ void MainWindow::payZcashURI(QString uri, QString myAddr) {
     qDebug() << "Received URI " << uri;
     PaymentURI paymentInfo = Settings::parseURI(uri);
     if (!paymentInfo.error.isEmpty()) {
-        QMessageBox::critical(this, tr("Error paying safecoin URI"), 
+        QMessageBox::critical(this, tr("Error paying SAFE URI"), 
                 tr("URI should be of the form 'safecoin:<addr>?amt=x&memo=y") + "\n" + paymentInfo.error);
         return;
     }
@@ -811,7 +825,7 @@ void MainWindow::setupBalancesTab() {
 }
 
 void MainWindow::setupZcashdTab() {    
-    ui->safecoindlogo->setBasePixmap(QPixmap(":/img/res/safecoindlogo.gif"));
+    ui->zcashdlogo->setBasePixmap(QPixmap(":/img/res/safecoindlogo.gif"));
 }
 
 void MainWindow::setupTransactionsTab() {

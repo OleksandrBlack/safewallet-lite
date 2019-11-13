@@ -50,7 +50,7 @@ bool Settings::isSaplingAddress(QString addr) {
         return false;
 
     return ( isTestnet() && addr.startsWith("ztestsapling")) ||
-           (!isTestnet() && addr.startsWith("zs"));
+           (!isTestnet() && addr.startsWith("zs1"));
 }
 
 bool Settings::isSproutAddress(QString addr) {
@@ -99,12 +99,11 @@ void Settings::setBlockNumber(int number) {
 }
 
 bool Settings::isSaplingActive() {
-    return  (isTestnet() && getBlockNumber() > 280000) ||
-           (!isTestnet() && getBlockNumber() > 419200);
+    return  (isTestnet() && getBlockNumber() > 0) || (!isTestnet() && getBlockNumber() > 0);
 }
 
 double Settings::getZECPrice() { 
-    return zecPrice; 
+    return ZECPrice; 
 }
 
 bool Settings::getCheckForUpdates() {
@@ -183,17 +182,17 @@ const QString Settings::txidStatusMessage = QString(QObject::tr("Tx submitted (r
 
 QString Settings::getTokenName() {
     if (Settings::getInstance()->isTestnet()) {
-        return "TAZ";
+        return "SAFET";
     } else {
-        return "ZEC";
+        return "SAFE";
     }
 }
 
 QString Settings::getDonationAddr() {
     if (Settings::getInstance()->isTestnet()) 
-            return "ztestsapling1wn6889vznyu42wzmkakl2effhllhpe4azhu696edg2x6me4kfsnmqwpglaxzs7tmqsq7kudemp5";
+            return "ztestsaplingXXX";
     else 
-            return "zs1gv64eu0v2wx7raxqxlmj354y9ycznwaau9kduljzczxztvs4qcl00kn2sjxtejvrxnkucw5xx9u";
+            return "zs1kwp3h4rwz76zfqzmwqqextq696kndtjskg4fzc80l9ygfal4hchcsst83ua8tjwzzy9nja7v5rr";
 
 }
 
@@ -212,13 +211,11 @@ bool Settings::isValidSaplingPrivateKey(QString pk) {
 }
 
 bool Settings::isValidAddress(QString addr) {
-    QRegExp zcexp("^z[a-z0-9]{94}$",  Qt::CaseInsensitive);
-    QRegExp zsexp("^z[a-z0-9]{77}$",  Qt::CaseInsensitive);
+    QRegExp zsexp("^zs1[a-z0-9]{75}$",  Qt::CaseInsensitive);
     QRegExp ztsexp("^ztestsapling[a-z0-9]{76}", Qt::CaseInsensitive);
-    QRegExp texp("^t[a-z0-9]{34}$", Qt::CaseInsensitive);
+    QRegExp texp("^R[a-z0-9]{33}$", Qt::CaseInsensitive);
 
-    return  zcexp.exactMatch(addr)  || texp.exactMatch(addr) || 
-            ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
+    return  texp.exactMatch(addr) || ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
 }
 
 // Get a pretty string representation of this Payment URI
@@ -232,12 +229,12 @@ QString Settings::paymentURIPretty(PaymentURI uri) {
 PaymentURI Settings::parseURI(QString uri) {
     PaymentURI ans;
 
-    if (!uri.startsWith("zcash:")) {
-        ans.error = "Not a zcash payment URI";
+    if (!uri.startsWith("safecoin:")) {
+        ans.error = "Not a Safecoin payment URI";
         return ans;
     }
 
-    uri = uri.right(uri.length() - QString("zcash:").length());
+    uri = uri.right(uri.length() - QString("safecoin:").length());
     
     QRegExp re("([a-zA-Z0-9]+)");
     int pos;
