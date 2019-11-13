@@ -153,15 +153,15 @@ void Settings::saveRestoreTableHeader(QTableView* table, QDialog* d, QString tab
 }
 
 QString Settings::getDefaultServer() {
-    return "https://lightd-main.zecwallet.co:443/";
+    return "https://lightd-main.safenodes.net:443/";
 }
 
 void Settings::openAddressInExplorer(QString address) {
     QString url;
     if (Settings::getInstance()->isTestnet()) {
-        url = "https://explorer.safecoin.org/address/" + address;
-    } else {
         url = "https://testnet.safecoin.org/address/" + address;
+    } else {
+        url = "https://explorer.safecoin.org/address/" + address;
     }
     QDesktopServices::openUrl(QUrl(url));
 }
@@ -169,10 +169,10 @@ void Settings::openAddressInExplorer(QString address) {
 void Settings::openTxInExplorer(QString txid) {
     QString url;
     if (Settings::getInstance()->isTestnet()) {
-        url = "https://explorer.safecoin.org/tx/" + txid;
+        url = "https://testnet.safecoin.org/tx/" + txid;
     }
     else {
-        url = "https://testnet.safecoin.org/tx/" + txid;
+        url = "https://explorer.safecoin.org/tx/" + txid;
     }
     QDesktopServices::openUrl(QUrl(url));
 }

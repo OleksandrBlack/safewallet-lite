@@ -575,9 +575,9 @@ void Recurring::showRecurringDialog(MainWindow* parent) {
                 menu.addAction(QObject::tr("View on block explorer"), [=] () {
                     QString url;
                     if (Settings::getInstance()->isTestnet()) {
-                        url = "https://explorer.safecoin.org/tx/" + txid;
+                        url = "https://testnet.safecoin.org/tx/" + txid;
                     } else {
-                        url = "https://testnet.safecoin.org/tx" + txid;
+                        url = "https://explorer.safecoin.org/tx" + txid;
                     }
                     QDesktopServices::openUrl(QUrl(url));
                 });
