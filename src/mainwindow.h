@@ -70,7 +70,7 @@ public:
     QLabel*             statusLabel;
     QLabel*             statusIcon;
     QLabel*             loadingLabel;
-    QWidget*            zcashdtab;
+    QWidget*            safecoindtab;
 
     Logger*      logger;
 
@@ -86,7 +86,7 @@ private:
     void setupTransactionsTab();
     void setupReceiveTab();
     void setupBalancesTab();
-    void setupZcashdTab();
+    void setupSafecoindTab();
 
     void setupSettingsModal();
     void setupStatusBar();

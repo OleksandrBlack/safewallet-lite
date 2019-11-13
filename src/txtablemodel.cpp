@@ -119,7 +119,7 @@ QVariant TxTableModel::data(const QModelIndex &index, int role) const {
             for (int i=0; i < dat.items.length(); i++) {
                 total = total + dat.items[i].amount;
             }
-            return total.toDecimalZECString();
+            return total.toDecimalSAFEString();
         }
         }
     } 

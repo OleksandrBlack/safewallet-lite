@@ -526,10 +526,10 @@ bool MainWindow::confirmTx(Tx tx, RecurringPaymentInfo* rpi) {
             Addr->setText(fnSplitAddressForWrap(toAddr.addr));
             confirm.gridLayout->addWidget(Addr, row, 0, 1, 1);
 
-            // Amount (ZEC)
+            // Amount (SAFE)
             auto Amt = new QLabel(confirm.sendToAddrs);
             Amt->setObjectName(QString("Amt") % QString::number(i + 1));
-            Amt->setText(toAddr.amount.toDecimalZECString());
+            Amt->setText(toAddr.amount.toDecimalSAFEString());
             Amt->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
             confirm.gridLayout->addWidget(Amt, row, 1, 1, 1);
             totalSpending = totalSpending + toAddr.amount;
@@ -579,7 +579,7 @@ bool MainWindow::confirmTx(Tx tx, RecurringPaymentInfo* rpi) {
         minerFee->setObjectName(QStringLiteral("minerFee"));
         minerFee->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         confirm.gridLayout->addWidget(minerFee, row, 1, 1, 1);
-        minerFee->setText(tx.fee.toDecimalZECString());
+        minerFee->setText(tx.fee.toDecimalSAFEString());
         totalSpending = totalSpending + tx.fee;
 
         auto minerFeeUSD = new QLabel(confirm.sendToAddrs);
@@ -731,7 +731,7 @@ QString MainWindow::doSendTxValidations(Tx tx) {
 
     if (available < total) {
         return tr("Not enough available funds to send this transaction\n\nHave: %1\nNeed: %2\n\nNote: Funds need 5 confirmations before they can be spent")
-            .arg(available.toDecimalZECString(), total.toDecimalZECString());
+            .arg(available.toDecimalSAFEString(), total.toDecimalSAFEString());
     }
 
     return "";

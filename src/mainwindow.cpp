@@ -73,8 +73,8 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     // Request safecoin
-    QObject::connect(ui->actionRequest_zcash, &QAction::triggered, [=]() {
-        RequestDialog::showRequestZcash(this);
+    QObject::connect(ui->actionRequest_safecoin, &QAction::triggered, [=]() {
+        RequestDialog::showRequestSafecoin(this);
     });
 
     // Pay Safecoin URI
@@ -129,14 +129,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // The safecoind tab is hidden by default, and only later added in if the embedded safecoind is started
-    //zcashdtab = ui->tabWidget->widget(4);
+    //safecoindtab = ui->tabWidget->widget(4);
     //ui->tabWidget->removeTab(4);
 
     setupSendTab();
     setupTransactionsTab();
     setupReceiveTab();
     setupBalancesTab();
-    setupZcashdTab();
+    setupSafecoindTab();
 
     rpc = new Controller(this);
 
@@ -216,7 +216,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     s.sync();
 
     // Let the RPC know to shut down any running service.
-    rpc->shutdownZcashd();
+    rpc->shutdownSafecoind();
 
     // Bubble up
     if (event)
@@ -824,8 +824,8 @@ void MainWindow::setupBalancesTab() {
     });
 }
 
-void MainWindow::setupZcashdTab() {    
-    ui->zcashdlogo->setBasePixmap(QPixmap(":/img/res/safecoindlogo.gif"));
+void MainWindow::setupSafecoindTab() {    
+    ui->safecoindlogo->setBasePixmap(QPixmap(":/img/res/safecoindlogo.gif"));
 }
 
 void MainWindow::setupTransactionsTab() {
@@ -1095,7 +1095,7 @@ void MainWindow::setupReceiveTab() {
         }
         
         ui->rcvLabel->setText(label);
-        ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalZECUSDString());
+        ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalSAFEUSDString());
         ui->txtReceive->setPlainText(addr);       
         ui->qrcodeDisplay->setQrcodeString(addr);
         if (rpc->getModel()->getUsedAddresses().value(addr, false)) {

@@ -86,7 +86,7 @@ void RequestDialog::showPaymentConfirmation(MainWindow* main, QString paymentURI
 }
 
 // Static method that shows the request dialog
-void RequestDialog::showRequestZcash(MainWindow* main) {
+void RequestDialog::showRequestSafecoin(MainWindow* main) {
     QDialog d(main);
     Ui_RequestDialog req;
 

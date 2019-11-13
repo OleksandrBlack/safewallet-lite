@@ -74,12 +74,12 @@ bool Settings::isTAddress(QString addr) {
     return addr.startsWith("R");
 }
 
-int Settings::getZcashdVersion() {
-    return _zcashdVersion;
+int Settings::getSafecoindVersion() {
+    return _safecoindVersion;
 }
 
-void Settings::setZcashdVersion(int version) {
-    _zcashdVersion = version;
+void Settings::setSafecoindVersion(int version) {
+    _safecoindVersion = version;
 }
 
 bool Settings::isSyncing() {
@@ -102,8 +102,8 @@ bool Settings::isSaplingActive() {
     return  (isTestnet() && getBlockNumber() > 0) || (!isTestnet() && getBlockNumber() > 0);
 }
 
-double Settings::getZECPrice() { 
-    return ZECPrice; 
+double Settings::getSAFEPrice() { 
+    return SAFEPrice; 
 }
 
 bool Settings::getCheckForUpdates() {
@@ -221,7 +221,7 @@ bool Settings::isValidAddress(QString addr) {
 // Get a pretty string representation of this Payment URI
 QString Settings::paymentURIPretty(PaymentURI uri) {
     CAmount amount = CAmount::fromDecimalString(uri.amt);
-    return QString() + "Payment Request\n" + "Pay: " + uri.addr + "\nAmount: " + amount.toDecimalZECString() 
+    return QString() + "Payment Request\n" + "Pay: " + uri.addr + "\nAmount: " + amount.toDecimalSAFEString() 
         + "\nMemo:" + QUrl::fromPercentEncoding(uri.memo.toUtf8());
 }
 

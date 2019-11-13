@@ -29,7 +29,7 @@ Controller::Controller(MainWindow* main) {
     priceTimer = new QTimer(main);
     QObject::connect(priceTimer, &QTimer::timeout, [=]() {
         if (Settings::getInstance()->getAllowFetchPrices())
-            refreshZECPrice();
+            refreshSAFEPrice();
     });
     priceTimer->start(Settings::priceRefreshSpeed);  // Every hour
 
@@ -43,7 +43,7 @@ Controller::Controller(MainWindow* main) {
     // Create the data model
     model = new DataModel();
 
-    // Crate the ZcashdRPC 
+    // Crate the SafecoindRPC 
     zrpc = new LiteInterface();
 }
 
@@ -69,7 +69,7 @@ void Controller::setConnection(Connection* c) {
 
     // If we're allowed to get the Zec Price, get the prices
     if (Settings::getInstance()->getAllowFetchPrices())
-        refreshZECPrice();
+        refreshSAFEPrice();
 
     // If we're allowed to check for updates, check for a new release
     if (Settings::getInstance()->getCheckForUpdates())
@@ -166,14 +166,14 @@ void Controller::getInfoThenRefresh(bool force) {
         auto tooltip = Settings::getInstance()->getSettings().server + "\n" + QString::fromStdString(reply.dump());
         QIcon i(":/icons/res/connected.gif");
         main->statusLabel->setText(chainName + "(" + QString::number(curBlock) + ")");
-        main->statusLabel->setText(" SAFE/USD=$" + QString::number( (double) Settings::getInstance()->getZECPrice() ));
+        main->statusLabel->setText(" SAFE/USD=$" + QString::number( (double) Settings::getInstance()->getSAFEPrice() ));
         main->statusLabel->setToolTip(tooltip);
         main->statusIcon->setPixmap(i.pixmap(16, 16));
         main->statusIcon->setToolTip(tooltip);
 
         //int version = reply["version"].get<json::string_t>();
         int version = 1;
-        Settings::getInstance()->setZcashdVersion(version);
+        Settings::getInstance()->setSafecoindVersion(version);
        ui->Version->setText(QString::fromStdString(reply["version"].get<json::string_t>())); 
        ui->Vendor->setText(QString::fromStdString(reply["vendor"].get<json::string_t>()));
 
@@ -289,10 +289,10 @@ void Controller::updateUIBalances() {
     CAmount balAvailable = balT + balVerified;
 
     // Balances table
-    ui->balSheilded   ->setText(balZ.toDecimalZECString());
-    ui->balVerified   ->setText(balVerified.toDecimalZECString());
-    ui->balTransparent->setText(balT.toDecimalZECString());
-    ui->balTotal      ->setText(balTotal.toDecimalZECString());
+    ui->balSheilded   ->setText(balZ.toDecimalSAFEString());
+    ui->balVerified   ->setText(balVerified.toDecimalSAFEString());
+    ui->balTransparent->setText(balT.toDecimalSAFEString());
+    ui->balTotal      ->setText(balTotal.toDecimalSAFEString());
 
     ui->balSheilded   ->setToolTip(balZ.toDecimalUSDString());
     ui->balVerified   ->setToolTip(balVerified.toDecimalUSDString());
@@ -300,7 +300,7 @@ void Controller::updateUIBalances() {
     ui->balTotal      ->setToolTip(balTotal.toDecimalUSDString());
 
     // Send tab
-    ui->txtAvailableZEC->setText(balAvailable.toDecimalZECString());
+    ui->txtAvailableSAFE->setText(balAvailable.toDecimalSAFEString());
     ui->txtAvailableUSD->setText(balAvailable.toDecimalUSDString());
 }
 
@@ -608,8 +608,8 @@ void Controller::checkForUpdate(bool silent) {
     });
 }
 
-// Get the ZEC->USD price from coinmarketcap using their API
-void Controller::refreshZECPrice() {
+// Get the SAFE->USD price from coinmarketcap using their API
+void Controller::refreshSAFEPrice() {
     if (!zrpc->haveConnection()) 
         return noConnection();
 
@@ -633,7 +633,7 @@ void Controller::refreshZECPrice() {
                 } else {
                     qDebug() << reply->errorString();
                 }
-                Settings::getInstance()->setZECPrice(0);
+                Settings::getInstance()->setSAFEPrice(0);
                 return;
             } 
 
@@ -641,7 +641,7 @@ void Controller::refreshZECPrice() {
             
             auto parsed = json::parse(all, nullptr, false);
             if (parsed.is_discarded()) {
-                Settings::getInstance()->setZECPrice(0);
+                Settings::getInstance()->setSAFEPrice(0);
                 return;
             }
 
@@ -649,7 +649,7 @@ void Controller::refreshZECPrice() {
                 if (item["symbol"].get<json::string_t>() == Settings::getTokenName().toStdString()) {
                     QString price = QString::fromStdString(item["price_usd"].get<json::string_t>());
                     qDebug() << Settings::getTokenName() << " Price=" << price;
-                    Settings::getInstance()->setZECPrice(price.toDouble());
+                    Settings::getInstance()->setSAFEPrice(price.toDouble());
 
                     return;
                 }
@@ -660,11 +660,11 @@ void Controller::refreshZECPrice() {
         }
 
         // If nothing, then set the price to 0;
-        Settings::getInstance()->setZECPrice(0);
+        Settings::getInstance()->setSAFEPrice(0);
     });
 }
 
-void Controller::shutdownZcashd() {
+void Controller::shutdownSafecoind() {
     // Save the wallet and exit the lightclient library cleanly.
     if (zrpc->haveConnection()) {
         QDialog d(main);

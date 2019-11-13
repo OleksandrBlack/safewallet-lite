@@ -594,7 +594,7 @@ doesn&apos;t look like a z-address</source>
         <location filename="../src/connection.cpp" line="75"/>
         <source>You have safecoind set to start as a daemon, which can cause problems with safecoinwallet
 
-.Please remove the following line from your zcash.conf and restart safecoinwallet
+.Please remove the following line from your safecoin.conf and restart safecoinwallet
 daemon=1</source>
         <translation type="unfinished">YOUR_TRANSLATION_HERE</translation>
     </message>
@@ -604,14 +604,14 @@ daemon=1</source>
 
 Please try restarting.
 
-If you previously started safecoind with custom arguments, you might need to reset zcash.conf.
+If you previously started safecoind with custom arguments, you might need to reset safecoin.conf.
 
 If all else fails, please run safecoind manually.</source>
         <translation type="unfinished">YOUR_TRANSLATION_HERE</translation>
     </message>
     <message>
         <location filename="../src/connection.cpp" line="91"/>
-        <source>Couldn&apos;t connect to safecoind configured in zcash.conf.
+        <source>Couldn&apos;t connect to safecoind configured in safecoin.conf.
 
 Not starting embedded safecoind because --no-embedded was passed</source>
         <translation type="unfinished">YOUR_TRANSLATION_HERE</translation>
@@ -786,7 +786,7 @@ Please set the host/port and user/password in the Edit-&gt;Settings menu.</sourc
     </message>
     <message>
         <location filename="../src/addressbook.cpp" line="127"/>
-        <source> doesn&apos;t seem to be a valid Zcash address.</source>
+        <source> doesn&apos;t seem to be a valid Safecoin address.</source>
         <translation type="unfinished">YOUR_TRANSLATION_HERE</translation>
     </message>
     <message>

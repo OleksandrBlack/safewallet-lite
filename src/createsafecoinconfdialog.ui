@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>createZcashConf</class>
- <widget class="QDialog" name="createZcashConf">
+ <class>createSafecoinConf</class>
+ <widget class="QDialog" name="createSafecoinConf">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -202,7 +202,7 @@
    <item row="4" column="1">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skips the most expensive checks during the initial block download. &lt;a href=&quot;https://docs.zecwallet.co/using-zecwallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Learn More&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skips the most expensive checks during the initial block download. &lt;a href=&quot;https://docs.safewallet.co/using-safewallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Learn More&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
@@ -239,7 +239,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>createZcashConf</receiver>
+   <receiver>createSafecoinConf</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -255,7 +255,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>createZcashConf</receiver>
+   <receiver>createSafecoinConf</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

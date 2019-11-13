@@ -35,21 +35,21 @@ QString CAmount::toDecimalString() const {
 
 QString CAmount::toDecimalUSDString() const {
     double dblAmount = static_cast<double>(this->amount) / COIN;
-    double price = Settings::getInstance()->getZECPrice();
+    double price = Settings::getInstance()->getSAFEPrice();
 
     return "$" + QLocale(QLocale::English).toString(dblAmount*price, 'f', 2);
 }
 
-QString CAmount::toDecimalZECString() const {
+QString CAmount::toDecimalSAFEString() const {
     return this->toDecimalString() % " " % Settings::getTokenName();
 }
 
-QString CAmount::toDecimalZECUSDString() const {
+QString CAmount::toDecimalSAFEUSDString() const {
     auto usdString = this->toDecimalUSDString();
     if (!usdString.isEmpty())
-        return this->toDecimalZECString() % " (" % usdString % ")";
+        return this->toDecimalSAFEString() % " (" % usdString % ")";
     else
-        return this->toDecimalZECString();
+        return this->toDecimalSAFEString();
 }
 
 CAmount CAmount::fromDecimalString(QString decimalString) {

@@ -109,7 +109,7 @@ FORMS += \
     src/connection.ui \
     src/addressbook.ui \
     src/mobileappconnector.ui \
-    src/createzcashconfdialog.ui \
+    src/createsafecoinconfdialog.ui \
     src/recurringdialog.ui \
     src/newrecurring.ui \
     src/requestdialog.ui \

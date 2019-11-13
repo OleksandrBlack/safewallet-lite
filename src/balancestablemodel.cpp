@@ -102,14 +102,14 @@ QVariant BalancesTableModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case 0: return AddressBook::addLabelToAddress(std::get<0>(modeldata->at(index.row())));
-        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalZECString();
+        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalSAFEString();
         }
     }
 
     if(role == Qt::ToolTipRole) {
         switch (index.column()) {
         case 0: return AddressBook::addLabelToAddress(std::get<0>(modeldata->at(index.row())));
-        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalZECString();
+        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalSAFEString();
         }
     }
     

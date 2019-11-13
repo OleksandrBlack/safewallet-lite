@@ -1557,44 +1557,44 @@ You either have unconfirmed funds or the balance is too low for an automatic mig
     </message>
 </context>
 <context>
-    <name>createZcashConf</name>
+    <name>createSafecoinConf</name>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="14"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="14"/>
         <source>Configure SAFE3.conf</source>
         <translation>Konfiguriere Safecoin3.conf</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="61"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="61"/>
         <source>Show Advanced Configuration</source>
         <translation>Zeige erweiterte Einstellungen</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="86"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="86"/>
         <source>Your Safecoin node will be configured for you automatically</source>
         <translation>Ihr Safecoin Node wird automatisch für Sie konfiguriert</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="102"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="102"/>
         <source>Use custom datadir</source>
         <translation>Benutzerdefinierten Datei Pfad benutzen</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="109"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="109"/>
         <source>Please choose a directory to store your wallet.dat and blockchain</source>
         <translation>Bitte wählen Sie einen Ordner aus, indem Ihre wallet.dat und Blockhain gespeichert wird</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="118"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="118"/>
         <source>Choose directory</source>
         <translation>Wählen Sie einen Ordner</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="154"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="154"/>
         <source>Connect over Tor</source>
         <translation>Verbinden über Tor</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="161"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="161"/>
         <source>Please note that you&apos;ll need to already have a Tor service configured on port 9050</source>
         <translation>Stellen Sie bitte sicher, dass der Tor Service bereits für den Port 9050 konfiguriert ist.</translation>
     </message>

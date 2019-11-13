@@ -1905,64 +1905,64 @@ El saldo es insuficiente para una migración automática.
     </message>
 </context>
 <context>
-    <name>createZcashConf</name>
+    <name>createSafecoinConf</name>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="14"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="14"/>
         <source>Configure safecoin.conf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="42"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="42"/>
         <source>Show Advanced Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="20"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="20"/>
         <source>Your safecoin node will be configured for you automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="30"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="30"/>
         <source>Enable Fast Sync</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="112"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="112"/>
         <source>Allow connections to the internet to check for updates, get SAFE/USD prices etc...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="119"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="119"/>
         <source>Use custom datadir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="164"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="164"/>
         <source>Connect to the internet for updates and price feeds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="174"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="174"/>
         <source>Please choose a directory to store your wallet.dat and blockchain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="205"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skips the most expensive checks during the initial block download. &lt;a href=&quot;https://docs.zecwallet.co/using-zecwallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Learn More&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <location filename="../src/createsafecoinconfdialog.ui" line="205"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skips the most expensive checks during the initial block download. &lt;a href=&quot;https://docs.safewallet.co/using-safewallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Learn More&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="128"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="128"/>
         <source>Choose directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="181"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="181"/>
         <source>Connect over Tor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="157"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="157"/>
         <source>Please note that you&apos;ll need to already have a Tor service configured on port 9050</source>
         <translation type="unfinished"></translation>
     </message>

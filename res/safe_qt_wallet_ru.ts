@@ -931,7 +931,7 @@ doesn&apos;t look like a z-address</source>
     </message>
     <message>
         <location filename="../src/migration.ui" line="81"/>
-        <source>If enabled, zcashd will slowly migrate your Sprout shielded funds to your Sapling address. </source>
+        <source>If enabled, safecoind will slowly migrate your Sprout shielded funds to your Sapling address. </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1479,7 +1479,7 @@ You either have unconfirmed funds or the balance is too low for an automatic mig
     </message>
     <message>
         <location filename="../src/recurring.cpp" line="469"/>
-        <source>No ZEC price was available to convert from USD</source>
+        <source>No SAFE price was available to convert from USD</source>
         <translation type="unfinished">Цена SAFE не доступна для конвертации в USD</translation>
     </message>
     <message>
@@ -2211,64 +2211,64 @@ You either have unconfirmed funds or the balance is too low for an automatic mig
     </message>
 </context>
 <context>
-    <name>createZcashConf</name>
+    <name>createSafecoinConf</name>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="42"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="42"/>
         <source>Show Advanced Configuration</source>
         <translation>Показать расширенную конфигурацию</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="30"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="30"/>
         <source>Enable Fast Sync</source>
         <translation>Включить Fast Sync</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="14"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="14"/>
         <source>Configure safecoin.conf</source>
         <translation>Конфигурация  safecoin.conf</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="20"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="20"/>
         <source>Your safecoin node will be configured for you automatically</source>
         <translation>Ваш узел safecoin будет настроен для вас автоматически</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="112"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="112"/>
         <source>Allow connections to the internet to check for updates, get SAFE/USD prices etc...</source>
         <translation>Разрешить подключения к Интернету, для проверки обновлений и получения рыночных котировок SAFE и т.д.</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="119"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="119"/>
         <source>Use custom datadir</source>
         <translation>Указать каталог для хранения данных</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="164"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="164"/>
         <source>Connect to the internet for updates and price feeds</source>
         <translation>Подключаться к Интернету для получения обновлений и котировок</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="174"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="174"/>
         <source>Please choose a directory to store your wallet.dat and blockchain</source>
         <translation>Пожалуйста, выберите каталог для хранения wallet.dat и цепочки блоков</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="205"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skips the most expensive checks during the initial block download. &lt;a href=&quot;https://docs.zecwallet.co/using-zecwallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Learn More&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Пропускаеть ресурсоёмкие проверки при начальной загрузке блоков. &lt;a href=&quot;https://docs.zecwallet.co/using-zecwallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Узнать больше&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="../src/createsafecoinconfdialog.ui" line="205"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Skips the most expensive checks during the initial block download. &lt;a href=&quot;https://docs.safewallet.co/using-safewallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Learn More&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Пропускаеть ресурсоёмкие проверки при начальной загрузке блоков. &lt;a href=&quot;https://docs.safewallet.co/using-safewallet/#fastsync&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Узнать больше&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="128"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="128"/>
         <source>Choose directory</source>
         <translation>Выбрать каталог</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="181"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="181"/>
         <source>Connect over Tor</source>
         <translation>Подключение через Tor</translation>
     </message>
     <message>
-        <location filename="../src/createzcashconfdialog.ui" line="157"/>
+        <location filename="../src/createsafecoinconfdialog.ui" line="157"/>
         <source>Please note that you&apos;ll need to already have a Tor service configured on port 9050</source>
         <translation>Обратите внимание, что предварительно вам нужно настроить службу Tor на порт 9050</translation>
     </message>

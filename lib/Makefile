@@ -10,9 +10,9 @@ PWD := $(shell pwd)
 
 all: release
 
-winrelease: target/x86_64-pc-windows-gnu/release/zecwalletlite.lib
+winrelease: target/x86_64-pc-windows-gnu/release/safewalletlite.lib
 
-target/x86_64-pc-windows-gnu/release/zecwalletlite.lib: src/lib.rs Cargo.toml
+target/x86_64-pc-windows-gnu/release/safewalletlite.lib: src/lib.rs Cargo.toml
 	SODIUM_LIB_DIR="$(PWD)/libsodium-mingw/" cargo build --lib --release --target x86_64-pc-windows-gnu
 
 release: target/release/safewalletlite.$(EXT)

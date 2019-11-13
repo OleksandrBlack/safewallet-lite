@@ -3,11 +3,11 @@
 #include "settings.h"
 #include "ui_connection.h"
 #include "firsttimewizard.h"
-#include "ui_createzcashconfdialog.h"
+#include "ui_createsafecoinconfdialog.h"
 #include "controller.h"
 
 
-#include "../lib/zecwalletlitelib.h"
+#include "../lib/safewalletlitelib.h"
 
 #include "precompiled.h"
 

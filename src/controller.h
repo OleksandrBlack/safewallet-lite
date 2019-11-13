@@ -37,7 +37,7 @@ public:
     void refreshAddresses();    
     
     void checkForUpdate(bool silent = true);
-    void refreshZECPrice();
+    void refreshSAFEPrice();
     
     void executeStandardUITransaction(Tx tx); 
 
@@ -49,9 +49,9 @@ public:
     
     const TxTableModel*               getTransactionsModel() { return transactionsTableModel; }
 
-    void shutdownZcashd();
+    void shutdownSafecoind();
     void noConnection();
-    bool isEmbedded() { return ezcashd != nullptr; }
+    bool isEmbedded() { return esafecoind != nullptr; }
 
     void encryptWallet(QString password, const std::function<void(json)>& cb) { 
         zrpc->encryptWallet(password, cb); 
@@ -119,7 +119,7 @@ private:
 
     void unlockIfEncrypted  (std::function<void(void)> cb, std::function<void(void)> error);
     
-    QProcess*                   ezcashd                     = nullptr;
+    QProcess*                   esafecoind                     = nullptr;
 
     TxTableModel*               transactionsTableModel      = nullptr;
     BalancesTableModel*         balancesTableModel          = nullptr;

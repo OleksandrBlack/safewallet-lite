@@ -42,8 +42,8 @@ public:
     bool    isSyncing();
     void    setSyncing(bool syncing);
 
-    int     getZcashdVersion();
-    void    setZcashdVersion(int version);
+    int     getSafecoindVersion();
+    void    setSafecoindVersion(int version);
     
     void    setUseEmbedded(bool r) { _useEmbedded = r; }
     bool    useEmbedded() { return _useEmbedded; }
@@ -65,8 +65,8 @@ public:
 
     bool    isSaplingActive();
 
-    void    setZECPrice(double p) { ZECPrice = p; }
-    double  getZECPrice();
+    void    setSAFEPrice(double p) { SAFEPrice = p; }
+    double  getSAFEPrice();
 
     // Static stuff
     static const QString txidStatusMessage;
@@ -114,11 +114,11 @@ private:
     bool    _isTestnet        = false;
     bool    _isSyncing        = false;
     int     _blockNumber      = 0;
-    int     _zcashdVersion    = 0;
+    int     _safecoindVersion    = 0;
     bool    _useEmbedded      = false;
     bool    _headless         = false;
     
-    double  ZECPrice          = 0.0;
+    double  SAFEPrice          = 0.0;
 };
 
 
