@@ -118,7 +118,7 @@ private:
     bool    _useEmbedded      = false;
     bool    _headless         = false;
     
-    double  zecPrice          = 0.0;
+    double  ZECPrice          = 0.0;
 };
 
 
