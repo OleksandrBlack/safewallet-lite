@@ -70,15 +70,18 @@ bool TxTableModel::exportToCsv(QString fileName) const {
  }
 
 QString TxTableModel::concatMultipleMemos(const TransactionItem& dat) const {
-    // Concat all the memos
-    QString memo;
-    for (auto item : dat.items) {
-        if (!item.memo.trimmed().isEmpty()) {
-            memo += item.address + ": \"" + item.memo + "\"\n";
+    if (dat.items.length() == 1) {
+        return dat.items[0].memo;
+    } else {
+        // Concat all the memos
+        QString memo;
+        for (auto item : dat.items) {
+            if (!item.memo.trimmed().isEmpty()) {
+                memo += item.address + ": \"" + item.memo + "\"\n";
+            }
         }
+        return memo;
     }
-
-    return memo;
 };
 
 QVariant TxTableModel::data(const QModelIndex &index, int role) const {
@@ -133,8 +136,9 @@ QVariant TxTableModel::data(const QModelIndex &index, int role) const {
                         if (memo.startsWith("safecoin:")) {
                             return Settings::paymentURIPretty(Settings::parseURI(memo));
                         } else {
+                            // Don't render memo html in tooltip
                             return modeldata->at(index.row()).type + 
-                            (memo.isEmpty() ? "" : " tx memo: \"" + memo + "\"");
+                            (memo.isEmpty() ? "" : " tx memo: \"" + memo.toHtmlEscaped() + "\"");
                         }
                     } else {
                         return concatMultipleMemos(dat);

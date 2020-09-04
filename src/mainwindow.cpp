@@ -16,6 +16,7 @@
 #include "connection.h"
 #include "requestdialog.h"
 #include "websockets.h"
+#include <QRegularExpression>
 
 using json = nlohmann::json;
 
@@ -51,10 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Set up donate action
     QObject::connect(ui->actionDonate, &QAction::triggered, this, &MainWindow::donate);
-
-    QObject::connect(ui->actionDiscord, &QAction::triggered, this, &MainWindow::discord);
-
-    QObject::connect(ui->actionWebsite, &QAction::triggered, this, &MainWindow::website);
 
     // File a bug
     QObject::connect(ui->actionFile_a_bug, &QAction::triggered, [=]() {
@@ -108,6 +105,20 @@ MainWindow::MainWindow(QWidget *parent) :
         AppDataServer::getInstance()->connectAppDialog(this);
     });
 
+    // Rescan
+    QObject::connect(ui->actionRescan, &QAction::triggered, [=]() {
+        // To rescan, we clear the wallet state, and then reload the connection
+        // This will start a sync, and show the scanning status. 
+        this->getRPC()->clearWallet([=] (auto) {
+            // Save the wallet
+            this->getRPC()->saveWallet([=] (auto) {
+                // Then reload the connection. The ConnectionLoader deletes itself.
+                auto cl = new ConnectionLoader(this, rpc);
+                cl->loadConnection();
+            });
+        });
+    });
+
     // Address Book
     QObject::connect(ui->action_Address_Book, &QAction::triggered, this, &MainWindow::addressBook);
 
@@ -129,8 +140,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // The safecoind tab is hidden by default, and only later added in if the embedded safecoind is started
-    //safecoindtab = ui->tabWidget->widget(4);
-    //ui->tabWidget->removeTab(4);
+    safecoindtab = ui->tabWidget->widget(4);
+    ui->tabWidget->removeTab(4);
 
     setupSendTab();
     setupTransactionsTab();
@@ -411,18 +422,16 @@ void MainWindow::setupSettingsModal() {
         // Fetch prices
         settings.chkFetchPrices->setChecked(Settings::getInstance()->getAllowFetchPrices());
         
+        // List of default servers
+        settings.cmbServer->addItem("https://seedvpsua.local.support:443");
+        settings.cmbServer->addItem("https://seedvpsna.local.support:443");
+
         // Load current values into the dialog        
         auto conf = Settings::getInstance()->getSettings();
-        settings.txtServer->setText(conf.server);
+        settings.cmbServer->setCurrentText(conf.server);
 
         // Connection tab by default
         settings.tabWidget->setCurrentIndex(0);
-
-        // Enable the troubleshooting options only if using embedded safecoind
-        if (!rpc->isEmbedded()) {
-            settings.chkRescan->setEnabled(false);
-            settings.chkRescan->setToolTip(tr("You're using an external safecoind. Please restart safecoind with -rescan"));
-        }
 
         if (settingsDialog.exec() == QDialog::Accepted) {
             // Check for updates
@@ -432,14 +441,22 @@ void MainWindow::setupSettingsModal() {
             Settings::getInstance()->setAllowFetchPrices(settings.chkFetchPrices->isChecked());
 
             // Save the server
-            Settings::getInstance()->saveSettings(settings.txtServer->text().trimmed());
+            bool reloadConnection = false;
+            if (conf.server != settings.cmbServer->currentText().trimmed()) {
+                reloadConnection = true;
+            }
+            Settings::getInstance()->saveSettings(settings.cmbServer->currentText().trimmed());
 
-            if (false /* connection needs reloading?*/) {
+            if (reloadConnection) {
                 // Save settings
-                Settings::getInstance()->saveSettings(settings.txtServer->text());
-                
-                auto cl = new ConnectionLoader(this, rpc);
-                cl->loadConnection();
+                Settings::getInstance()->saveSettings(settings.cmbServer->currentText());
+
+                // Save the wallet
+                getRPC()->saveWallet([=] (auto) {
+                    // Then reload the connection. The ConnectionLoader deletes itself.
+                    auto cl = new ConnectionLoader(this, rpc);
+                    cl->loadConnection();
+                });
             }
         }
     });
@@ -447,7 +464,7 @@ void MainWindow::setupSettingsModal() {
 
 void MainWindow::addressBook() {
     // Check to see if there is a target.
-    QRegExp re("Address[0-9]+", Qt::CaseInsensitive);
+    QRegularExpression re("Address[0-9]+", QRegularExpression::CaseInsensitiveOption);
     for (auto target: ui->sendToWidgets->findChildren<QLineEdit *>(re)) {
         if (target->hasFocus()) {
             AddressBook::open(this, target);
@@ -457,16 +474,6 @@ void MainWindow::addressBook() {
 
     // If there was no target, then just run with no target.
     AddressBook::open(this);
-}
-
-void MainWindow::discord() {
-    QString url = "https://myhush.org/discord/";
-    QDesktopServices::openUrl(QUrl(url));
-}
-
-void MainWindow::website() {
-    QString url = "https://myhush.org";
-    QDesktopServices::openUrl(QUrl(url));
 }
 
 
@@ -836,6 +843,9 @@ void MainWindow::setupTransactionsTab() {
 
         if (!memo.isEmpty()) {
             QMessageBox mb(QMessageBox::Information, tr("Memo"), memo, QMessageBox::Ok, this);
+            // Don't render html in the memo to avoid phishing-type attacks
+            // revist this in the future once the design of how to best handle memo based applications exists.
+            mb.setTextFormat(Qt::PlainText);
             mb.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
             mb.exec();
         }
@@ -884,6 +894,9 @@ void MainWindow::setupTransactionsTab() {
         if (!memo.isEmpty()) {
             menu.addAction(tr("View Memo"), [=] () {               
                 QMessageBox mb(QMessageBox::Information, tr("Memo"), memo, QMessageBox::Ok, this);
+                // Don't render html in the memo to avoid phishing-type attacks
+                // revist this in the future once the design of how to best handle memo based applications exists.
+                mb.setTextFormat(Qt::PlainText);
                 mb.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
                 mb.exec();
             });
@@ -995,9 +1008,6 @@ void MainWindow::setupReceiveTab() {
         if (checked) { 
             updateTAddrCombo(checked);
         } 
-
-        // Toggle the "View all addresses" button as well
-        ui->btnViewAllAddresses->setVisible(checked);
     });
 
     // View all addresses goes to "View all private keys"
@@ -1013,7 +1023,14 @@ void MainWindow::setupReceiveTab() {
         Settings::saveRestoreTableHeader(viewaddrs.tblAddresses, &d, "viewalladdressestable");
         viewaddrs.tblAddresses->horizontalHeader()->setStretchLastSection(true);
 
-        ViewAllAddressesModel model(viewaddrs.tblAddresses, getRPC()->getModel()->getAllTAddresses(), getRPC());
+        QList<QString> allAddresses;
+        if (ui->rdioTAddr->isChecked()) {
+            allAddresses = getRPC()->getModel()->getAllTAddresses();
+        } else {
+            allAddresses = getRPC()->getModel()->getAllZAddresses();
+        }
+
+        ViewAllAddressesModel model(viewaddrs.tblAddresses, allAddresses, getRPC());
         viewaddrs.tblAddresses->setModel(&model);
 
         QObject::connect(viewaddrs.btnExportAll, &QPushButton::clicked,  this, &MainWindow::exportAllKeys);
@@ -1049,6 +1066,20 @@ void MainWindow::setupReceiveTab() {
         if (!rpc->getConnection())
             return;
 
+        // Go over the dropdown and just select the next address that has:
+        // 0 balance and has no labels
+        for (int i=ui->listReceiveAddresses->currentIndex()+1; i < ui->listReceiveAddresses->count(); i++) {
+            QString item = ui->listReceiveAddresses->itemText(i);
+            CAmount bal = getRPC()->getModel()->getAllBalances().value(item, CAmount());
+            if (bal == 0 && AddressBook::getInstance()->getLabelForAddress(item).isEmpty()) {
+                // Pick this one, since it has no balance and no label
+                ui->listReceiveAddresses->setCurrentIndex(i);
+                return;
+            }
+        }
+
+        // If none of the existing items were eligible, create a new one.
+
         if (ui->rdioZSAddr->isChecked()) {
             addNewZaddr(true);
         } else if (ui->rdioTAddr->isChecked()) {
@@ -1061,7 +1092,6 @@ void MainWindow::setupReceiveTab() {
         if (tab == 2) {
             // Switched to receive tab, select the z-addr radio button
             ui->rdioZSAddr->setChecked(true);
-            ui->btnViewAllAddresses->setVisible(false);
             
             // And then select the first one
             ui->listReceiveAddresses->setCurrentIndex(0);

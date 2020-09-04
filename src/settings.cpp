@@ -19,7 +19,7 @@ Config Settings::getSettings() {
     // Load from the QT Settings. 
     QSettings s;
     
-    auto server        = s.value("connection/server").toString();
+    auto server        = s.value("connection/lightwalletdserver").toString();
     if (server.trimmed().isEmpty()) {
         server = Settings::getDefaultServer();
     }
@@ -30,7 +30,7 @@ Config Settings::getSettings() {
 void Settings::saveSettings(const QString& server) {
     QSettings s;
 
-    s.setValue("connection/server", server);
+    s.setValue("connection/lightwalletdserver", server);
     s.sync();
 
     // re-init to load correct settings
@@ -50,7 +50,7 @@ bool Settings::isSaplingAddress(QString addr) {
         return false;
 
     return ( isTestnet() && addr.startsWith("ztestsapling")) ||
-           (!isTestnet() && addr.startsWith("zs1"));
+           (!isTestnet() && addr.startsWith("safe"));
 }
 
 bool Settings::isSproutAddress(QString addr) {
@@ -64,7 +64,7 @@ bool Settings::isZAddress(QString addr) {
     if (!isValidAddress(addr))
         return false;
         
-    return addr.startsWith("zs");
+    return addr.startsWith("safe");
 }
 
 bool Settings::isTAddress(QString addr) {
@@ -99,7 +99,8 @@ void Settings::setBlockNumber(int number) {
 }
 
 bool Settings::isSaplingActive() {
-    return  (isTestnet() && getBlockNumber() > 0) || (!isTestnet() && getBlockNumber() > 0);
+    return  (isTestnet() && getBlockNumber() > 0) ||
+           (!isTestnet() && getBlockNumber() > 547422);
 }
 
 double Settings::getSAFEPrice() { 
@@ -153,7 +154,7 @@ void Settings::saveRestoreTableHeader(QTableView* table, QDialog* d, QString tab
 }
 
 QString Settings::getDefaultServer() {
-    return "https://lightd-main.safenodes.net:443/";
+    return "https://seedvpsua.local.support:443/";
 }
 
 void Settings::openAddressInExplorer(QString address) {
@@ -190,9 +191,9 @@ QString Settings::getTokenName() {
 
 QString Settings::getDonationAddr() {
     if (Settings::getInstance()->isTestnet()) 
-            return "ztestsaplingXXX";
+            return "ztestsapling1wn6889vznyu42wzmkakl2effhllhpe4azhu696edg2x6me4kfsnmqwpglaxzs7tmqsq7kudemp5";
     else 
-            return "zs1kwp3h4rwz76zfqzmwqqextq696kndtjskg4fzc80l9ygfal4hchcsst83ua8tjwzzy9nja7v5rr";
+            return "RtU6tF2d1YE6hw9DHMAyNRb2uUk4PwSCZr";
 
 }
 
@@ -211,11 +212,13 @@ bool Settings::isValidSaplingPrivateKey(QString pk) {
 }
 
 bool Settings::isValidAddress(QString addr) {
-    QRegExp zsexp("^zs1[a-z0-9]{75}$",  Qt::CaseInsensitive);
+    QRegExp zsexp("^safe1[a-z0-9]{75}$",  Qt::CaseInsensitive);
     QRegExp ztsexp("^ztestsapling[a-z0-9]{76}", Qt::CaseInsensitive);
     QRegExp texp("^R[a-z0-9]{33}$", Qt::CaseInsensitive);
 
     return  texp.exactMatch(addr) || ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
+    return  texp.exactMatch(addr) || 
+            ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
 }
 
 // Get a pretty string representation of this Payment URI
@@ -248,27 +251,23 @@ PaymentURI Settings::parseURI(QString uri) {
         ans.error = "Could not understand address";
         return ans;
     }
-    uri = uri.right(uri.length() - ans.addr.length());
+    uri = uri.right(uri.length() - ans.addr.length()-1);  // swallow '?'
+    QUrlQuery query(uri);
 
-    if (!uri.isEmpty()) {
-        uri = uri.right(uri.length() - 1); // Eat the "?"
+    // parse out amt / amount
+    if (query.hasQueryItem("amt")) {
+        ans.amt  = query.queryItemValue("amt");
+    } else if (query.hasQueryItem("amount")) {
+        ans.amt  = query.queryItemValue("amount");
+    }
 
-        QStringList args = uri.split("&");
-        for (QString arg: args) {
-            QStringList kv = arg.split("=");
-            if (kv.length() != 2) {
-                ans.error = "No value argument was seen";
-                return ans;
-            }
-
-            if (kv[0].toLower() == "amt" || kv[0].toLower() == "amount") {
-                ans.amt = kv[1];
-            } else if (kv[0].toLower() == "memo" || kv[0].toLower() == "message" || kv[0].toLower() == "msg") {
-                ans.memo = QUrl::fromPercentEncoding(kv[1].toUtf8());
-            } else {
-                // Ignore unknown fields, since some developers use it to pass extra data.
-            }
-        }
+    // parse out memo / msg / message
+    if (query.hasQueryItem("memo")) {
+        ans.memo  = query.queryItemValue("memo");
+    } else if (query.hasQueryItem("msg")) {
+        ans.memo  = query.queryItemValue("msg");
+    } else if  (query.hasQueryItem("message")) {
+        ans.memo  = query.queryItemValue("message");
     }
 
     return ans;

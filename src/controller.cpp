@@ -29,7 +29,7 @@ Controller::Controller(MainWindow* main) {
     priceTimer = new QTimer(main);
     QObject::connect(priceTimer, &QTimer::timeout, [=]() {
         if (Settings::getInstance()->getAllowFetchPrices())
-            refreshSAFEPrice();
+            refreshZECPrice();
     });
     priceTimer->start(Settings::priceRefreshSpeed);  // Every hour
 
@@ -66,6 +66,8 @@ void Controller::setConnection(Connection* c) {
     this->zrpc->setConnection(c);
 
     ui->statusBar->showMessage("Ready!");
+
+    processInfo(c->getInfo());
 
     // If we're allowed to get the Zec Price, get the prices
     if (Settings::getInstance()->getAllowFetchPrices())
@@ -137,34 +139,43 @@ void Controller::refresh(bool force) {
     getInfoThenRefresh(force);
 }
 
+void Controller::processInfo(const json& info) {
+    // Testnet?
+    QString chainName;
+    if (!info["chain_name"].is_null()) {
+        chainName = QString::fromStdString(info["chain_name"].get<json::string_t>());
+        Settings::getInstance()->setTestnet(chainName == "test");
+    };
+
+
+    QString version = QString::fromStdString(info["version"].get<json::string_t>());
+    Settings::getInstance()->setZcashdVersion(version);
+
+    // Recurring pamynets are testnet only
+    if (!Settings::getInstance()->isTestnet())
+        main->disableRecurring();
+}
+
 void Controller::getInfoThenRefresh(bool force) {
     if (!zrpc->haveConnection()) 
         return noConnection();
 
     static bool prevCallSucceeded = false;
 
-    zrpc->fetchInfo([=] (const json& reply) {   
-        prevCallSucceeded = true;
+    zrpc->fetchLatestBlock([=] (const json& reply) {   
+        prevCallSucceeded = true;       
 
-        // Testnet?
-        QString chainName;
-        if (!reply["chain_name"].is_null()) {
-            chainName = QString::fromStdString(reply["chain_name"].get<json::string_t>());
-            Settings::getInstance()->setTestnet(chainName == "test");
-        };
-
-        // Recurring pamynets are testnet only
-        if (!Settings::getInstance()->isTestnet())
-            main->disableRecurring();
-
-        int curBlock  = reply["latest_block_height"].get<json::number_integer_t>();
+        int curBlock  = reply["height"].get<json::number_integer_t>();
         bool doUpdate = force || (model->getLatestBlock() != curBlock);
         model->setLatestBlock(curBlock);
-        ui->blockHeight->setText(QString::number(curBlock));
+
+        main->logger->write(QString("Refresh. curblock ") % QString::number(curBlock) % ", update=" % (doUpdate ? "true" : "false") );
 
         // Connected, so display checkmark.
-        auto tooltip = Settings::getInstance()->getSettings().server + "\n" + QString::fromStdString(reply.dump());
+        auto tooltip = Settings::getInstance()->getSettings().server + "\n" + 
+                            QString::fromStdString(zrpc->getConnection()->getInfo().dump());
         QIcon i(":/icons/res/connected.gif");
+        QString chainName = Settings::getInstance()->isTestnet() ? "test" : "main";
         main->statusLabel->setText(chainName + "(" + QString::number(curBlock) + ")");
         main->statusLabel->setText(" SAFE/USD=$" + QString::number( (double) Settings::getInstance()->getSAFEPrice() ));
         main->statusLabel->setToolTip(tooltip);
@@ -284,6 +295,9 @@ void Controller::updateUIBalances() {
     // Reduce the BalanceZ by the pending outgoing amount. We're adding
     // here because totalPending is already negative for outgoing txns.
     balZ = balZ + getModel()->getTotalPending();
+    if (balZ < 0) {
+        balZ = CAmount::fromqint64(0);
+    }
 
     CAmount balTotal     = balT + balZ;
     CAmount balAvailable = balT + balVerified;
@@ -403,7 +417,7 @@ void Controller::refreshTransactions() {
                 }
 
                 txdata.push_back(TransactionItem{
-                   "send", datetime, address, txid,confirmations, items
+                   "Sent", datetime, address, txid,confirmations, items
                 });
             } else {
                 // Incoming Transaction

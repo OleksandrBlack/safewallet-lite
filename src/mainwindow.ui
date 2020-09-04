@@ -22,7 +22,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -763,7 +763,7 @@
                <item>
                 <widget class="QPushButton" name="btnReceiveNewAddr">
                  <property name="text">
-                  <string>New Address</string>
+                  <string>Next Address</string>
                  </property>
                 </widget>
                </item>
@@ -971,7 +971,7 @@
              <item row="5" column="0" colspan="3">
               <widget class="QLabel" name="label_14">
                <property name="text">
-                <string>This is a Lightwallet, you cant mine with it!</string>
+                <string>You are currently not mining</string>
                </property>
               </widget>
              </item>
@@ -989,21 +989,21 @@
               </spacer>
              </item>
              <item row="2" column="2">
-              <widget class="QLabel" name="Vendor">
+              <widget class="QLabel" name="numconnections">
                <property name="text">
                 <string>Loading...</string>
                </property>
               </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QLabel" name="Vendor">
+              <widget class="QLabel" name="heightLabel">
                <property name="text">
-                <string>blockHeight</string>
+                <string>Block height</string>
                </property>
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLabel" name="Version">
+              <widget class="QLabel" name="solrate">
                <property name="text">
                 <string>Loading...</string>
                </property>
@@ -1012,19 +1012,19 @@
              <item row="3" column="0">
               <widget class="QLabel" name="label_12">
                <property name="text">
-                <string>Version safecoinlightd</string>
+                <string>Network solution rate</string>
                </property>
               </widget>
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_8">
                <property name="text">
-                <string>Vendor</string>
+                <string>Connections</string>
                </property>
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLabel" name="blockHeight">
+              <widget class="QLabel" name="blockheight">
                <property name="text">
                 <string>Loading...</string>
                </property>
@@ -1110,8 +1110,6 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionDonate"/>
-    <addaction name="actionDiscord"/>
-    <addaction name="actionWebsite"/>
     <addaction name="actionCheck_for_Updates"/>
     <addaction name="actionFile_a_bug"/>
     <addaction name="actionAbout"/>
@@ -1132,6 +1130,8 @@
     <addaction name="separator"/>
     <addaction name="actionEncrypt_Wallet"/>
     <addaction name="actionRemove_Wallet_Encryption"/>
+    <addaction name="separator"/>
+    <addaction name="actionRescan"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu_Edit"/>
@@ -1159,17 +1159,7 @@
   </action>
   <action name="actionDonate">
    <property name="text">
-    <string>&amp;Send DenioD Feedback</string>
-   </property>
-  </action>
-  <action name="actionDiscord">
-   <property name="text">
-    <string>&amp;Hush Discord</string>
-   </property>
-  </action>
-  <action name="actionWebsite">
-   <property name="text">
-    <string>&amp;Hush Website</string>
+    <string>&amp;Donate</string>
    </property>
   </action>
   <action name="actionCheck_for_Updates">
@@ -1236,6 +1226,11 @@
   <action name="actionRemove_Wallet_Encryption">
    <property name="text">
     <string>Remove Wallet Encryption</string>
+   </property>
+  </action>
+  <action name="actionRescan">
+   <property name="text">
+    <string>Rescan</string>
    </property>
   </action>
  </widget>

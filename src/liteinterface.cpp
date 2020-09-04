@@ -39,7 +39,7 @@ void LiteInterface::createNewZaddr(bool, const std::function<void(json)>& cb) {
     if (conn == nullptr)
         return;
 
-    conn->doRPCWithDefaultErrorHandling("new", "zs", cb);
+    conn->doRPCWithDefaultErrorHandling("new", "safe", cb);
 }
 
 void LiteInterface::createNewTaddr(const std::function<void(json)>& cb) {
@@ -82,6 +82,13 @@ void LiteInterface::saveWallet(const std::function<void(json)>& cb) {
         return;
 
     conn->doRPCWithDefaultErrorHandling("save", "", cb);
+}
+
+void LiteInterface::clearWallet(const std::function<void(json)>& cb) {
+    if (conn == nullptr)
+        return;
+
+    conn->doRPCWithDefaultErrorHandling("clear", "", cb);
 }
 
 void LiteInterface::unlockWallet(QString password, const std::function<void(json)>& cb) {
@@ -128,6 +135,15 @@ void LiteInterface::fetchInfo(const std::function<void(json)>& cb,
         return;
 
     conn->doRPC("info", "", cb, err);
+}
+
+
+void LiteInterface::fetchLatestBlock(const std::function<void(json)>& cb, 
+                        const std::function<void(QString)>& err) {
+    if (conn == nullptr)
+        return;
+
+    conn->doRPC("height", "", cb, err);       
 }
 
 /**

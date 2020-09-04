@@ -158,7 +158,7 @@ void MainWindow::updateLabelsAutoComplete() {
     labelCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 
     // Then, find all the address fields and update the completer.
-    QRegExp re("Address[0-9]+", Qt::CaseInsensitive);
+    QRegularExpression re("Address[0-9]+", QRegularExpression::CaseInsensitiveOption);
     for (auto target: ui->sendToWidgets->findChildren<QLineEdit *>(re)) {
         target->setCompleter(labelCompleter);
     }
@@ -446,7 +446,7 @@ Tx MainWindow::createTxFromSendPage() {
         
         QString memo = ui->sendToWidgets->findChild<QLabel*>(QString("MemoTxt")  % QString::number(i+1))->text().trimmed();
         
-        tx.toAddrs.push_back( ToFields{addr, amt, memo,} );
+        tx.toAddrs.push_back( ToFields{addr, amt, memo} );
     }
 
     tx.fee = Settings::getMinerFee();
