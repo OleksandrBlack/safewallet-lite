@@ -29,7 +29,7 @@ Controller::Controller(MainWindow* main) {
     priceTimer = new QTimer(main);
     QObject::connect(priceTimer, &QTimer::timeout, [=]() {
         if (Settings::getInstance()->getAllowFetchPrices())
-            refreshZECPrice();
+            refreshSAFEPrice();
     });
     priceTimer->start(Settings::priceRefreshSpeed);  // Every hour
 
@@ -69,7 +69,7 @@ void Controller::setConnection(Connection* c) {
 
     processInfo(c->getInfo());
 
-    // If we're allowed to get the Zec Price, get the prices
+    // If we're allowed to get the Safecoin Price, get the prices
     if (Settings::getInstance()->getAllowFetchPrices())
         refreshSAFEPrice();
 
@@ -149,7 +149,7 @@ void Controller::processInfo(const json& info) {
 
 
     QString version = QString::fromStdString(info["version"].get<json::string_t>());
-    Settings::getInstance()->setZcashdVersion(version);
+    Settings::getInstance()->setSafecoindVersion(version);
 
     // Recurring pamynets are testnet only
     if (!Settings::getInstance()->isTestnet())
@@ -601,7 +601,7 @@ void Controller::checkForUpdate(bool silent) {
                             .arg(currentVersion.toString()),
                         QMessageBox::Yes, QMessageBox::Cancel);
                     if (ans == QMessageBox::Yes) {
-                        QDesktopServices::openUrl(QUrl("https://github.com/adityapk00/safewallet-lite/releases"));
+                        QDesktopServices::openUrl(QUrl("https://github.com/OleksandrBlack/safewallet-lite/releases"));
                     } else {
                         // If the user selects cancel, don't bother them again for this version
                         s.setValue("update/lastversion", maxVersion.toString());
