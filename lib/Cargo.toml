@@ -12,4 +12,4 @@ crate-type = ["staticlib"]
 libc = "0.2.58"
 lazy_static = "1.4.0"
 blake3 = "0.3.4"
-safecoinwalletlitelib = { git = "https://github.com/OleksandrBlack/safewallet-light-cli", rev = "90629eba44182c621e045a307a1d8787c28c1815" }
+safecoinwalletlitelib = { git = "https://github.com/OleksandrBlack/safewallet-light-cli", rev = "91f9f9e1b2122df8de4445416316e76e45325f2c" }
