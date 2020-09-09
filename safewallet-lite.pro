@@ -114,7 +114,7 @@ HEADERS += \
     src/controller.h \
     src/liteinterface.h \
     src/camount.h \
-    lib/safecoinwalletlib.h \ 
+    lib/safecoinwalletlitelib.h \ 
     src/chatbubbleme.h \
     src/chatbubblepartner.h \
     src/chatmodel.h \
@@ -133,7 +133,7 @@ FORMS += \
     src/recurringpayments.ui \
     src/restoreseed.ui \
     src/seedrestore.ui \
-    src/sendHushTransactionChat.ui \
+    src/sendSafecoinTransactionChat.ui \
     src/settings.ui \
     src/about.ui \
     src/confirm.ui \
