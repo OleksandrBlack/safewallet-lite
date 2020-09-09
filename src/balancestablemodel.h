@@ -5,6 +5,7 @@
 #include "datamodel.h"
 #include "camount.h"
 
+
 class BalancesTableModel : public QAbstractTableModel
 {
 public:

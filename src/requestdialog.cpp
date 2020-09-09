@@ -47,7 +47,7 @@ void RequestDialog::setupDialog(MainWindow* main, QDialog* d, Ui_RequestDialog* 
 void RequestDialog::showPaymentConfirmation(MainWindow* main, QString paymentURI) {
     PaymentURI payInfo = Settings::parseURI(paymentURI);
     if (!payInfo.error.isEmpty()) {
-        QMessageBox::critical(main, tr("Error paying Safecoin URI"), 
+        QMessageBox::critical(main, tr("Error paying safecoin URI"), 
                 tr("URI should be of the form 'safecoin:<addr>?amt=x&memo=y") + "\n" + payInfo.error);
         return;
     }
@@ -74,19 +74,25 @@ void RequestDialog::showPaymentConfirmation(MainWindow* main, QString paymentURI
     req.txtMemo->setPlainText(payInfo.memo);
     req.txtAmount->setText(payInfo.amt);
     CAmount amount = CAmount::fromDecimalString(req.txtAmount->text());
+    if (Settings::getInstance()->get_currency_name() == "USD") {
     req.txtAmountUSD->setText(amount.toDecimalUSDString());
+    } else if (Settings::getInstance()->get_currency_name() == "EUR") {
+        req.txtAmountUSD->setText(amount.toDecimalEURString());
+        } else if (Settings::getInstance()->get_currency_name() == "BTC") {
+            req.txtAmountUSD->setText(amount.toDecimalBTCString());
+        }
 
     req.buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Pay"));
 
     req.lblHeader->setText(tr("You are paying a payment request. Your address will not be visible to the person requesting this payment."));
 
     if (d.exec() == QDialog::Accepted) {
-        main->paySafecoinURI(paymentURI, req.cmbMyAddress->currentText());
+        main->paysafecoinURI(paymentURI, req.cmbMyAddress->currentText());
     }
 }
 
 // Static method that shows the request dialog
-void RequestDialog::showRequestSafecoin(MainWindow* main) {
+void RequestDialog::showRequestsafecoin(MainWindow* main) {
     QDialog d(main);
     Ui_RequestDialog req;
 
@@ -114,11 +120,54 @@ void RequestDialog::showRequestSafecoin(MainWindow* main) {
     req.txtAmount->setValidator(main->getAmountValidator());
     QObject::connect(req.txtAmount, &QLineEdit::textChanged, [=] (auto text) {
         CAmount amount = CAmount::fromDecimalString(text);
-        req.txtAmountUSD->setText(amount.toDecimalUSDString());
+     if (Settings::getInstance()->get_currency_name() == "USD") {
+         req.txtAmountUSD->setText(amount.toDecimalUSDString());
+    } else if (Settings::getInstance()->get_currency_name() == "EUR") {
+        req.txtAmountUSD->setText(amount.toDecimalEURString());
+    } else if (Settings::getInstance()->get_currency_name() == "BTC") {
+        req.txtAmountUSD->setText(amount.toDecimalBTCString());
+    } else if (Settings::getInstance()->get_currency_name() == "CNY") {
+        req.txtAmountUSD->setText(amount.toDecimalCNYString());
+    } else if (Settings::getInstance()->get_currency_name() == "RUB") {
+        req.txtAmountUSD->setText(amount.toDecimalRUBString());
+    } else if (Settings::getInstance()->get_currency_name() == "CAD") {
+        req.txtAmountUSD->setText(amount.toDecimalCADString());
+    } else if (Settings::getInstance()->get_currency_name() == "SGD") {
+        req.txtAmountUSD->setText(amount.toDecimalSGDString());
+    } else if (Settings::getInstance()->get_currency_name() == "CHF") {
+        req.txtAmountUSD->setText(amount.toDecimalCHFString());
+    } else if (Settings::getInstance()->get_currency_name() == "INR") {
+        req.txtAmountUSD->setText(amount.toDecimalINRString());
+    } else if (Settings::getInstance()->get_currency_name() == "GBP") {
+        req.txtAmountUSD->setText(amount.toDecimalGBPString());
+    } else if (Settings::getInstance()->get_currency_name() == "AUD") {
+        req.txtAmountUSD->setText(amount.toDecimalBTCString());
+        }
     });
     CAmount amount = CAmount::fromDecimalString(req.txtAmount->text());
-    req.txtAmountUSD->setText(amount.toDecimalUSDString());
-
+    if (Settings::getInstance()->get_currency_name() == "USD") {
+         req.txtAmountUSD->setText(amount.toDecimalUSDString());
+    } else if (Settings::getInstance()->get_currency_name() == "EUR") {
+        req.txtAmountUSD->setText(amount.toDecimalEURString());
+    } else if (Settings::getInstance()->get_currency_name() == "BTC") {
+        req.txtAmountUSD->setText(amount.toDecimalBTCString());
+    } else if (Settings::getInstance()->get_currency_name() == "CNY") {
+        req.txtAmountUSD->setText(amount.toDecimalCNYString());
+    } else if (Settings::getInstance()->get_currency_name() == "RUB") {
+        req.txtAmountUSD->setText(amount.toDecimalRUBString());
+    } else if (Settings::getInstance()->get_currency_name() == "CAD") {
+        req.txtAmountUSD->setText(amount.toDecimalCADString());
+    } else if (Settings::getInstance()->get_currency_name() == "SGD") {
+        req.txtAmountUSD->setText(amount.toDecimalSGDString());
+    } else if (Settings::getInstance()->get_currency_name() == "CHF") {
+        req.txtAmountUSD->setText(amount.toDecimalCHFString());
+    } else if (Settings::getInstance()->get_currency_name() == "INR") {
+        req.txtAmountUSD->setText(amount.toDecimalINRString());
+    } else if (Settings::getInstance()->get_currency_name() == "GBP") {
+        req.txtAmountUSD->setText(amount.toDecimalGBPString());
+    } else if (Settings::getInstance()->get_currency_name() == "AUD") {
+        req.txtAmountUSD->setText(amount.toDecimalBTCString());
+        }
     req.txtMemo->setAcceptButton(req.buttonBox->button(QDialogButtonBox::Ok));
     req.txtMemo->setLenDisplayLabel(req.lblMemoLen);
     req.txtMemo->setMaxLen(400);
@@ -126,7 +175,7 @@ void RequestDialog::showRequestSafecoin(MainWindow* main) {
     req.txtFrom->setFocus();
 
     if (d.exec() == QDialog::Accepted) {
-        // Construct a Safecoin Payment URI with the data and pay it immediately.
+        // Construct a safecoin Payment URI with the data and pay it immediately.
         CAmount amount = CAmount::fromDecimalString(req.txtAmount->text());
         QString memoURI = "safecoin:" + req.cmbMyAddress->currentText()
                     + "?amt=" + amount.toDecimalString()
@@ -138,6 +187,6 @@ void RequestDialog::showRequestSafecoin(MainWindow* main) {
 
         // If the disclosed address in the memo doesn't have a balance, it will automatically fallback to the default
         // sapling address
-        main->paySafecoinURI(sendURI, req.cmbMyAddress->currentText());
+        main->paysafecoinURI(sendURI, req.cmbMyAddress->currentText());
     }
 }

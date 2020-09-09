@@ -42,8 +42,8 @@ public:
     bool    isSyncing();
     void    setSyncing(bool syncing);
 
-    QString getSafecoindVersion();
-    void    setSafecoindVersion(QString version);
+    QString getsafecoindVersion();
+    void    setsafecoindVersion(QString version);
     
     void    setUseEmbedded(bool r) { _useEmbedded = r; }
     bool    useEmbedded() { return _useEmbedded; }
@@ -63,10 +63,79 @@ public:
     QString get_theme_name();
     void set_theme_name(QString theme_name);
 
+    QString get_currency_name();
+    void set_currency_name(QString currency_name);
+
+
     bool    isSaplingActive();
 
-    void    setSAFEPrice(double p) { SAFEPrice = p; }
-    double  getSAFEPrice();
+    void    setZECPrice(double p) { ZECPrice = p; }
+    void    setEURPrice(double p) { EURPrice = p; }
+    void    setBTCPrice(double p) { BTCPrice = p; }
+    void    setCNYPrice(double p) { CNYPrice = p; }
+    void    setRUBPrice(double p) { RUBPrice = p; }
+    void    setCADPrice(double p) { CADPrice = p; }
+    void    setSGDPrice(double p) { SGDPrice = p; }
+    void    setCHFPrice(double p) { CHFPrice = p; }
+    void    setINRPrice(double p) { INRPrice = p; }
+    void    setGBPPrice(double p) { GBPPrice = p; }
+    void    setAUDPrice(double p) { AUDPrice = p; }
+    void    setUSDVolume(double p) { USDVolume = p; }
+    void    setEURVolume(double p) { EURVolume = p; }
+    void    setBTCVolume(double p) { BTCVolume = p; }
+    void    setCNYVolume(double p) { CNYVolume = p; }
+    void    setRUBVolume(double p) { RUBVolume = p; }
+    void    setCADVolume(double p) { CADVolume = p; }
+    void    setSGDVolume(double p) { SGDVolume = p; }
+    void    setCHFVolume(double p) { CHFVolume = p; }
+    void    setINRVolume(double p) { INRVolume = p; }
+    void    setGBPVolume(double p) { GBPVolume = p; }
+    void    setAUDVolume(double p) { AUDVolume = p; }
+    void    setUSDCAP(double p) { USDCAP = p; }
+    void    setEURCAP(double p) { EURCAP = p; }
+    void    setBTCCAP(double p) { BTCCAP = p; }
+    void    setCNYCAP(double p) { CNYCAP = p; }
+    void    setRUBCAP(double p) { RUBCAP = p; }
+    void    setCADCAP(double p) { CADCAP = p; }
+    void    setSGDCAP(double p) { SGDCAP = p; }
+    void    setCHFCAP(double p) { CHFCAP = p; }
+    void    setINRCAP(double p) { INRCAP = p; }
+    void    setGBPCAP(double p) { GBPCAP = p; }
+    void    setAUDCAP(double p) { AUDCAP = p; }
+    double  getZECPrice();
+    double  getEURPrice();
+    double  getBTCPrice();
+    double  getCNYPrice();
+    double  getRUBPrice();
+    double  getCADPrice();
+    double  getSGDPrice();
+    double  getCHFPrice();
+    double  getINRPrice();
+    double  getGBPPrice();
+    double  getAUDPrice();
+    double  getUSDVolume();
+    double  getEURVolume();
+    double  getBTCVolume();
+    double  getCNYVolume();
+    double  getRUBVolume();
+    double  getCADVolume();
+    double  getSGDVolume();
+    double  getCHFVolume();
+    double  getINRVolume();
+    double  getGBPVolume();
+    double  getAUDVolume();
+    double  getUSDCAP();
+    double  getEURCAP();
+    double  getBTCCAP();
+    double  getCNYCAP();
+    double  getRUBCAP();
+    double  getCADCAP();
+    double  getSGDCAP();
+    double  getCHFCAP();
+    double  getINRCAP();
+    double  getGBPCAP();
+    double  getAUDCAP();
+    
 
     // Static stuff
     static const QString txidStatusMessage;
@@ -100,7 +169,8 @@ public:
     static const QString labelRegExp;
 
     static const int     updateSpeed         = 30 * 1000;        // 30 sec
-    static const int     priceRefreshSpeed   = 60 * 60 * 1000;   // 1 hr
+    static const int     quickUpdateSpeed    = 5  * 1000;        // 3 sec
+    static const int     priceRefreshSpeed   = 5 * 60 * 1000;   // 15 min
 
 private:
     // This class can only be accessed through Settings::getInstance()
@@ -113,11 +183,43 @@ private:
     bool    _isTestnet        = false;
     bool    _isSyncing        = false;
     int     _blockNumber      = 0;
-    QString _safecoindVersion    = 0;
+    QString     _safecoindVersion    = 0;
     bool    _useEmbedded      = false;
     bool    _headless         = false;
     
-    double  SAFEPrice          = 0.0;
+    double  ZECPrice          = 0.0;
+    double  BTCPrice          = 0.0;
+    double  EURPrice          = 0.0;
+    double  CNYPrice          = 0.0;
+    double  RUBPrice          = 0.0;
+    double  CADPrice          = 0.0;
+    double  SGDPrice          = 0.0;
+    double  CHFPrice          = 0.0;
+    double  INRPrice          = 0.0;
+    double  GBPPrice          = 0.0;
+    double  AUDPrice          = 0.0;
+    double  USDVolume          = 0.0;
+    double  EURVolume          = 0.0;
+    double  BTCVolume          = 0.0;
+    double  CNYVolume          = 0.0;
+    double  RUBVolume          = 0.0;
+    double  CADVolume          = 0.0;
+    double  SGDVolume          = 0.0;
+    double  CHFVolume          = 0.0;
+    double  INRVolume          = 0.0;
+    double  GBPVolume          = 0.0;
+    double  AUDVolume          = 0.0;
+    double  USDCAP          = 0.0;
+    double  EURCAP          = 0.0;
+    double  BTCCAP          = 0.0;
+    double  CNYCAP          = 0.0;
+    double  RUBCAP          = 0.0;
+    double  CADCAP          = 0.0;
+    double  SGDCAP          = 0.0;
+    double  CHFCAP          = 0.0;
+    double  INRCAP          = 0.0;
+    double  GBPCAP          = 0.0;
+    double  AUDCAP          = 0.0;
 };
 
 

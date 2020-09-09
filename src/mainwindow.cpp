@@ -1,3 +1,6 @@
+﻿// Copyright 2019-2020 The Hush developers
+// GPLv3
+
 #include "mainwindow.h"
 #include "addressbook.h"
 #include "viewalladdresses.h"
@@ -14,16 +17,54 @@
 #include "settings.h"
 #include "version.h"
 #include "connection.h"
+#include "ui_sendHushTransactionChat.h"
+#include "ui_contactrequest.h"
+#include "ui_deposithush.h"
+#include "ui_emoji.h"
+#include "ui_requestContactDialog.h"
+#include "chatmodel.h"
 #include "requestdialog.h"
+#include "ui_startupencryption.h" 
+#include "ui_removeencryption.h"
+#include "ui_seedrestore.h"
 #include "websockets.h"
+#include "sodium.h"
+#include "sodium/crypto_generichash_blake2b.h"
 #include <QRegularExpression>
+#include "FileSystem/FileSystem.h"
+#include "Crypto/passwd.h"
+#include "Crypto/FileEncryption.h"
+#include "DataStore/DataStore.h"
+#include "firsttimewizard.h"
+#include "../lib/safewalletlitelib.h"
+#include <QCoreApplication>
+#include <QGuiApplication>
+#include <QKeyEvent>
 
 using json = nlohmann::json;
+
+
+#ifdef Q_OS_WIN
+auto dirwallet = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite/safecoinwalletlite-wallet.dat");
+auto dirwalletenc = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite/safecoinwalletlite-wallet-enc.dat");
+auto dirwalletbackup = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite/safecoinwalletlite-wallet.datBackup");
+#endif
+#ifdef Q_OS_MACOS
+auto dirwallet = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite/safecoinwalletlite-wallet.dat");
+auto dirwalletenc = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite/safecoinwalletlite-wallet-enc.dat");
+auto dirwalletbackup = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite/safecoinwalletlite-wallet.datBackup");
+#endif
+#ifdef Q_OS_LINUX
+auto dirwallet = QDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)).filePath(".safecoinwalletlite/safecoinwalletlite-wallet.dat");
+auto dirwalletenc = QDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)).filePath(".safecoinwalletlite/safecoinwalletlite-wallet-enc.dat");
+auto dirwalletbackup = QDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation)).filePath(".safecoinwalletlite/safecoinwalletlite-wallet.datBackup");
+#endif
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+   
 	// Include css    
     QString theme_name;
     try
@@ -32,15 +73,28 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     catch (...)
     {
-        theme_name = "default";
+        theme_name = "Dark";
     }
 
     this->slot_change_theme(theme_name);
 
-	    
+ 
     ui->setupUi(this);
-    logger = new Logger(this, QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safe-qt-wallet-lite.log"));
 
+    logger = new Logger(this, QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite-wallet.log"));
+      // Check for encryption
+ 
+       
+ 
+    if(fileExists(dirwalletenc))
+    {
+        this->removeWalletEncryptionStartUp();
+    }
+
+     ui->memoTxtChat->setAutoFillBackground(false);
+     ui->memoTxtChat->setPlaceholderText("Send Message (you can only write messages after the initial message from your contact)");
+     ui->memoTxtChat->setTextColor(Qt::white);
+    
     // Status Bar
     setupStatusBar();
     
@@ -50,8 +104,12 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set up exit action
     QObject::connect(ui->actionExit, &QAction::triggered, this, &MainWindow::close);
 
-    // Set up donate action
+    // Set up Feedback action
     QObject::connect(ui->actionDonate, &QAction::triggered, this, &MainWindow::donate);
+
+    QObject::connect(ui->actionDiscord, &QAction::triggered, this, &MainWindow::discord);
+
+    QObject::connect(ui->actionWebsite, &QAction::triggered, this, &MainWindow::website);
 
     // File a bug
     QObject::connect(ui->actionFile_a_bug, &QAction::triggered, [=]() {
@@ -69,14 +127,14 @@ MainWindow::MainWindow(QWidget *parent) :
         Recurring::getInstance()->showRecurringDialog(this);
     });
 
-    // Request safecoin
-    QObject::connect(ui->actionRequest_safecoin, &QAction::triggered, [=]() {
-        RequestDialog::showRequestSafecoin(this);
+    // Request hush
+    QObject::connect(ui->actionRequest_hush, &QAction::triggered, [=]() {
+        RequestDialog::showRequesthush(this);
     });
 
-    // Pay Safecoin URI
+    // Pay hush URI
     QObject::connect(ui->actionPay_URI, &QAction::triggered, [=] () {
-        paySafecoinURI();
+        payhushURI();
     });
 
     // Wallet encryption
@@ -107,17 +165,115 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Rescan
     QObject::connect(ui->actionRescan, &QAction::triggered, [=]() {
-        // To rescan, we clear the wallet state, and then reload the connection
+
+       /* QFile file(dirwalletenc);
+        QFile file1(dirwallet);
+
+        if(fileExists(dirwalletenc))
+
+          {
+        file.remove();
+        file1.remove();
+          }*/
+
+
+    Ui_Restore restoreSeed;
+    QDialog dialog(this);
+    restoreSeed.setupUi(&dialog);
+    Settings::saveRestore(&dialog);
+
+
+            rpc->fetchSeed([=](json reply) {
+        if (isJsonError(reply)) {
+            return;
+        }
+
+        restoreSeed.seed->setReadOnly(true);
+        restoreSeed.seed->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
+        QString seedJson = QString::fromStdString(reply["seed"].get<json::string_t>());
+        restoreSeed.seed->setPlainText(seedJson);
+
+        QString birthday = QString::number(reply["birthday"].get<json::number_unsigned_t>());
+        restoreSeed.birthday->setPlainText(birthday);
+        });
+
+    QObject::connect(restoreSeed.restore, &QPushButton::clicked, [&](){
+
+    QString seed = restoreSeed.seed->toPlainText();
+    if (seed.trimmed().split(" ").length() != 24) {
+        QMessageBox::warning(this, tr("Failed to restore wallet"), 
+            tr("SafecoinWalletnLite needs 24 words to restore wallet"),
+            QMessageBox::Ok);
+        return false;
+    }
+
+
+    // 2. Validate birthday
+    QString birthday_str =  restoreSeed.birthday->toPlainText();
+    bool ok;
+    qint64 birthday = birthday_str.toUInt(&ok);
+    if (!ok) {
+        QMessageBox::warning(this, tr("Failed to parse wallet birthday"), 
+            tr("Couldn't understand wallet birthday. This should be a block height from where to rescan the wallet. You can leave it as '0' if you don't know what it should be."),
+            QMessageBox::Ok);
+        return false;
+    }
+
+
+    QString number_str =  restoreSeed.quantity->text();
+    qint64 number = number_str.toUInt();
+
+    auto config = std::shared_ptr<ConnectionConfig>(new ConnectionConfig());
+    config->server = Settings::getInstance()->getSettings().server;
+    // 3. Attempt to restore wallet with the seed phrase
+    {
+        char* resp = litelib_initialize_new_from_phrase(config->dangerous, config->server.toStdString().c_str(),
+                seed.toStdString().c_str(), birthday, number);
+        QString reply = litelib_process_response(resp);
+
+        if (reply.toUpper().trimmed() != "OK") {
+            QMessageBox::warning(this, tr("Failed to restore wallet"), 
+                tr("Couldn't restore the wallet") + "\n" + reply,
+                QMessageBox::Ok);
+           
+        } 
+    }
+
+    // 4. Finally attempt to save the wallet
+    {
+        char* resp = litelib_execute("save", "");
+        QString reply = litelib_process_response(resp);
+
+        QByteArray ba_reply = reply.toUtf8();
+        QJsonDocument jd_reply = QJsonDocument::fromJson(ba_reply);
+        QJsonObject parsed = jd_reply.object();
+
+        if (parsed.isEmpty() || parsed["result"].isNull()) {
+            QMessageBox::warning(this, tr("Failed to save wallet"), 
+                tr("Couldn't save the wallet") + "\n" + reply,
+                QMessageBox::Ok);
+
+        } else {}  
+
+            dialog.close();
+          // To rescan, we clear the wallet state, and then reload the connection
         // This will start a sync, and show the scanning status. 
-        this->getRPC()->clearWallet([=] (auto) {
+       this->getRPC()->clearWallet([=] (auto) {
             // Save the wallet
             this->getRPC()->saveWallet([=] (auto) {
                 // Then reload the connection. The ConnectionLoader deletes itself.
-                auto cl = new ConnectionLoader(this, rpc);
+               auto cl = new ConnectionLoader(this, rpc);
                 cl->loadConnection();
-            });
-        });
-    });
+                         });       
+                     });
+
+    
+                 }
+
+             });
+               
+        dialog.exec();
+});
 
     // Address Book
     QObject::connect(ui->action_Address_Book, &QAction::triggered, this, &MainWindow::addressBook);
@@ -139,15 +295,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setCurrentIndex(0);
 
 
-    // The safecoind tab is hidden by default, and only later added in if the embedded safecoind is started
-    safecoindtab = ui->tabWidget->widget(4);
-    ui->tabWidget->removeTab(4);
+    // The hushd tab is hidden by default, and only later added in if the embedded hushd is started
+    //hushdtab = ui->tabWidget->widget(4);
+    //ui->tabWidget->removeTab(4);
 
     setupSendTab();
     setupTransactionsTab();
     setupReceiveTab();
     setupBalancesTab();
-    setupSafecoindTab();
+    setuphushdTab();
+    setupchatTab();
 
     rpc = new Controller(this);
 
@@ -162,6 +319,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
         createWebsocket(wormholecode);
     }
+}
+
+bool MainWindow::fileExists(QString path) 
+{
+    QFileInfo check_file(path);
+    return (check_file.exists() && check_file.isFile());
 }
  
 void MainWindow::createWebsocket(QString wormholecode) {
@@ -217,6 +380,10 @@ void MainWindow::doClose() {
     closeEvent(nullptr);
 }
 
+void MainWindow::doClosePw() {
+    closeEventpw(nullptr);
+}
+
 void MainWindow::closeEvent(QCloseEvent* event) {
     QSettings s;
 
@@ -226,134 +393,359 @@ void MainWindow::closeEvent(QCloseEvent* event) {
 
     s.sync();
 
+
     // Let the RPC know to shut down any running service.
-    rpc->shutdownSafecoind();
+    rpc->shutdownhushd();
+    int passphraselenght = DataStore::getChatDataStore()->getPassword().length();
+
+// Check is encryption is ON for SDl
+    if(passphraselenght > 0) 
+   
+    {
+        // delete old file before
+
+        //auto dirHome =  QDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+        QFile fileoldencryption(dirwalletenc);
+        fileoldencryption.remove();
+
+         // Encrypt our wallet.dat 
+         QString passphraseHash = DataStore::getChatDataStore()->getPassword();
+         int length = passphraseHash.length();
+
+        char *sequence1 = NULL;
+        sequence1 = new char[length+1];
+        strncpy(sequence1, passphraseHash.toUtf8(), length+1);
+
+        #define PassphraseHashEnd ((const unsigned char *) sequence1)
+        #define MESSAGE_LEN length
+
+        #define PASSWORD sequence
+        #define KEY_LEN crypto_box_SEEDBYTES
+
+        const QByteArray ba = QByteArray::fromHex(passphraseHash.toLatin1());
+        const unsigned char *encryptedMemo1 = reinterpret_cast<const unsigned char *>(ba.constData());
+ 
+        auto dir =  QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+        QString sourceWallet_file = dirwallet;
+        QString target_encWallet_file = dirwalletenc;
+     
+       // FileEncryption::encrypt(target_enc_file, source_file, key);
+        FileEncryption::encrypt(target_encWallet_file, sourceWallet_file, encryptedMemo1);      
+
+        QFile wallet(dirwallet);
+        wallet.remove();
+    }
+    
 
     // Bubble up
     if (event)
         QMainWindow::closeEvent(event);
 }
 
+void MainWindow::closeEventpw(QCloseEvent* event) {
+
+    // Let the RPC know to shut down any running service.
+    rpc->shutdownhushd();
+
+
+}
+
 
 void MainWindow::encryptWallet() {
-    // Check if wallet is already encrypted
-    auto encStatus = rpc->getModel()->getEncryptionStatus();
-    if (encStatus.first) {
-        QMessageBox::information(this, tr("Wallet is already encrypted"), 
-                    tr("Your wallet is already encrypted with a password.\nPlease use 'Remove Wallet Encryption' if you want to remove the wallet encryption."),
-                    QMessageBox::Ok
-                );
-        return;
-    }
 
     QDialog d(this);
     Ui_encryptionDialog ed;
     ed.setupUi(&d);
 
     // Handle edits on the password box
+    
+    
     auto fnPasswordEdited = [=](const QString&) {
         // Enable the OK button if the passwords match.
+        QString password = ed.txtPassword->text();
+        
         if (!ed.txtPassword->text().isEmpty() && 
-                ed.txtPassword->text() == ed.txtConfirmPassword->text()) {
+                ed.txtPassword->text() == ed.txtConfirmPassword->text() && password.size() >= 16) {
+            ed.lblPasswordMatch->setText("");
+            ed.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+        } else {
+            //ed.lblPasswordMatch->setText(tr("Passphrase don't match or You have entered too few letters (16 minimum)"));
+            ed.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        }
+
+    };
+
+    QObject::connect(ed.txtConfirmPassword, &QLineEdit::textChanged, fnPasswordEdited);
+    QObject::connect(ed.txtPassword, &QLineEdit::textChanged, fnPasswordEdited);
+
+    if (d.exec() == QDialog::Accepted) 
+    {
+
+    QString passphraseBlank = ed.txtPassword->text(); // data comes from user inputs
+    QString passphrase = QString("HUSH3") + passphraseBlank + QString("SDL");
+    int length = passphrase.length();
+    
+
+        char *sequence = NULL;
+        sequence = new char[length+1];
+        strncpy(sequence, passphrase.toUtf8(), length +1);
+        
+        QString passphraseHash = blake3_PW(sequence);
+        DataStore::getChatDataStore()->setPassword(passphraseHash);
+
+        char *sequence1 = NULL;
+        sequence1 = new char[length+1];
+        strncpy(sequence1, passphraseHash.toUtf8(), length+1);
+
+        #define MESSAGE ((const unsigned char *) sequence)
+        #define MESSAGE_LEN length
+        #define hash ((const unsigned char *) sequence1)
+
+        #define PASSWORD sequence
+        #define KEY_LEN crypto_box_SEEDBYTES
+
+        unsigned char key[KEY_LEN];
+
+         if (crypto_pwhash
+         (key, sizeof key, PASSWORD, strlen(PASSWORD), hash,
+         crypto_pwhash_OPSLIMIT_SENSITIVE, crypto_pwhash_MEMLIMIT_SENSITIVE,
+         crypto_pwhash_ALG_DEFAULT) != 0) {
+         /* out of memory */
+}
+        QString passphraseHash1 = QByteArray(reinterpret_cast<const char*>(key), KEY_LEN).toHex();
+        DataStore::getChatDataStore()->setPassword(passphraseHash1);
+
+        auto dir =  QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+        auto dirHome =  QDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+        QString sourceWallet_file = dirwallet;
+        QString target_encWallet_file = dirwalletenc;
+    
+        FileEncryption::encrypt(target_encWallet_file, sourceWallet_file, key);
+
+        QFile wallet(dirwallet);
+        wallet.rename(dirwalletbackup);
+
+           QMessageBox::information(this, tr("Wallet Encryption Success"),
+                    QString("Successfully encrypted your wallet"),
+                    QMessageBox::Ok
+                ); 
+    }
+}
+
+void MainWindow::removeWalletEncryption() {
+    QDialog d(this);
+    Ui_removeencryption ed;
+    ed.setupUi(&d);
+
+    if (fileExists(dirwalletenc) == false) {
+        QMessageBox::information(this, tr("Wallet is not encrypted"), 
+                    tr("Your wallet is not encrypted with a passphrase."),
+                    QMessageBox::Ok
+                );
+        return;
+    }
+
+     auto fnPasswordEdited = [=](const QString&) {
+        QString password = ed.txtPassword->text();
+        // Enable the OK button if the passwords match.
+        if (!ed.txtPassword->text().isEmpty() && 
+                ed.txtPassword->text() == ed.txtConfirmPassword->text() && password.size() >= 16) {
             ed.lblPasswordMatch->setText("");
             ed.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         } else {
             ed.lblPasswordMatch->setText(tr("Passwords don't match"));
             ed.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         }
+
     };
 
     QObject::connect(ed.txtConfirmPassword, &QLineEdit::textChanged, fnPasswordEdited);
     QObject::connect(ed.txtPassword, &QLineEdit::textChanged, fnPasswordEdited);
 
-    ed.txtPassword->setText("");
-    ed.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    if (d.exec() == QDialog::Accepted) 
+    {
+    QString passphraseBlank = ed.txtPassword->text(); // data comes from user inputs
 
-    auto fnShowError = [=](QString title, const json& res) {
-        QMessageBox::critical(this, title,
-            tr("Error was:\n") + QString::fromStdString(res.dump()),
-            QMessageBox::Ok
-        );
-    };
+    QString passphrase = QString("HUSH3") + passphraseBlank + QString("SDL");
 
-    if (d.exec() == QDialog::Accepted) {
-        rpc->encryptWallet(ed.txtPassword->text(), [=](json res) {
-            if (isJsonResultSuccess(res)) {
-                // Save the wallet
-                rpc->saveWallet([=] (json reply) {
-                    if (isJsonResultSuccess(reply)) {
-                        QMessageBox::information(this, tr("Wallet Encrypted"), 
-                            tr("Your wallet was successfully encrypted! The password will be needed to send funds or export private keys."),
-                            QMessageBox::Ok
-                        );
-                    } else {
-                        fnShowError(tr("Wallet Encryption Failed"), reply);
-                    }
-                });
+    int length = passphrase.length();
 
-                // And then refresh the UI
-                rpc->refresh(true);
-            } else {
-                fnShowError(tr("Wallet Encryption Failed"), res);
-            }
-        });
+    char *sequence = NULL;
+    sequence = new char[length+1];
+    strncpy(sequence, passphrase.toUtf8(), length +1);
+
+    QString passphraseHash = blake3_PW(sequence);
+
+    char *sequence1 = NULL;
+    sequence1 = new char[length+1];
+    strncpy(sequence1, passphraseHash.toUtf8(), length+1);
+
+
+    #define hash ((const unsigned char *) sequence1)
+
+    #define PASSWORD sequence
+    #define KEY_LEN crypto_box_SEEDBYTES
+
+    unsigned char key[KEY_LEN];
+
+    if (crypto_pwhash
+    (key, sizeof key, PASSWORD, strlen(PASSWORD), hash,
+     crypto_pwhash_OPSLIMIT_SENSITIVE, crypto_pwhash_MEMLIMIT_SENSITIVE,
+     crypto_pwhash_ALG_DEFAULT) != 0) {
+    /* out of memory */
+}
+  
+        auto dir =  QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+        auto dirHome =  QDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+        QString target_encwallet_file = dirwalletenc;
+        QString target_decwallet_file = dirwallet;
+
+        FileEncryption::decrypt(target_decwallet_file, target_encwallet_file, key);
+
+    
+     QFile filencrypted(dirwalletenc);
+     QFile wallet(dirwallet);
+       
+    if (wallet.size() > 0)
+    {
+      
+         QMessageBox::information(this, tr("Wallet decryption Success"),
+                    QString("Successfully delete the encryption"),
+                    QMessageBox::Ok
+                );   
+
+        filencrypted.remove();  
+
+        }else{
+               
+         QMessageBox::critical(this, tr("Wallet Encryption Failed"),
+                    QString("False password, please try again"),
+                    QMessageBox::Ok
+                );
+                 this->removeWalletEncryption();
+        }    
+
     }
+   
 }
 
-void MainWindow::removeWalletEncryption() {
-    // Check if wallet is already encrypted
-    auto encStatus = rpc->getModel()->getEncryptionStatus();
-    if (!encStatus.first) {
-        QMessageBox::information(this, tr("Wallet is not encrypted"), 
-                    tr("Your wallet is not encrypted with a password."),
+void MainWindow::removeWalletEncryptionStartUp() {
+   QDialog d(this);
+    Ui_startup ed;
+    ed.setupUi(&d);
+
+     QObject::connect(ed.new_restore, &QPushButton::clicked, [&] {
+
+     d.close();
+     QFile wallet(dirwallet);
+     QFile walletenc(dirwalletenc);
+
+     wallet.remove();
+     walletenc.remove();
+
+       auto cl = new ConnectionLoader(this, rpc);
+       cl->loadConnection();       
+   });
+  
+    if (d.exec() == QDialog::Accepted) 
+    {
+        QString passphraseBlank = ed.txtPassword->text(); // data comes from user inputs
+
+        QString passphrase = QString("HUSH3") + passphraseBlank + QString("SDL");
+        int length = passphrase.length();
+        
+        char *sequence = NULL;
+        sequence = new char[length+1];
+        strncpy(sequence, passphrase.toUtf8(), length +1);
+        
+        QString passphraseHash = blake3_PW(sequence);
+        
+
+        char *sequence1 = NULL;
+        sequence1 = new char[length+1];
+        strncpy(sequence1, passphraseHash.toUtf8(), length+1);
+
+        #define MESSAGE ((const unsigned char *) sequence)
+        #define MESSAGE_LEN length
+        #define hash ((const unsigned char *) sequence1)
+
+        #define PASSWORD sequence
+        #define KEY_LEN crypto_box_SEEDBYTES
+
+    unsigned char key[KEY_LEN];
+
+    if (crypto_pwhash
+    (key, sizeof key, PASSWORD, strlen(PASSWORD), hash,
+     crypto_pwhash_OPSLIMIT_SENSITIVE, crypto_pwhash_MEMLIMIT_SENSITIVE,
+     crypto_pwhash_ALG_DEFAULT) != 0) {
+    /* out of memory */
+}
+        QString passphraseHash1 = QByteArray(reinterpret_cast<const char*>(key), KEY_LEN).toHex();
+        DataStore::getChatDataStore()->setPassword(passphraseHash1);
+
+        auto dir =  QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+
+        QString target_encwallet_file = dirwalletenc;
+        QString target_decwallet_file = dirwallet;
+
+        FileEncryption::decrypt(target_decwallet_file, target_encwallet_file, key);
+
+    
+
+     auto dirHome =  QDir(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+     QFile wallet(dirwallet);
+    
+    if (wallet.size() == 0)
+    {
+         
+         QMessageBox::critical(this, tr("Wallet Encryption Failed"),
+                    QString("false password please try again"),
                     QMessageBox::Ok
                 );
-        return;
+                 this->removeWalletEncryptionStartUp();
+        }else{}   
+
+    }else{
+
+        this->doClosePw();
     }
 
-    bool ok;
-    QString password = QInputDialog::getText(this, tr("Wallet Password"), 
-                            tr("Please enter your wallet password"), QLineEdit::Password, "", &ok);
+}
 
-    // If cancel was pressed, just return
-    if (!ok) {
-        return;
-    }
+QString MainWindow::getPassword()
+{
 
-    if (password.isEmpty()) {
-        QMessageBox::critical(this, tr("Wallet Decryption Failed"),
-            tr("Please enter a password to decrypt your wallet!"),
-            QMessageBox::Ok
-        );
-        return;
-    }
+    return _password;
+}
 
-    rpc->removeWalletEncryption(password, [=] (json res) {
-        if (isJsonResultSuccess(res)) {
-                // Save the wallet
-                rpc->saveWallet([=] (json reply) {
-                    if(isJsonResultSuccess(reply)) {
-                        QMessageBox::information(this, tr("Wallet Encryption Removed"), 
-                            tr("Your wallet was successfully decrypted! You will no longer need a password to send funds or export private keys."),
-                            QMessageBox::Ok
-                        );
-                    } else {
-                        QMessageBox::critical(this, tr("Wallet Decryption Failed"),
-                            QString::fromStdString(reply["error"].get<json::string_t>()),
-                            QMessageBox::Ok
-                        );
-                    }
-                });
+void MainWindow::setPassword(QString password)
+{
 
-                // And then refresh the UI
-                rpc->refresh(true);
-            } else {
-                QMessageBox::critical(this, tr("Wallet Decryption Failed"),
-                    QString::fromStdString(res["error"].get<json::string_t>()),
-                    QMessageBox::Ok
-                );
-            }
-    });            
+    _password = password;
+}
+
+QString MainWindow::getAmt()
+{
+
+    return _amt;
+}
+
+void MainWindow::setAmt(QString amt)
+{
+
+    _amt = amt;
+}
+
+QString MainWindow::getMoneyMemo()
+{
+
+    return _moneymemo;
+}
+
+void MainWindow::setMoneyMemo(QString moneymemo)
+{
+
+    _moneymemo = moneymemo;
 }
 
 void MainWindow::setupStatusBar() {
@@ -364,6 +756,7 @@ void MainWindow::setupStatusBar() {
     loadingMovie->start();
     loadingLabel->setAttribute(Qt::WA_NoSystemBackground);
     loadingLabel->setMovie(loadingMovie);
+    
 
     ui->statusBar->addPermanentWidget(loadingLabel);
     loadingLabel->setVisible(false);
@@ -379,6 +772,11 @@ void MainWindow::setupStatusBar() {
             menu.addAction(tr("Copy txid"), [=]() {
                 QGuiApplication::clipboard()->setText(txid);
             });
+            menu.addAction(tr("Copy block explorer link"), [=]() {
+               // auto explorer = Settings::getInstance()->getExplorer();
+             QGuiApplication::clipboard()->setText("https://explorer.myhush.org/tx/" + txid);
+            });
+
             menu.addAction(tr("View tx on block explorer"), [=]() {
                 Settings::openTxInExplorer(txid);
             });
@@ -405,6 +803,20 @@ void MainWindow::setupSettingsModal() {
         Ui_Settings settings;
         settings.setupUi(&settingsDialog);
         Settings::saveRestore(&settingsDialog);
+    
+     // Include currencies 
+
+    QString currency_name;
+    try
+    {
+       currency_name = Settings::getInstance()->get_currency_name();
+    }
+    catch (...)
+    {
+        currency_name = "USD";
+    }
+
+    this->slot_change_currency(currency_name);
 
         // Setup theme combo
         int theme_index = settings.comboBoxTheme->findText(Settings::getInstance()->get_theme_name(), Qt::MatchExactly);
@@ -412,9 +824,20 @@ void MainWindow::setupSettingsModal() {
 
         QObject::connect(settings.comboBoxTheme, &QComboBox::currentTextChanged, [=] (QString theme_name) {
             this->slot_change_theme(theme_name);
-            // Tell the user to restart
-            QMessageBox::information(this, tr("Restart"), tr("Please restart SafeWallet to have the theme apply"), QMessageBox::Ok);
         });
+
+        // Get Currency Data
+       
+        int currency_index = settings.comboBoxCurrency->findText(Settings::getInstance()->get_currency_name(), Qt::MatchExactly);
+        settings.comboBoxCurrency->setCurrentIndex(currency_index);
+        
+       QObject::connect(settings.comboBoxCurrency, &QComboBox::currentTextChanged, [=] (QString currency_name) {
+            this->slot_change_currency(currency_name);
+            rpc->refresh(true);
+            
+             // Tell the user to restart
+            QMessageBox::information(this, tr("Currency Change"), tr("This change can take a few seconds."), QMessageBox::Ok);  
+             });
 
         // Check for updates
         settings.chkCheckUpdates->setChecked(Settings::getInstance()->getCheckForUpdates());
@@ -423,8 +846,9 @@ void MainWindow::setupSettingsModal() {
         settings.chkFetchPrices->setChecked(Settings::getInstance()->getAllowFetchPrices());
         
         // List of default servers
-        settings.cmbServer->addItem("https://seedvpsua.local.support:443");
-        settings.cmbServer->addItem("https://seedvpsna.local.support:443");
+        settings.cmbServer->addItem("https://lite.myhush.org");
+        settings.cmbServer->addItem("6onaaujm4ozaokzu.onion:80");
+
 
         // Load current values into the dialog        
         auto conf = Settings::getInstance()->getSettings();
@@ -476,17 +900,26 @@ void MainWindow::addressBook() {
     AddressBook::open(this);
 }
 
+void MainWindow::discord() {
+    QString url = "https://discord.com/invite/c6hWAkQ";
+    QDesktopServices::openUrl(QUrl(url));
+}
+
+void MainWindow::website() {
+    QString url = "https://safecoin.org";
+    QDesktopServices::openUrl(QUrl(url));
+}
+
 
 void MainWindow::donate() {
     // Set up a donation to me :)
-    clearSendForm();
 
     ui->Address1->setText(Settings::getDonationAddr());
     ui->Address1->setCursorPosition(0);
-    ui->Amount1->setText("0.01");
-    ui->MemoTxt1->setText(tr("Thanks for supporting SafeWallet!"));
+    ui->Amount1->setText("0.00");
+    ui->MemoTxt1->setText(tr("Some feedback about SafecoinWalletlite or Safecoin..."));
 
-    ui->statusBar->showMessage(tr("Donate 0.01 ") % Settings::getTokenName() % tr(" to support SafeWallet"));
+    ui->statusBar->showMessage(tr("Send DenioD some private and shielded feedback about") % Settings::getTokenName() % tr(" or SafecoinWalletLite"));
 
     // And switch to the send tab.
     ui->tabWidget->setCurrentIndex(1);
@@ -531,8 +964,8 @@ void MainWindow::balancesReady() {
     // There is a pending URI payment (from the command line, or from a secondary instance),
     // process it.
     if (!pendingURIPayment.isEmpty()) {
-        qDebug() << "Paying Safecoin URI";
-        paySafecoinURI(pendingURIPayment);
+        qDebug() << "Paying hush URI";
+        payhushURI(pendingURIPayment);
         pendingURIPayment = "";
     }
 
@@ -545,7 +978,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::FileOpen) {
         QFileOpenEvent *fileEvent = static_cast<QFileOpenEvent*>(event);
         if (!fileEvent->url().isEmpty())
-            paySafecoinURI(fileEvent->url().toString());
+            payhushURI(fileEvent->url().toString());
 
         return true;
     }
@@ -554,10 +987,10 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
 }
 
 
-// Pay the Safecoin URI by showing a confirmation window. If the URI parameter is empty, the UI
+// Pay the hush URI by showing a confirmation window. If the URI parameter is empty, the UI
 // will prompt for one. If the myAddr is empty, then the default from address is used to send
 // the transaction.
-void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
+void MainWindow::payhushURI(QString uri, QString myAddr) {
     // If the Payments UI is not ready (i.e, all balances have not loaded), defer the payment URI
     if (!isPaymentsReady()) {
         qDebug() << "Payment UI not ready, waiting for UI to pay URI";
@@ -567,8 +1000,8 @@ void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
 
     // If there was no URI passed, ask the user for one.
     if (uri.isEmpty()) {
-        uri = QInputDialog::getText(this, tr("Paste SAFE URI"),
-            "SAFE URI" + QString(" ").repeated(180));
+        uri = QInputDialog::getText(this, tr("Paste HUSH URI"),
+            "HUSH URI" + QString(" ").repeated(180));
     }
 
     // If there's no URI, just exit
@@ -579,8 +1012,8 @@ void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
     qDebug() << "Received URI " << uri;
     PaymentURI paymentInfo = Settings::parseURI(uri);
     if (!paymentInfo.error.isEmpty()) {
-        QMessageBox::critical(this, tr("Error paying SAFE URI"), 
-                tr("URI should be of the form 'safecoin:<addr>?amt=x&memo=y") + "\n" + paymentInfo.error);
+        QMessageBox::critical(this, tr("Error paying HUSH URI"), 
+                tr("URI should be of the form 'hush:<addr>?amt=x&memo=y") + "\n" + paymentInfo.error);
         return;
     }
 
@@ -613,7 +1046,7 @@ void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
 //     pui.buttonBox->button(QDialogButtonBox::Save)->setVisible(false);
 //     pui.helpLbl->setText(QString() %
 //                         tr("Please paste your private keys (z-Addr or t-Addr) here, one per line") % ".\n" %
-//                         tr("The keys will be imported into your connected safecoind node"));  
+//                         tr("The keys will be imported into your connected hushd node"));  
 
 //     if (d.exec() == QDialog::Accepted && !pui.privKeyTxt->toPlainText().trimmed().isEmpty()) {
 //         auto rawkeys = pui.privKeyTxt->toPlainText().trimmed().split("\n");
@@ -654,7 +1087,7 @@ void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
  */
 void MainWindow::exportTransactions() {
     // First, get the export file name
-    QString exportName = "safecoin-transactions-" + QDateTime::currentDateTime().toString("yyyyMMdd") + ".csv";
+    QString exportName = "hush-transactions-" + QDateTime::currentDateTime().toString("yyyyMMdd") + ".csv";
 
     QUrl csvName = QFileDialog::getSaveFileUrl(this, 
             tr("Export transactions"), exportName, "CSV file (*.csv)");
@@ -702,7 +1135,7 @@ void MainWindow::exportSeed() {
         // Wire up save button
         QObject::connect(pui.buttonBox->button(QDialogButtonBox::Save), &QPushButton::clicked, [=] () {
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                            "safecoin-seed.txt");
+                            "Hush-seed.txt");
             QFile file(fileName);
             if (!file.open(QIODevice::WriteOnly)) {
                 QMessageBox::information(this, tr("Unable to open file"), file.errorString());
@@ -717,6 +1150,27 @@ void MainWindow::exportSeed() {
         d.exec();
     });
 }
+
+void MainWindow::addPubkey(QString requestZaddr, QString pubkey)
+{
+    this->pubkeyMap[requestZaddr] = pubkey;
+}
+
+QString MainWindow::getPubkeyByAddress(QString requestZaddr)
+{
+    for(auto& pair : this->pubkeyMap)
+    {
+
+    }
+
+    if(this->pubkeyMap.count(requestZaddr) > 0)
+    {
+        return this->pubkeyMap[requestZaddr];
+    }
+
+    return QString("0xdeadbeef");
+}
+
 
 void MainWindow::exportAllKeys() {
     exportKeys("");
@@ -763,7 +1217,7 @@ void MainWindow::exportKeys(QString addr) {
         // Wire up save button
         QObject::connect(pui.buttonBox->button(QDialogButtonBox::Save), &QPushButton::clicked, [=] () {
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                            allKeys ? "safecoin-all-privatekeys.txt" : "safecoin-privatekey.txt");
+                            allKeys ? "Hush-all-privatekeys.txt" : "Hush-privatekey.txt");
             QFile file(fileName);
             if (!file.open(QIODevice::WriteOnly)) {
                 QMessageBox::information(this, tr("Unable to open file"), file.errorString());
@@ -796,6 +1250,35 @@ void MainWindow::setupBalancesTab() {
     ui->unconfirmedWarning->setVisible(false);
     ui->lblSyncWarning->setVisible(false);
     ui->lblSyncWarningReceive->setVisible(false);
+    QObject::connect(ui->depositHushButton, &QPushButton::clicked, [=](){
+
+    Ui_deposithush deposithush;
+    QDialog dialog(this);
+    deposithush.setupUi(&dialog);
+    Settings::saveRestore(&dialog);
+
+     QList<QString> allAddresses;
+
+     allAddresses = getRPC()->getModel()->getAllZAddresses();
+    QString depositzaddr = allAddresses[0];
+     deposithush.qrcodeDisplayDeposit->setQrcodeString(depositzaddr);
+     deposithush.zaddr->setText(depositzaddr);
+
+      QObject::connect(deposithush.CopyAddress, &QPushButton::clicked, [=](){
+
+        QGuiApplication::clipboard()->setText(depositzaddr);
+        ui->statusBar->showMessage(tr("Copied to clipboard"), 3 * 1000);
+
+      });
+
+
+
+    dialog.exec();
+
+
+
+
+    });
 
 
     // Setup context menu on balances tab
@@ -829,10 +1312,11 @@ void MainWindow::setupBalancesTab() {
 
         menu.exec(ui->balancesTable->viewport()->mapToGlobal(pos));            
     });
+
 }
 
-void MainWindow::setupSafecoindTab() {    
-    ui->safecoindlogo->setBasePixmap(QPixmap(":/img/res/safecoindlogo.gif"));
+void MainWindow::setuphushdTab() {    
+    ui->hushdlogo->setBasePixmap(QPixmap(":/img/res/hushdlogo.gif"));
 }
 
 void MainWindow::setupTransactionsTab() {
@@ -843,8 +1327,6 @@ void MainWindow::setupTransactionsTab() {
 
         if (!memo.isEmpty()) {
             QMessageBox mb(QMessageBox::Information, tr("Memo"), memo, QMessageBox::Ok, this);
-            // Don't render html in the memo to avoid phishing-type attacks
-            // revist this in the future once the design of how to best handle memo based applications exists.
             mb.setTextFormat(Qt::PlainText);
             mb.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
             mb.exec();
@@ -852,8 +1334,22 @@ void MainWindow::setupTransactionsTab() {
     });
 
     // Set up context menu on transactions tab
+    auto theme = Settings::getInstance()->get_theme_name();
+    if (theme == "Dark" || theme == "Midnight") {
+    ui->listChat->setStyleSheet("background-image: url(:/icons/res/SDLogo.png) ;background-attachment: fixed ;background-position: center center ;background-repeat: no-repeat");
+     }
+    if (theme == "Default") {ui->listChat->setStyleSheet("background-image: url(:/icons/res/sdlogo2.png) ;background-attachment: fixed ;background-position: center center ;background-repeat: no-repeat");}
+   
+    ui->listChat->setResizeMode(QListView::Adjust);
+    ui->listChat->setWordWrap(true);
+    ui->listChat->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    ui->listChat->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->listChat->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->listChat->setMinimumSize(200,350);
+    ui->listChat->setItemDelegate(new ListViewDelegate());
+    ui->listChat->show();
+    
     ui->transactionsTable->setContextMenuPolicy(Qt::CustomContextMenu);
-
     // Table right click
     QObject::connect(ui->transactionsTable, &QTableView::customContextMenuRequested, [=] (QPoint pos) {
         QModelIndex index = ui->transactionsTable->indexAt(pos);
@@ -878,13 +1374,17 @@ void MainWindow::setupTransactionsTab() {
                 ui->statusBar->showMessage(tr("Copied to clipboard"), 3 * 1000);
             });
         }
+           menu.addAction(tr("Copy block explorer link"), [=]() {
+               // auto explorer = Settings::getInstance()->getExplorer();
+             QGuiApplication::clipboard()->setText("https://explorer.myhush.org/tx/" + txid);
+            });
 
         menu.addAction(tr("View on block explorer"), [=] () {
             Settings::openTxInExplorer(txid);
         });
 
         // Payment Request
-        if (!memo.isEmpty() && memo.startsWith("safecoin:")) {
+        if (!memo.isEmpty() && memo.startsWith("hush:")) {
             menu.addAction(tr("View Payment Request"), [=] () {
                 RequestDialog::showPaymentConfirmation(this, memo);
             });
@@ -894,8 +1394,6 @@ void MainWindow::setupTransactionsTab() {
         if (!memo.isEmpty()) {
             menu.addAction(tr("View Memo"), [=] () {               
                 QMessageBox mb(QMessageBox::Information, tr("Memo"), memo, QMessageBox::Ok, this);
-                // Don't render html in the memo to avoid phishing-type attacks
-                // revist this in the future once the design of how to best handle memo based applications exists.
                 mb.setTextFormat(Qt::PlainText);
                 mb.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
                 mb.exec();
@@ -925,13 +1423,939 @@ void MainWindow::setupTransactionsTab() {
                     qApp->processEvents();
 
                     // Click the memo button
-                    this->memoButtonClicked(1, true);
+                   this->memoButtonClicked(1, true);
                 });
             }
         }
 
         menu.exec(ui->transactionsTable->viewport()->mapToGlobal(pos));        
     });
+    
+}
+
+void MainWindow::setupchatTab() {
+
+    ui->memoTxtChat->setEnabled(false);
+    ui->emojiButton->setEnabled(false);
+    ui->sendChatButton->setEnabled(false);
+
+          /////////////Setting Icons for Chattab and different themes
+       
+  auto theme = Settings::getInstance()->get_theme_name();
+        if (theme == "Dark" || theme == "Midnight") {
+            QPixmap send(":/icons/res/send-white.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+
+            QPixmap notification(":/icons/res/requestWhite.png");
+            QIcon notificationIcon(notification);
+            ui->pushContact->setIcon(notificationIcon);
+
+            QPixmap addContact(":/icons/res/addContactWhite.png");
+            QIcon addContactIcon(addContact);
+            ui->safeContactRequest->setIcon(addContactIcon);
+
+            QPixmap newAddr(":/icons/res/getAddrWhite.png");
+            QIcon addnewAddrIcon(newAddr);
+            ui->givemeZaddr->setIcon(addnewAddrIcon);
+
+            ui->memoTxtChat->setTextColor("White");
+
+        }else{
+            
+            QPixmap send(":/icons/res/sendBlack.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+
+            QPixmap notification(":/icons/res/requestBlack.png");
+            QIcon notificationIcon(notification);
+            ui->pushContact->setIcon(notificationIcon);
+
+            QPixmap addContact(":/icons/res/addContactBlack.png");
+            QIcon addContactIcon(addContact);
+            ui->safeContactRequest->setIcon(addContactIcon);
+
+            QPixmap newAddr(":/icons/res/getAddrBlack.png");
+            QIcon addnewAddrIcon(newAddr);
+            ui->givemeZaddr->setIcon(addnewAddrIcon);
+
+            ui->memoTxtChat->setTextColor("Black");
+        }
+    
+    QObject::connect(ui->sendChatButton, &QPushButton::clicked, this, &MainWindow::sendChat);
+    QObject::connect(ui->sendChatButton, &QPushButton::clicked, [&] () {
+
+        ui->memoTxtChat->setEnabled(false);
+        ui->emojiButton->setEnabled(false);
+                
+
+    });
+    QObject::connect(ui->safeContactRequest, &QPushButton::clicked, this, &MainWindow::addContact);
+    QObject::connect(ui->pushContact, &QPushButton::clicked, this , &MainWindow::renderContactRequest);
+
+    ui->contactNameMemo->setText("");   
+
+    /////Copy Chatmessages
+
+     QMenu* contextMenuChat;
+     QAction* copymessage;
+     
+     QAction* viewexplorer;
+     QAction* copytxid;
+     QAction* copylink;
+     QAction* openlink;
+     contextMenuChat = new QMenu(ui->listChat);
+     ui->listChat->setContextMenuPolicy(Qt::ActionsContextMenu); 
+     copymessage = new QAction("Copy message to clipboard",contextMenuChat);
+     viewexplorer = new QAction("View on block explorer",contextMenuChat);
+     copytxid = new QAction("Copy txid to clipboard ",contextMenuChat);
+     copylink = new QAction("Copy Hyperlink from memo ",contextMenuChat);
+     openlink = new QAction("Open Hyperlink in your browser",contextMenuChat);
+    
+ QObject::connect(ui->listContactWidget, &QTableView::clicked, [=] () {
+
+     
+    
+     //contextMenuChat->autoFillBackground(false);
+     ui->listChat->addAction(copymessage);
+     ui->listChat->addAction(viewexplorer);
+     ui->listChat->addAction(copytxid);
+     ui->listChat->addAction(copylink);
+     ui->listChat->addAction(openlink);
+
+ });
+
+QObject::connect(copylink, &QAction::triggered, [=] {
+
+QModelIndex index = ui->listChat->currentIndex();
+QString memo_chat = index.data(Qt::DisplayRole).toString();
+QClipboard *clipboard = QGuiApplication::clipboard();
+QRegExp rx("((?:https?|ftp)://\\S+)");
+int pos = rx.indexIn(memo_chat, 0);
+if (-1 != pos)
+{
+    QString cap = rx.cap(0);
+    cap = cap.left(cap.indexOf('\''));
+    int startPos = cap.indexOf("<p>");
+    int endPos = cap.indexOf("</p>");
+    int length = endPos - startPos;
+    QString hyperlink = cap.mid(startPos, length);
+    clipboard->setText(hyperlink);
+    ui->statusBar->showMessage(tr("Copied Hyperlink to clipboard"), 3 * 1000); 
+
+}
+});
+
+QObject::connect(openlink, &QAction::triggered, [=] {
+
+QModelIndex index = ui->listChat->currentIndex();
+QString memo_chat = index.data(Qt::DisplayRole).toString();
+QRegExp rx("((?:https?|ftp)://\\S+)");
+int pos = rx.indexIn(memo_chat, 0);
+if (-1 != pos)
+{
+    QString cap = rx.cap(0);
+    cap = cap.left(cap.indexOf('\''));
+    int startPos = cap.indexOf("<p>");
+    int endPos = cap.indexOf("</p>");
+    int length = endPos - startPos;
+    QString hyperlink = cap.mid(startPos, length);
+    QDesktopServices::openUrl(QUrl(hyperlink));
+
+}
+});
+
+     QObject::connect(copymessage, &QAction::triggered, [=] {
+
+    
+    QModelIndex index = ui->listChat->currentIndex();
+    QString memo_chat = index.data(Qt::DisplayRole).toString();
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    int startPos = memo_chat.indexOf("<p>") + 3;
+    int endPos = memo_chat.indexOf("</p>");
+    int length = endPos - startPos;
+    QString copymemo = memo_chat.mid(startPos, length);
+   
+    clipboard->setText(copymemo);
+    ui->statusBar->showMessage(tr("Copied message to clipboard"), 3 * 1000);   
+
+});
+    QObject::connect(copytxid, &QAction::triggered, [=] {
+
+    QModelIndex index = ui->listChat->currentIndex();
+    QString memo_chat = index.data(Qt::DisplayRole).toString();
+    QClipboard *clipboard = QGuiApplication::clipboard();
+
+    int startPos = memo_chat.indexOf("<p>") + 3;
+    int endPos = memo_chat.indexOf("</p>");
+    int length = endPos - startPos;
+    QString copymemo = memo_chat.mid(startPos, length);
+    int startPosT = memo_chat.indexOf("<small>") + 7;
+    int endPosT = memo_chat.indexOf("<b>");
+    int lengthT = endPosT - startPosT;
+
+    QString time = memo_chat.mid(startPosT, lengthT);
+
+    for (auto &c : DataStore::getChatDataStore()->getAllRawChatItems()){
+
+    if (c.second.getMemo() == copymemo)
+    {
+    int timestamp =  c.second.getTimestamp();
+    QDateTime myDateTime;
+    QString lock;
+    myDateTime.setTime_t(timestamp);
+    QString timestamphtml = myDateTime.toString("yyyy-MM-dd hh:mm");
+
+    if(timestamphtml == time)
+
+    {
+    clipboard->setText(c.second.getTxid());
+    ui->statusBar->showMessage(tr("Copied Txid to clipboard"), 3 * 1000);  
+    }else{}
+
+    }
+   
+}
+
+});
+
+    QObject::connect(viewexplorer, &QAction::triggered, [=] {
+
+    QModelIndex index = ui->listChat->currentIndex();
+    QString memo_chat = index.data(Qt::DisplayRole).toString();
+
+    int startPos = memo_chat.indexOf("<p>") + 3;
+    int endPos = memo_chat.indexOf("</p>");
+    int length = endPos - startPos;
+    QString copymemo = memo_chat.mid(startPos, length);
+    int startPosT = memo_chat.indexOf("<small>") + 7;
+    int endPosT = memo_chat.indexOf("<b>");
+    int lengthT = endPosT - startPosT;
+
+    QString time = memo_chat.mid(startPosT, lengthT);
+
+    for (auto &c : DataStore::getChatDataStore()->getAllRawChatItems()){
+
+    if (c.second.getMemo() == copymemo)
+    {
+    int timestamp =  c.second.getTimestamp();
+    QDateTime myDateTime;
+    QString lock;
+    myDateTime.setTime_t(timestamp);
+    QString timestamphtml = myDateTime.toString("yyyy-MM-dd hh:mm");
+
+    if(timestamphtml == time)
+
+    {
+
+     Settings::openTxInExplorer(c.second.getTxid());
+    
+    }else{}
+
+    }
+   
+}
+});
+
+
+
+///////// Add contextmenu 
+     QMenu* contextMenu;
+     QAction* editAction;
+     QAction* HushAction;
+     contextMenu = new QMenu(ui->listContactWidget);
+     HushAction = new QAction("Send or Request Hush ",contextMenu);
+     editAction = new QAction("Delete this contact",contextMenu);
+
+///////// Set selected Zaddr for Chat with click
+
+    QObject::connect(ui->listContactWidget, &QTableView::clicked, [=] () {
+
+     ui->listContactWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
+     ui->listContactWidget->addAction(HushAction);
+     ui->listContactWidget->addAction(editAction); 
+
+     ui->memoTxtChat->setEnabled(false);
+     ui->emojiButton->setEnabled(false);
+     ui->sendChatButton->setEnabled(false);
+
+        QModelIndex index = ui->listContactWidget->currentIndex();
+        QString label_contact = index.data(Qt::DisplayRole).toString();
+        
+        for(auto &p : AddressBook::getInstance()->getAllAddressLabels())
+        if (label_contact == p.getName()) {
+        ui->contactNameMemo->setText(p.getName());    
+        rpc->refresh(true);
+    
+        }
+   });
+
+         QObject::connect(HushAction, &QAction::triggered, [=]() {   
+
+        QModelIndex index = ui->listContactWidget->currentIndex();
+        QString label_contact = index.data(Qt::DisplayRole).toString();
+
+        Ui_transactionHush transaction;
+        QDialog transactionDialog(this);
+        transaction.setupUi(&transactionDialog);
+        Settings::saveRestore(&transactionDialog);
+        transaction.amountChat->setValidator(this->getAmountValidator());
+        QString icon = ":icons/res/hush-money-white.png";
+        QPixmap hush(icon);
+        transaction.label_3->setPixmap(hush);
+
+        
+
+        for(auto &p : AddressBook::getInstance()->getAllAddressLabels())
+        if (label_contact == p.getName()) {
+            
+        QStandardItemModel* contact = new QStandardItemModel();
+        QString avatar = p.getAvatar();
+        QStandardItem* Items1 = new QStandardItem(p.getName());
+        Items1->setData(QIcon(avatar),Qt::DecorationRole);
+        contact->appendRow(Items1); 
+        transaction.contactName->setModel(contact);
+        transaction.contactName->setIconSize(QSize(60,70));
+        transaction.contactName->setUniformItemSizes(true);
+        transaction.contactName->setDragDropMode(QAbstractItemView::DropOnly);      
+        transaction.contactName->show();
+        
+
+        }
+        
+        QObject::connect(transaction.sendHush, &QPushButton::clicked, [&] (){
+            
+            QString amt = transaction.amountChat->text();
+            QString memo = transaction.MemoMoney->text();
+            this->setAmt(amt);
+            this->setMoneyMemo(memo);          
+            transactionDialog.close();
+        });
+        
+        QObject::connect(transaction.sendHush, &QPushButton::clicked, this , &MainWindow::sendMoneyChat);
+
+
+        
+        QObject::connect(transaction.requestHush, &QPushButton::clicked, [&] (){
+            
+            QString amt = transaction.amountChat->text();
+            QString memo = transaction.MemoMoney->text();
+            this->setAmt(amt);
+            this->setMoneyMemo(memo);          
+            transactionDialog.close();
+        });
+
+        QObject::connect(transaction.requestHush, &QPushButton::clicked, this , &MainWindow::sendMoneyRequestChat);
+
+        
+             
+        transactionDialog.exec();
+        
+     }); 
+
+          QObject::connect(editAction, &QAction::triggered, [=]() {
+          QModelIndex index = ui->listContactWidget->currentIndex();
+        QString label_contact = index.data(Qt::DisplayRole).toString();
+        
+        for(auto &p : AddressBook::getInstance()->getAllAddressLabels())
+        if (label_contact == p.getName()) {
+        
+            QString label1 = p.getName();
+            QString addr = p.getPartnerAddress();
+            QString myzaddr =  p.getMyAddress();
+            QString cid = p.getCid();
+            QString avatar = p.getAvatar();
+
+
+     AddressBook::getInstance()->removeAddressLabel(label1, addr, myzaddr, cid,avatar);
+     rpc->refreshContacts(
+            ui->listContactWidget);
+     rpc->refresh(true);
+        }    
+     });
+
+   
+   
+ui->memoTxtChat->setLenDisplayLabelChat(ui->memoSizeChat);
+
+}
+
+// Create a Tx from the current state of the Chat page. 
+Tx MainWindow::createTxFromSendChatPage() {
+   Tx tx;
+    CAmount totalAmt;
+    // For each addr/amt in the Chat tab
+  {
+       
+        QString amtStr = this->getAmt();
+        CAmount amt; 
+        CAmount amtHm;
+       
+            amt = CAmount::fromDecimalString(amtStr);
+            amtHm = CAmount::fromDecimalString("0");
+            totalAmt = totalAmt + amt;
+
+        QModelIndex index = ui->listContactWidget->currentIndex();
+        QString label_contact = index.data(Qt::DisplayRole).toString();
+
+    for(auto &c : AddressBook::getInstance()->getAllAddressLabels())
+
+     if (label_contact == c.getName()) {
+     
+            QString cid = c.getCid();
+            QString myAddr = c.getMyAddress();
+            QString type = "Money";
+            QString addr = c.getPartnerAddress();
+            QString moneymemo = this->getMoneyMemo();
+           
+             /////////User input for chatmemos
+        QString memoplain = QString("Money transaction of : ") + amtStr + QString(" HUSH") +  QString("\n") +  QString("\n") + moneymemo;
+
+  /////////We convert the user input from QString to unsigned char*, so we can encrypt it later
+        int lengthmemo = memoplain.length();
+
+        char *memoplainchar = NULL;
+        memoplainchar = new char[lengthmemo+2];
+        strncpy(memoplainchar, memoplain.toUtf8(), lengthmemo +1);
+
+        QString pubkey = this->getPubkeyByAddress(addr);
+        QString passphraseHash = DataStore::getChatDataStore()->getPassword();
+        int length = passphraseHash.length();
+
+ ////////////////Generate the secretkey for our message encryption
+
+        char *hashEncryptionKeyraw = NULL;
+        hashEncryptionKeyraw = new char[length+1];
+        strncpy(hashEncryptionKeyraw, passphraseHash.toUtf8(), length+1);
+
+        #define MESSAGEAS1 ((const unsigned char *) hashEncryptionKeyraw)
+        #define MESSAGEAS1_LEN length
+    
+
+        unsigned char sk[crypto_kx_SECRETKEYBYTES];
+        unsigned char pk[crypto_kx_PUBLICKEYBYTES];
+        unsigned char server_rx[crypto_kx_SESSIONKEYBYTES], server_tx[crypto_kx_SESSIONKEYBYTES];
+      
+                if (crypto_kx_seed_keypair(pk,sk,
+                           MESSAGEAS1) !=0) {
+
+                               this->logger->write("Suspicious keypair, bail out ");
+                           }
+         ////////////////Get the pubkey from Bob, so we can create the share key
+
+        const QByteArray pubkeyBobArray = QByteArray::fromHex(pubkey.toLatin1());
+        const unsigned char *pubkeyBob = reinterpret_cast<const unsigned char *>(pubkeyBobArray.constData());
+                    /////Create the shared key for sending the message
+
+            if (crypto_kx_server_session_keys(server_rx, server_tx,
+                                  pk, sk, pubkeyBob) != 0) {
+            this->logger->write("Suspicious client public send key, bail out ");
+             }
+
+    
+            // Let's try to preserve Unicode characters
+            QByteArray ba_memo = memoplain.toUtf8();
+            int ba_memo_length = ba_memo.size();
+
+            #define MESSAGEMoney (const unsigned char *) ba_memo.data()
+            #define MESSAGE_LENMoney ba_memo_length
+
+
+    ////////////Now lets encrypt the message Alice send to Bob//////////////////////////////
+             //#define MESSAGE (const unsigned char *) memoplainchar
+             //#define MESSAGE_LEN lengthmemo
+             #define CIPHERTEXT_LEN (crypto_secretstream_xchacha20poly1305_ABYTES + MESSAGE_LENMoney)
+             unsigned char ciphertext[CIPHERTEXT_LEN];
+             unsigned char header[crypto_secretstream_xchacha20poly1305_HEADERBYTES];
+
+            crypto_secretstream_xchacha20poly1305_state state;
+
+            /* Set up a new stream: initialize the state and create the header */
+            crypto_secretstream_xchacha20poly1305_init_push(&state, header, server_tx);
+
+
+             /* Now, encrypt the first chunk. `c1` will contain an encrypted,
+            * authenticated representation of `MESSAGE_PART1`. */
+            crypto_secretstream_xchacha20poly1305_push
+            (&state, ciphertext, NULL, MESSAGEMoney, MESSAGE_LENMoney, NULL, 0, crypto_secretstream_xchacha20poly1305_TAG_FINAL);
+
+            ////Create the HM for this message
+            QString headerbytes = QByteArray(reinterpret_cast<const char*>(header), crypto_secretstream_xchacha20poly1305_HEADERBYTES).toHex();
+            QString publickeyAlice = QByteArray(reinterpret_cast<const char*>(pk), crypto_kx_PUBLICKEYBYTES).toHex();
+
+
+            QString hmemo= createHeaderMemo(type,cid,myAddr,headerbytes,publickeyAlice,1,0);
+
+             /////Ciphertext Memo
+            QString memo = QByteArray(reinterpret_cast<const char*>(ciphertext), CIPHERTEXT_LEN).toHex();
+         
+   
+             tx.toAddrs.push_back(ToFields{addr, amtHm, hmemo});
+             tx.toAddrs.push_back(ToFields{addr, amt, memo});
+
+   } 
+   }
+
+    tx.fee = Settings::getMinerFee();
+
+     return tx;
+
+}
+
+void MainWindow::sendMoneyChat() {
+
+////////////////////////////Todo: Check if a Contact is selected//////////
+
+    // Create a Tx from the values on the send tab. Note that this Tx object
+    // might not be valid yet.
+ 
+  /* QString Name = ui->contactNameMemo->text();
+
+      if ((ui->contactNameMemo->text().isEmpty()) || (ui->memoTxtChat->toPlainText().trimmed().isEmpty())) {
+     
+        QMessageBox msg(QMessageBox::Critical, tr("You have to select a contact and insert a Memo"),
+        tr("You have selected no Contact from Contactlist,\n")  + tr("\nor your Memo is empty"),
+        QMessageBox::Ok, this);
+
+        msg.exec();
+        return;
+    }*/
+
+
+    Tx tx = createTxFromSendChatPage();
+
+    QString error = doSendChatMoneyTxValidations(tx);
+
+    if (!error.isEmpty()) {
+        // Something went wrong, so show an error and exit
+        QMessageBox msg(QMessageBox::Critical, tr("Message Error"), error,
+                        QMessageBox::Ok, this);
+
+        msg.exec();
+        ui->memoTxtChat->setEnabled(true);
+
+        // abort the Tx
+        return;
+    }
+
+        auto movie = new QMovie(this);
+        auto movie1 = new QMovie(this);
+        movie->setFileName(":/img/res/loaderblack.gif");
+        movie1->setFileName(":/img/res/loaderwhite.gif");
+     
+        auto theme = Settings::getInstance()->get_theme_name();
+        if (theme == "Dark" || theme == "Midnight") {
+
+        connect(movie, &QMovie::frameChanged, [=]{
+        ui->sendChatButton->setIcon(movie->currentPixmap());
+        });      
+        movie->start();
+        ui->sendChatButton->show();
+        ui->sendChatButton->setEnabled(false);
+             
+        } else {
+
+        connect(movie1, &QMovie::frameChanged, [=]{
+        ui->sendChatButton->setIcon(movie1->currentPixmap());
+        });      
+        movie1->start();
+        ui->sendChatButton->show();
+        ui->sendChatButton->setEnabled(false);
+        ui->memoTxtChat->setEnabled(false);
+        }
+
+        ui->memoTxtChat->clear();
+        
+        // And send the Tx
+        rpc->executeTransaction(tx, 
+            [=] (QString txid) { 
+                ui->statusBar->showMessage(Settings::txidStatusMessage + " " + txid);
+                
+
+            QTimer::singleShot(1000, [=]() {
+         
+            if (theme == "Dark" || theme == "Midnight") {
+            QPixmap send(":/icons/res/send-white.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie->stop();
+            ui->sendChatButton->setEnabled(true);
+            ui->memoTxtChat->setEnabled(true);
+             }else{
+            
+            QPixmap send(":/icons/res/sendBlack.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie1->stop();
+            ui->sendChatButton->setEnabled(true);
+            ui->memoTxtChat->setEnabled(true);
+             }
+                    
+                  });
+                
+                // Force a UI update so we get the unconfirmed Tx
+                rpc->refresh(true);
+                ui->memoTxtChat->clear();
+               // ui->memoTxtChat->setEnabled(true);
+
+            },
+            // Errored out
+            [=] (QString opid, QString errStr) {
+                ui->statusBar->showMessage(QObject::tr(" Tx ") % opid % QObject::tr(" failed"), 15 * 1000);
+                ui->memoTxtChat->setEnabled(true);
+                
+                if (!opid.isEmpty())
+                    errStr = QObject::tr("The transaction with id ") % opid % QObject::tr(" failed. The error was") + ":\n\n" + errStr;            
+
+                QMessageBox::critical(this, QObject::tr("Transaction Error"), errStr, QMessageBox::Ok);
+                         movie->stop();
+                         ui->memoTxtChat->setEnabled(true);
+      
+              
+            if (theme == "Dark" || theme == "Midnight") {
+            QPixmap send(":/icons/res/send-white.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie->stop();
+            ui->sendChatButton->setEnabled(true);
+            ui->memoTxtChat->setEnabled(true);
+             }else{
+            
+            QPixmap send(":/icons/res/sendBlack.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie1->stop();
+            ui->sendChatButton->setEnabled(true);
+            ui->memoTxtChat->setEnabled(true);
+             }
+                                    
+                           
+            }
+        );
+
+    }        
+
+QString MainWindow::doSendChatMoneyTxValidations(Tx tx) {
+    // Check to see if we have enough verified funds to send the Tx.
+
+    CAmount total;
+    for (auto toAddr : tx.toAddrs) {
+        if (!Settings::isValidAddress(toAddr.addr)) {
+            QString addr = (toAddr.addr.length() > 100 ? toAddr.addr.left(100) + "..." : toAddr.addr);
+            return QString(tr("Recipient Address ")) % addr % tr(" is Invalid");
+            ui->memoTxtChat->setEnabled(true);
+        }
+
+        // This technically shouldn't be possible, but issue #62 seems to have discovered a bug
+        // somewhere, so just add a check to make sure. 
+        if (toAddr.amount.toqint64() < 0) {
+            return QString(tr("Amount for address '%1' is invalid!").arg(toAddr.addr));
+             ui->memoTxtChat->setEnabled(true);
+        }
+
+        total = total + toAddr.amount;
+    }
+    total = total + tx.fee;
+
+    auto available = rpc->getModel()->getAvailableBalance();
+
+    if (available < total) {
+        return tr("Not enough available funds to send this transaction\n\nHave: %1\nNeed: %2\n\nNote: Funds need 1 confirmations before they can be spent")
+            .arg(available.toDecimalhushString(), total.toDecimalhushString());
+            ui->memoTxtChat->setEnabled(true);
+
+    }
+
+    return "";
+}
+
+// Create a Tx from the current state of the Chat page. 
+Tx MainWindow::createTxFromSendRequestChatPage() {
+   Tx tx;
+    CAmount totalAmt;
+    // For each addr/amt in the Chat tab
+  {
+       
+        QString amtStr = this->getAmt();
+        CAmount amt; 
+        CAmount amtHm;
+       
+            amt = CAmount::fromDecimalString("0");
+            amtHm = CAmount::fromDecimalString("0");
+            totalAmt = totalAmt + amt;
+
+        QModelIndex index = ui->listContactWidget->currentIndex();
+        QString label_contact = index.data(Qt::DisplayRole).toString();
+
+    for(auto &c : AddressBook::getInstance()->getAllAddressLabels())
+
+     if (label_contact == c.getName()) {
+     
+            QString cid = c.getCid();
+            QString myAddr = c.getMyAddress();
+            QString type = "Money";
+            QString addr = c.getPartnerAddress();
+            QString moneymemo = this->getMoneyMemo();
+           
+             /////////User input for chatmemos
+        QString memoplain = QString("Request of : ") + amtStr + QString(" HUSH ") +  QString("\n") +  QString("\n") + moneymemo;
+
+  /////////We convert the user input from QString to unsigned char*, so we can encrypt it later
+        int lengthmemo = memoplain.length();
+
+        char *memoplainchar = NULL;
+        memoplainchar = new char[lengthmemo+2];
+        strncpy(memoplainchar, memoplain.toUtf8(), lengthmemo +1);
+
+        QString pubkey = this->getPubkeyByAddress(addr);
+        QString passphraseHash = DataStore::getChatDataStore()->getPassword();
+        int length = passphraseHash.length();
+
+ ////////////////Generate the secretkey for our message encryption
+
+        char *hashEncryptionKeyraw = NULL;
+        hashEncryptionKeyraw = new char[length+1];
+        strncpy(hashEncryptionKeyraw, passphraseHash.toUtf8(), length+1);
+
+        #define MESSAGEAS1 ((const unsigned char *) hashEncryptionKeyraw)
+        #define MESSAGEAS1_LEN length
+    
+
+        unsigned char sk[crypto_kx_SECRETKEYBYTES];
+        unsigned char pk[crypto_kx_PUBLICKEYBYTES];
+        unsigned char server_rx[crypto_kx_SESSIONKEYBYTES], server_tx[crypto_kx_SESSIONKEYBYTES];
+      
+                if (crypto_kx_seed_keypair(pk,sk,
+                           MESSAGEAS1) !=0) {
+
+                               this->logger->write("Suspicious keypair, bail out ");
+                           }
+         ////////////////Get the pubkey from Bob, so we can create the share key
+
+        const QByteArray pubkeyBobArray = QByteArray::fromHex(pubkey.toLatin1());
+        const unsigned char *pubkeyBob = reinterpret_cast<const unsigned char *>(pubkeyBobArray.constData());
+                    /////Create the shared key for sending the message
+
+            if (crypto_kx_server_session_keys(server_rx, server_tx,
+                                  pk, sk, pubkeyBob) != 0) {
+            this->logger->write("Suspicious client public send key, bail out ");
+             }
+
+    
+            // Let's try to preserve Unicode characters
+            QByteArray ba_memo = memoplain.toUtf8();
+            int ba_memo_length = ba_memo.size();
+
+            #define MESSAGEMoney (const unsigned char *) ba_memo.data()
+            #define MESSAGE_LENMoney ba_memo_length
+
+
+    ////////////Now lets encrypt the message Alice send to Bob//////////////////////////////
+             //#define MESSAGE (const unsigned char *) memoplainchar
+             //#define MESSAGE_LEN lengthmemo
+             #define CIPHERTEXT_LEN (crypto_secretstream_xchacha20poly1305_ABYTES + MESSAGE_LENMoney)
+             unsigned char ciphertext[CIPHERTEXT_LEN];
+             unsigned char header[crypto_secretstream_xchacha20poly1305_HEADERBYTES];
+
+            crypto_secretstream_xchacha20poly1305_state state;
+
+            /* Set up a new stream: initialize the state and create the header */
+            crypto_secretstream_xchacha20poly1305_init_push(&state, header, server_tx);
+
+
+             /* Now, encrypt the first chunk. `c1` will contain an encrypted,
+            * authenticated representation of `MESSAGE_PART1`. */
+            crypto_secretstream_xchacha20poly1305_push
+            (&state, ciphertext, NULL, MESSAGEMoney, MESSAGE_LENMoney, NULL, 0, crypto_secretstream_xchacha20poly1305_TAG_FINAL);
+
+            ////Create the HM for this message
+            QString headerbytes = QByteArray(reinterpret_cast<const char*>(header), crypto_secretstream_xchacha20poly1305_HEADERBYTES).toHex();
+            QString publickeyAlice = QByteArray(reinterpret_cast<const char*>(pk), crypto_kx_PUBLICKEYBYTES).toHex();
+
+
+            QString hmemo= createHeaderMemo(type,cid,myAddr,headerbytes,publickeyAlice,1,0);
+
+             /////Ciphertext Memo
+            QString memo = QByteArray(reinterpret_cast<const char*>(ciphertext), CIPHERTEXT_LEN).toHex();
+         
+   
+             tx.toAddrs.push_back(ToFields{addr, amtHm, hmemo});
+             tx.toAddrs.push_back(ToFields{addr, amt, memo});
+
+   } 
+   }
+
+    tx.fee = Settings::getMinerFee();
+
+     return tx;
+
+}
+
+void MainWindow::sendMoneyRequestChat() {
+
+////////////////////////////Todo: Check if a Contact is selected//////////
+
+    // Create a Tx from the values on the send tab. Note that this Tx object
+    // might not be valid yet.
+ 
+  /* QString Name = ui->contactNameMemo->text();
+
+      if ((ui->contactNameMemo->text().isEmpty()) || (ui->memoTxtChat->toPlainText().trimmed().isEmpty())) {
+     
+        QMessageBox msg(QMessageBox::Critical, tr("You have to select a contact and insert a Memo"),
+        tr("You have selected no Contact from Contactlist,\n")  + tr("\nor your Memo is empty"),
+        QMessageBox::Ok, this);
+
+        msg.exec();
+        return;
+    }*/
+
+
+    Tx tx = createTxFromSendRequestChatPage();
+
+    QString error = doSendChatMoneyRequestTxValidations(tx);
+
+    if (!error.isEmpty()) {
+        // Something went wrong, so show an error and exit
+        QMessageBox msg(QMessageBox::Critical, tr("Message Error"), error,
+                        QMessageBox::Ok, this);
+
+        msg.exec();
+
+        // abort the Tx
+        return;
+    }
+
+        auto movie = new QMovie(this);
+        auto movie1 = new QMovie(this);
+        movie->setFileName(":/img/res/loaderblack.gif");
+        movie1->setFileName(":/img/res/loaderwhite.gif");
+     
+        auto theme = Settings::getInstance()->get_theme_name();
+        if (theme == "Dark" || theme == "Midnight") {
+
+        connect(movie, &QMovie::frameChanged, [=]{
+        ui->sendChatButton->setIcon(movie->currentPixmap());
+        });      
+        movie->start();
+        ui->sendChatButton->show();
+        ui->sendChatButton->setEnabled(false);
+             
+        } else {
+
+        connect(movie1, &QMovie::frameChanged, [=]{
+        ui->sendChatButton->setIcon(movie1->currentPixmap());
+        });      
+        movie1->start();
+        ui->sendChatButton->show();
+        ui->sendChatButton->setEnabled(false);
+        }
+
+        ui->memoTxtChat->clear();
+        
+        // And send the Tx
+        rpc->executeTransaction(tx, 
+            [=] (QString txid) { 
+                ui->statusBar->showMessage(Settings::txidStatusMessage + " " + txid);
+                
+
+            QTimer::singleShot(1000, [=]() {
+         
+            if (theme == "Dark" || theme == "Midnight") {
+            QPixmap send(":/icons/res/send-white.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie->stop();
+            ui->sendChatButton->setEnabled(true);
+             }else{
+            
+            QPixmap send(":/icons/res/sendBlack.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie1->stop();
+            ui->sendChatButton->setEnabled(true);
+             }
+                    
+                  });
+                
+                // Force a UI update so we get the unconfirmed Tx
+                rpc->refresh(true);
+                ui->memoTxtChat->clear();
+
+            },
+            // Errored out
+            [=] (QString opid, QString errStr) {
+                ui->statusBar->showMessage(QObject::tr(" Tx ") % opid % QObject::tr(" failed"), 15 * 1000);
+                
+                if (!opid.isEmpty())
+                    errStr = QObject::tr("The transaction with id ") % opid % QObject::tr(" failed. The error was") + ":\n\n" + errStr;            
+
+                QMessageBox::critical(this, QObject::tr("Transaction Error"), errStr, QMessageBox::Ok);
+                         movie->stop();
+      
+              
+            if (theme == "Dark" || theme == "Midnight") {
+            QPixmap send(":/icons/res/send-white.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie->stop();
+            ui->sendChatButton->setEnabled(true);
+             }else{
+            
+            QPixmap send(":/icons/res/sendBlack.png");
+            QIcon sendIcon(send);
+            ui->sendChatButton->setIcon(sendIcon);
+            movie1->stop();
+            ui->sendChatButton->setEnabled(true);
+             }
+                    
+                   
+                           
+            }
+        );
+
+    }        
+
+QString MainWindow::doSendChatMoneyRequestTxValidations(Tx tx) {
+    // Check to see if we have enough verified funds to send the Tx.
+
+    CAmount total;
+    for (auto toAddr : tx.toAddrs) {
+        if (!Settings::isValidAddress(toAddr.addr)) {
+            QString addr = (toAddr.addr.length() > 100 ? toAddr.addr.left(100) + "..." : toAddr.addr);
+            return QString(tr("Recipient Address ")) % addr % tr(" is Invalid");
+        }
+
+        // This technically shouldn't be possible, but issue #62 seems to have discovered a bug
+        // somewhere, so just add a check to make sure. 
+        if (toAddr.amount.toqint64() < 0) {
+            return QString(tr("Amount for address '%1' is invalid!").arg(toAddr.addr));
+        }
+
+        total = total + toAddr.amount;
+    }
+    total = total + tx.fee;
+
+    auto available = rpc->getModel()->getAvailableBalance();
+
+    if (available < total) {
+        return tr("Not enough available funds to send this transaction\n\nHave: %1\nNeed: %2\n\nNote: Funds need 1 confirmations before they can be spent")
+            .arg(available.toDecimalhushString(), total.toDecimalhushString());
+    }
+
+    return "";
+}
+
+
+void MainWindow::updateChat()
+{
+    rpc->refreshChat(ui->listChat,ui->memoSizeChat);
+    rpc->refresh(true);
+}
+
+void MainWindow::updateContacts()
+{
+    
 }
 
 void MainWindow::addNewZaddr(bool sapling) {
@@ -1008,6 +2432,8 @@ void MainWindow::setupReceiveTab() {
         if (checked) { 
             updateTAddrCombo(checked);
         } 
+
+
     });
 
     // View all addresses goes to "View all private keys"
@@ -1023,7 +2449,7 @@ void MainWindow::setupReceiveTab() {
         Settings::saveRestoreTableHeader(viewaddrs.tblAddresses, &d, "viewalladdressestable");
         viewaddrs.tblAddresses->horizontalHeader()->setStretchLastSection(true);
 
-        QList<QString> allAddresses;
+         QList<QString> allAddresses;
         if (ui->rdioTAddr->isChecked()) {
             allAddresses = getRPC()->getModel()->getAllTAddresses();
         } else {
@@ -1065,8 +2491,8 @@ void MainWindow::setupReceiveTab() {
     QObject::connect(ui->btnReceiveNewAddr, &QPushButton::clicked, [=] () {
         if (!rpc->getConnection())
             return;
-
-        // Go over the dropdown and just select the next address that has:
+        
+                // Go over the dropdown and just select the next address that has:
         // 0 balance and has no labels
         for (int i=ui->listReceiveAddresses->currentIndex()+1; i < ui->listReceiveAddresses->count(); i++) {
             QString item = ui->listReceiveAddresses->itemText(i);
@@ -1092,6 +2518,7 @@ void MainWindow::setupReceiveTab() {
         if (tab == 2) {
             // Switched to receive tab, select the z-addr radio button
             ui->rdioZSAddr->setChecked(true);
+            
             
             // And then select the first one
             ui->listReceiveAddresses->setCurrentIndex(0);
@@ -1125,7 +2552,30 @@ void MainWindow::setupReceiveTab() {
         }
         
         ui->rcvLabel->setText(label);
-        ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalSAFEUSDString());
+        if (Settings::getInstance()->get_currency_name() == "USD") {
+             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushUSDString());
+        } else if (Settings::getInstance()->get_currency_name() == "EUR") {
+             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushEURString());
+        } else if (Settings::getInstance()->get_currency_name() == "BTC") {
+             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushBTCString());
+        } else if (Settings::getInstance()->get_currency_name() == "CNY") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushCNYString());
+        } else if (Settings::getInstance()->get_currency_name() == "RUB") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushRUBString());
+        } else if (Settings::getInstance()->get_currency_name() == "CAD") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushCADString());
+        } else if (Settings::getInstance()->get_currency_name() == "SGD") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushSGDString());
+        } else if (Settings::getInstance()->get_currency_name() == "CHF") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushCHFString());
+        } else if (Settings::getInstance()->get_currency_name() == "INR") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushINRString());
+        } else if (Settings::getInstance()->get_currency_name() == "GBP") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushGBPString());
+        } else if (Settings::getInstance()->get_currency_name() == "AUD") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalhushAUDString());
+            }
+        
         ui->txtReceive->setPlainText(addr);       
         ui->qrcodeDisplay->setQrcodeString(addr);
         if (rpc->getModel()->getUsedAddresses().value(addr, false)) {
@@ -1139,6 +2589,7 @@ void MainWindow::setupReceiveTab() {
     // Receive tab add/update label
     QObject::connect(ui->rcvUpdateLabel, &QPushButton::clicked, [=]() {
         QString addr = ui->listReceiveAddresses->currentText();
+       
         if (addr.isEmpty())
             return;
 
@@ -1152,7 +2603,7 @@ void MainWindow::setupReceiveTab() {
 
         if (!curLabel.isEmpty() && label.isEmpty()) {
             info = "Removed Label '" % curLabel % "'";
-            AddressBook::getInstance()->removeAddressLabel(curLabel, addr);
+            AddressBook::getInstance()->removeAddressLabel(curLabel, addr, "", "","" );
         }
         else if (!curLabel.isEmpty() && !label.isEmpty()) {
             info = "Updated Label '" % curLabel % "' to '" % label % "'";
@@ -1160,7 +2611,7 @@ void MainWindow::setupReceiveTab() {
         }
         else if (curLabel.isEmpty() && !label.isEmpty()) {
             info = "Added Label '" % label % "'";
-            AddressBook::getInstance()->addAddressLabel(label, addr);
+            AddressBook::getInstance()->addAddressLabel(label, addr, "", "", "");
         }
 
         // Update labels everywhere on the UI
@@ -1210,7 +2661,7 @@ void MainWindow::updateTAddrCombo(bool checked) {
         auto allTaddrs = this->rpc->getModel()->getAllTAddresses();
         QSet<QString> labels;
         for (auto p : AddressBook::getInstance()->getAllAddressLabels()) {
-            labels.insert(p.second);
+            labels.insert(p.getPartnerAddress());
         }
         std::for_each(allTaddrs.begin(), allTaddrs.end(), [=, &addrs] (auto& taddr) {
             // If the address is in the address book, add it. 
@@ -1267,9 +2718,32 @@ void MainWindow::updateLabels() {
     updateLabelsAutoComplete();
 }
 
+void MainWindow::slot_change_currency(const QString& currency_name)
+
+{
+    
+    Settings::getInstance()->set_currency_name(currency_name);
+
+    // Include currency
+
+    QString saved_currency_name;
+    try
+    {
+       saved_currency_name = Settings::getInstance()->get_currency_name();
+       
+    }
+    catch (...)
+    {
+        saved_currency_name = "USD";
+        
+    }
+}
+
 void MainWindow::slot_change_theme(const QString& theme_name)
+
 {
     Settings::getInstance()->set_theme_name(theme_name);
+    
 
     // Include css
     QString saved_theme_name;
@@ -1279,14 +2753,14 @@ void MainWindow::slot_change_theme(const QString& theme_name)
     }
     catch (...)
     {
-        saved_theme_name = "default";
+        saved_theme_name = "Dark";
     }
 
     QFile qFile(":/css/res/css/" + saved_theme_name +".css");
     if (qFile.open(QFile::ReadOnly))
     {
       QString styleSheet = QLatin1String(qFile.readAll());
-      this->setStyleSheet(""); // reset styles    
+      this->setStyleSheet(""); // resets styles, makes app restart unnecessary
       this->setStyleSheet(styleSheet);
     }
 
@@ -1308,3 +2782,139 @@ MainWindow::~MainWindow()
     delete wsserver;
     delete wormhole;
 }
+void MainWindow::on_givemeZaddr_clicked()
+{
+
+    bool sapling = true;
+    rpc->createNewZaddr(sapling, [=] (json reply) {
+                QString hushchataddr = QString::fromStdString(reply.get<json::array_t>()[0]);
+                QClipboard *zaddr_Clipboard = QApplication::clipboard();
+                zaddr_Clipboard ->setText(hushchataddr);
+                QMessageBox::information(this, "Your new HushChat address was copied to your clipboard!",hushchataddr);
+                ui->listReceiveAddresses->insertItem(0, hushchataddr);
+                ui->listReceiveAddresses->setCurrentIndex(0);
+              
+                });
+}
+
+void MainWindow::on_emojiButton_clicked()
+{
+
+        QDialog emojiDialog(this);
+        Ui_emojiDialog emoji;
+        emoji.setupUi(&emojiDialog);
+        Settings::saveRestore(&emojiDialog);
+
+QObject::connect(emoji.smiley, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a1");
+
+        
+});
+
+QObject::connect(emoji.money, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a2");
+
+        
+});
+
+QObject::connect(emoji.laughing, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a3");
+
+        
+});
+
+QObject::connect(emoji.sweet_smile, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a4");
+
+        
+});
+
+QObject::connect(emoji.joy, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a5");
+
+        
+});
+
+QObject::connect(emoji.innocent, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a6");
+
+        
+});
+
+QObject::connect(emoji.partying_face, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a7");
+
+        
+});
+
+QObject::connect(emoji.rolling_eyes, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a8");
+
+        
+});
+
+QObject::connect(emoji.tongue, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":a9");
+
+        
+});
+
+QObject::connect(emoji.hearts3, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b1");
+
+        
+});
+
+QObject::connect(emoji.heart_eyes, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b2");
+
+        
+});
+
+QObject::connect(emoji.nauseated, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b3");
+
+        
+});
+
+QObject::connect(emoji.poop, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b4");
+
+        
+});
+
+QObject::connect(emoji.symbols_mouth, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b5");
+
+        
+});
+
+QObject::connect(emoji.sunglass, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b6");
+
+        
+});
+
+QObject::connect(emoji.stuck_out, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b7");
+
+        
+});
+
+QObject::connect(emoji.hush_white, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b8");
+
+        
+});
+
+QObject::connect(emoji.sd, &QPushButton::clicked, [&] () {
+   ui->memoTxtChat->insertHtml(":b9");
+
+        
+});
+
+
+
+    emojiDialog.exec();
+}
+

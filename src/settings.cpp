@@ -19,7 +19,7 @@ Config Settings::getSettings() {
     // Load from the QT Settings. 
     QSettings s;
     
-    auto server        = s.value("connection/lightwalletdserver").toString();
+    auto server        = s.value("connection/server").toString();
     if (server.trimmed().isEmpty()) {
         server = Settings::getDefaultServer();
     }
@@ -30,7 +30,7 @@ Config Settings::getSettings() {
 void Settings::saveSettings(const QString& server) {
     QSettings s;
 
-    s.setValue("connection/lightwalletdserver", server);
+    s.setValue("connection/server", server);
     s.sync();
 
     // re-init to load correct settings
@@ -74,11 +74,11 @@ bool Settings::isTAddress(QString addr) {
     return addr.startsWith("R");
 }
 
-int Settings::getSafecoindVersion() {
+QString Settings::getsafecoindVersion() {
     return _safecoindVersion;
 }
 
-void Settings::setSafecoindVersion(int version) {
+void Settings::setsafecoindVersion(QString version) {
     _safecoindVersion = version;
 }
 
@@ -103,9 +103,106 @@ bool Settings::isSaplingActive() {
            (!isTestnet() && getBlockNumber() > 547422);
 }
 
-double Settings::getSAFEPrice() { 
-    return SAFEPrice; 
+double Settings::getZECPrice() { 
+    return ZECPrice; 
 }
+double Settings::getEURPrice() { 
+    return EURPrice; 
+}
+double Settings::getBTCPrice() { 
+    return BTCPrice; 
+}
+double Settings::getCNYPrice() { 
+    return CNYPrice; 
+}
+double Settings::getRUBPrice() { 
+    return RUBPrice; 
+}
+double Settings::getCADPrice() { 
+    return CADPrice; 
+}
+double Settings::getSGDPrice() { 
+    return SGDPrice; 
+}
+double Settings::getCHFPrice() { 
+    return CHFPrice; 
+}
+double Settings::getINRPrice() { 
+    return INRPrice; 
+}
+double Settings::getGBPPrice() { 
+    return GBPPrice; 
+}
+double Settings::getAUDPrice() { 
+    return AUDPrice; 
+}
+double Settings::getUSDVolume() { 
+    return USDVolume; 
+}
+double Settings::getEURVolume() { 
+    return EURVolume; 
+}
+double Settings::getBTCVolume() { 
+    return BTCVolume; 
+}
+double Settings::getCNYVolume() { 
+    return CNYVolume; 
+}
+double Settings::getRUBVolume() { 
+    return RUBVolume; 
+}
+double Settings::getCADVolume() { 
+    return CADVolume; 
+}
+double Settings::getSGDVolume() { 
+    return SGDVolume; 
+}
+double Settings::getCHFVolume() { 
+    return CHFVolume; 
+}
+double Settings::getINRVolume() { 
+    return INRVolume; 
+}
+double Settings::getGBPVolume() { 
+    return GBPVolume; 
+}
+double Settings::getAUDVolume() { 
+    return AUDVolume; 
+}
+double Settings::getUSDCAP() { 
+    return USDCAP; 
+}
+double Settings::getEURCAP() { 
+    return EURCAP; 
+}
+double Settings::getBTCCAP() { 
+    return BTCCAP; 
+}
+double Settings::getCNYCAP() { 
+    return CNYCAP; 
+}
+double Settings::getRUBCAP() { 
+    return RUBCAP; 
+}
+double Settings::getCADCAP() { 
+    return CADCAP; 
+}
+double Settings::getSGDCAP() { 
+    return SGDCAP; 
+}
+double Settings::getCHFCAP() { 
+    return CHFCAP; 
+}
+double Settings::getINRCAP() { 
+    return INRCAP; 
+}
+double Settings::getGBPCAP() { 
+    return GBPCAP; 
+}
+double Settings::getAUDCAP() { 
+    return AUDCAP; 
+}
+
 
 bool Settings::getCheckForUpdates() {
     return QSettings().value("options/allowcheckupdates", true).toBool();
@@ -123,6 +220,15 @@ void Settings::setAllowFetchPrices(bool allow) {
      QSettings().setValue("options/allowfetchprices", allow);
 }
 
+QString Settings::get_currency_name() {
+    // Load from the QT Settings.
+    return QSettings().value("options/currency_name", false).toString();
+}
+
+void Settings::set_currency_name(QString currency_name) {
+    QSettings().setValue("options/currency_name", currency_name);  
+}
+
 QString Settings::get_theme_name() {
     // Load from the QT Settings.
     return QSettings().value("options/theme_name", false).toString();
@@ -131,6 +237,9 @@ QString Settings::get_theme_name() {
 void Settings::set_theme_name(QString theme_name) {
     QSettings().setValue("options/theme_name", theme_name);
 }
+
+
+
 
 
 //=================================
@@ -179,6 +288,7 @@ void Settings::openTxInExplorer(QString txid) {
 }
 
 
+
 const QString Settings::txidStatusMessage = QString(QObject::tr("Tx submitted (right click to copy) txid:"));
 
 QString Settings::getTokenName() {
@@ -191,7 +301,7 @@ QString Settings::getTokenName() {
 
 QString Settings::getDonationAddr() {
     if (Settings::getInstance()->isTestnet()) 
-            return "ztestsapling1wn6889vznyu42wzmkakl2effhllhpe4azhu696edg2x6me4kfsnmqwpglaxzs7tmqsq7kudemp5";
+            return "ztestsaplingXXX";
     else 
             return "RtU6tF2d1YE6hw9DHMAyNRb2uUk4PwSCZr";
 
@@ -217,14 +327,12 @@ bool Settings::isValidAddress(QString addr) {
     QRegExp texp("^R[a-z0-9]{33}$", Qt::CaseInsensitive);
 
     return  texp.exactMatch(addr) || ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
-    return  texp.exactMatch(addr) || 
-            ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
 }
 
 // Get a pretty string representation of this Payment URI
 QString Settings::paymentURIPretty(PaymentURI uri) {
     CAmount amount = CAmount::fromDecimalString(uri.amt);
-    return QString() + "Payment Request\n" + "Pay: " + uri.addr + "\nAmount: " + amount.toDecimalSAFEString() 
+    return QString() + "Payment Request\n" + "Pay: " + uri.addr + "\nAmount: " + amount.toDecimalsafecoinString() 
         + "\nMemo:" + QUrl::fromPercentEncoding(uri.memo.toUtf8());
 }
 
@@ -233,7 +341,7 @@ PaymentURI Settings::parseURI(QString uri) {
     PaymentURI ans;
 
     if (!uri.startsWith("safecoin:")) {
-        ans.error = "Not a Safecoin payment URI";
+        ans.error = "Not a SAFECOIN payment URI";
         return ans;
     }
 
@@ -251,7 +359,7 @@ PaymentURI Settings::parseURI(QString uri) {
         ans.error = "Could not understand address";
         return ans;
     }
-    uri = uri.right(uri.length() - ans.addr.length()-1);  // swallow '?'
+  uri = uri.right(uri.length() - ans.addr.length()-1);  // swallow '?'
     QUrlQuery query(uri);
 
     // parse out amt / amount
