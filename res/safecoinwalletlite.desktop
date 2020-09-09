@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=SafecoinWalletLite
+Comment=Lightclient UI wallet for Safecoin
+GenericName=Wallet
+Exec=SafecoinWalletLite %u
+Icon=SafecoinWalletLite
+Type=Application
+StartupNotify=true
+StartupWMClass=SafecoinWalletLite
+Categories=Utility;
+MimeType=x-scheme-handler/safecoin;
+Keywords=SafecoinWalletLite;
+

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="SafeWallet Lite vRELEASE_VERSION" Language="1033" Version="RELEASE_VERSION" Manufacturer="safe-qt-wallet-org" UpgradeCode="fb9bf166-b55f-46b5-a990-9229bdf64533">
+	<Product Id="*" Name="SafecoinWalletLite vRELEASE_VERSION" Language="1033" Version="RELEASE_VERSION" Manufacturer="safecoinwalletlite-org" UpgradeCode="fb9bf166-b55f-46b5-a990-9189bdf64533">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 		<MediaTemplate EmbedCab="yes"/>
 
-        <Icon Id="safewalletliteicon.exe" SourceFile="res/icon.ico"/>
-        <Property Id="ARPPRODUCTICON" Value="safewalletliteicon.exe" />
+        <Icon Id="SafecoinWalletLite.exe" SourceFile="res/icon.ico"/>
+        <Property Id="ARPPRODUCTICON" Value="SafecoinWalletLite.exe" />
 
-		<Feature Id="ProductFeature" Title="safewallet-lite" Level="1">
+		<Feature Id="ProductFeature" Title="safecoinwalletlite" Level="1">
 			<ComponentGroupRef Id="ProductComponents" /> 
             <ComponentRef Id="ProgramMenuDir"/>
 		</Feature>
@@ -37,13 +37,13 @@
 	<Fragment>
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLFOLDER" Name="safewallet-lite" />
+				<Directory Id="INSTALLFOLDER" Name="safecoinwalletlite" />
 			</Directory>
             <Directory Id="ProgramMenuFolder" Name="Programs">
-                <Directory Id="ApplicationProgramsFolder" Name="safewallet-lite">
-                    <Component Id="ProgramMenuDir" Guid="0D560F5A-53E0-4E7E-AEEA-15A26995505E">
+                <Directory Id="ApplicationProgramsFolder" Name="safecoinwalletlite">
+                    <Component Id="ProgramMenuDir" Guid="0D560F5A-53E0-4E7E-ADDA-15A26995505E">
                         <RemoveFolder Id="ProgramMenuDir" On="uninstall"/>
-                        <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\safewallet-lite\WixSetup"
+                        <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\safecoinwalletlite\WixSetup"
                                        Type="integer" Value="1" Name="installed" KeyPath="yes" />
                     </Component>
                 </Directory>
@@ -55,9 +55,9 @@
 	<Fragment>
 		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 			<Component Id="ProductComponent" Guid="0D210F5A-53E0-4E7E-CAAD-15A26995505E">
-                <File Source="safewallet-lite.exe" KeyPath="yes">
+                <File Source="SafecoinWalletLite.exe" KeyPath="yes">
                     <Shortcut Id="startMenuShotcut" Advertise="yes" Directory="ApplicationProgramsFolder"
-                        Name="SafeWallet" WorkingDirectory="INSTALLFOLDER" Icon="safewalletliteicon.exe" >
+                        Name="SafecoinWalletLite" WorkingDirectory="INSTALLFOLDER" Icon="SafecoinWalletLite.exe" >
                     </Shortcut>
                 </File>
                 <File Source="LICENSE" />
@@ -66,10 +66,10 @@
                     <RegistryValue Type="string" Name="URL Protocol" Value=""/>
                     <RegistryValue Type="string" Value="URL:safecoin URI protocol"/>
                     <RegistryKey Key="DefaultIcon">
-                    <RegistryValue Type="string" Value="safewallet-lite.exe" />
+                    <RegistryValue Type="string" Value="SafecoinWalletLite.exe" />
                     </RegistryKey>
                     <RegistryKey Key="shell\open\command">
-                    <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]safewallet-lite.exe&quot; &quot;%1&quot;" />
+                    <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]SafecoinWalletLite.exe&quot; &quot;%1&quot;" />
                     </RegistryKey>
                 </RegistryKey>
 			</Component>

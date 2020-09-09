@@ -172,7 +172,7 @@ public:
         qDebug() << "Loading locale " << locale;
         
         QTranslator translator;
-        translator.load(QString(":/translations/res/safe_qt_wallet_") + locale);
+        translator.load(QString(":/translations/res/safecoinwalletlite_") + locale);
         a.installTranslator(&translator);
 
         QIcon icon(":/icons/res/icon.ico");
@@ -205,7 +205,7 @@ public:
         
 
         w = new MainWindow();
-        w->setWindowTitle("SacoinWalletLite v" + QString(APP_VERSION));
+        w->setWindowTitle("SafecoinWalletLite v" + QString(APP_VERSION));
 
         // If there was a payment URI on the command line, pay it
         if (parser.positionalArguments().length() > 0) {

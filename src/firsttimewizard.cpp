@@ -7,7 +7,7 @@
 #include "mainwindow.h"
 #include "DataStore/DataStore.h"
 
-#include "../lib/safewalletlitelib.h"
+#include "../lib/safecoinwalletlitelib.h"
 
 #ifdef Q_OS_WIN
 auto dirwalletfirst = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safecoinwalletlite/safecoinwalletlite-wallet.dat");

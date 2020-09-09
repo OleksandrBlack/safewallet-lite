@@ -1,5 +1,5 @@
-#ifndef ZCASHDRPC_H
-#define ZCASHDRPC_H
+#ifndef safecoinDRPC_H
+#define safecoinDRPC_H
 
 #include "precompiled.h"
 
@@ -81,4 +81,4 @@ private:
    
 };
 
-#endif // ZCASHDRPC_H
+#endif // safecoinDRPC_H
