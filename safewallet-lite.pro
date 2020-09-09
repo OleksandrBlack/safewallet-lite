@@ -114,7 +114,7 @@ HEADERS += \
     src/controller.h \
     src/liteinterface.h \
     src/camount.h \
-    lib/safecoinwalletliblib.h \ 
+    lib/safecoinwalletlib.h \ 
     src/chatbubbleme.h \
     src/chatbubblepartner.h \
     src/chatmodel.h \
@@ -155,19 +155,14 @@ FORMS += \
     src/chatbubblepartner.ui
 
 
-TRANSLATIONS = res/safecoinwalletlib_es.ts \
-               res/safecoinwalletlib_fr.ts \
-               res/safecoinwalletlib_de.ts \
-               res/safecoinwalletlib_pt.ts \
-               res/safecoinwalletlib_it.ts \
-               res/safecoinwalletlib_zh.ts \
-               res/safecoinwalletlib_hr.ts \
-               res/safecoinwalletlib_sr.ts \
-               res/safecoinwalletlib_fa.ts \
-               res/safecoinwalletlib_id.ts \
-               res/safecoinwalletlib_ar.ts \
-               res/safecoinwalletlib_ro.ts \
-               res/safecoinwalletlib_tr.ts 
+TRANSLATIONS = res/safecoinwalletlite_es.ts \
+               res/safecoinwalletlite_fr.ts \
+               res/safecoinwalletlite_de.ts \
+               res/safecoinwalletlite_pt.ts \
+               res/safecoinwalletlite_it.ts \
+               res/safecoinwalletlite_zh.ts \
+               res/safecoinwalletlite_tr.ts \
+               res/safecoinwalletlite_ru.ts 
              
 include(singleapplication/singleapplication.pri)
 DEFINES += QAPPLICATION_CLASS=QApplication _FORTIFY_SOURCE=2
