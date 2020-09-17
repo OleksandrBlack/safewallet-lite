@@ -79,14 +79,12 @@
     <file>res/emoji/SD.png</file>
     </qresource>
     <qresource prefix="/translations">
-        <file>res/safecoinwalletlite_es.qm</file>
-        <file>res/safecoinwalletlite_fr.qm</file>
-        <file>res/safecoinwalletlite_de.qm</file>
-        <file>res/safecoinwalletlite_pt.qm</file>
-        <file>res/safecoinwalletlite_it.qm</file>
-        <file>res/safecoinwalletlite_zh.qm</file>
-        <file>res/safecoinwalletlite_tr.qm</file>
-        <file>res/safecoinwalletlite_ru.qm</file>
+        <file>res/safe_qt_wallet_es.qm</file>
+        <file>res/safe_qt_wallet_fr.qm</file>
+        <file>res/safe_qt_wallet_pt.qm</file>
+        <file>res/safe_qt_wallet_it.qm</file>
+        <file>res/safe_qt_wallet_zh.qm</file>
+        <file>res/safe_qt_wallet_tr.qm</file>
     </qresource>
     <qresource prefix="/css">
         <file>res/css/Blue.css</file>
