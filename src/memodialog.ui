@@ -74,7 +74,7 @@
   <customwidget>
    <class>MemoEdit</class>
    <extends>QPlainTextEdit</extends>
-   <header location="global">memoedit.h</header>
+   <header>memoedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -83,30 +83,7 @@ QJsonObject RecurringPaymentInfo::toJson() {
 
 QString RecurringPaymentInfo::getAmountPretty() const {
     CAmount amount = CAmount::fromDouble(amt);
-    if (Settings::getInstance()->get_currency_name() == "USD") {
-    return currency == "USD" ? amount.toDecimalUSDString() : amount.toDecimalsafacoinString();
-  } else if (Settings::getInstance()->get_currency_name() == "EUR") {
-    return currency == "EUR" ? amount.toDecimalEURString() : amount.toDecimalsafacoinString();
-  } else if (Settings::getInstance()->get_currency_name() == "BTC") {
-    return currency == "BTC" ? amount.toDecimalBTCString() : amount.toDecimalsafacoinString();
-     } else if (Settings::getInstance()->get_currency_name() == "CNY") {
-    return currency == "CNY" ? amount.toDecimalCNYString() : amount.toDecimalsafacoinString();
-  } else if (Settings::getInstance()->get_currency_name() == "RUB") {
-    return currency == "RUB" ? amount.toDecimalRUBString() : amount.toDecimalsafacoinString();
-     } else if (Settings::getInstance()->get_currency_name() == "CAD") {
-    return currency == "CAD" ? amount.toDecimalCADString() : amount.toDecimalsafacoinString();
-  } else if (Settings::getInstance()->get_currency_name() == "SGD") {
-    return currency == "SGD" ? amount.toDecimalSGDString() : amount.toDecimalsafacoinString();
-     } else if (Settings::getInstance()->get_currency_name() == "CHF") {
-    return currency == "CHF" ? amount.toDecimalCHFString() : amount.toDecimalsafacoinString();
-  } else if (Settings::getInstance()->get_currency_name() == "INR") {
-    return currency == "INR" ? amount.toDecimalINRString() : amount.toDecimalsafacoinString();
-     } else if (Settings::getInstance()->get_currency_name() == "GBP") {
-    return currency == "GBP" ? amount.toDecimalGBPString() : amount.toDecimalsafacoinString();
-  } else if (Settings::getInstance()->get_currency_name() == "AUD") {
-    return currency == "AUD" ? amount.toDecimalAUDString() : amount.toDecimalsafacoinString();
-}
-else return currency == "USD" ? amount.toDecimalUSDString() : amount.toDecimalsafacoinString();
+    return currency == "USD" ? amount.toDecimalUSDString() : amount.toDecimalSAFEString();
 }
 
 QString RecurringPaymentInfo::getScheduleDescription() const {
@@ -159,70 +136,21 @@ RecurringPaymentInfo* Recurring::getNewRecurringFromTx(QWidget* parent, MainWind
     if (tx.toAddrs.length() > 0) {
         ui.lblTo->setText(tx.toAddrs[0].addr);
 
-        // Change it with currency in Settings
-        if (Settings::getInstance()->get_currency_name() == "USD") {
+        // Default is USD
         ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalUSDString());
-         } else if (Settings::getInstance()->get_currency_name() == "EUR") {
-             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalEURString());
-         } else if (Settings::getInstance()->get_currency_name() == "BTC") {
-             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalBTCString());
-         } else if (Settings::getInstance()->get_currency_name() == "CNY") {
-             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCNYString());
-         } else if (Settings::getInstance()->get_currency_name() == "RUB") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalRUBString());
-         } else if (Settings::getInstance()->get_currency_name() == "CAD") {
-             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCADString());
-         } else if (Settings::getInstance()->get_currency_name() == "SGD") {
-             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalSGDString());
-         } else if (Settings::getInstance()->get_currency_name() == "CHF") {
-             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCHFString());
-         } else if (Settings::getInstance()->get_currency_name() == "INR") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalINRString());
-         } else if (Settings::getInstance()->get_currency_name() == "GBP") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalGBPString());
-         } else if (Settings::getInstance()->get_currency_name() == "AUD") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalAUDString());
-            
-             }
 
         ui.txtMemo->setPlainText(tx.toAddrs[0].memo);
         ui.txtMemo->setEnabled(false);
     }
 
-    // Wire up safacoin/USD toggle
+    // Wire up Safecoin/USD toggle
     QObject::connect(ui.cmbCurrency, &QComboBox::currentTextChanged, [&](QString c) {
         if (tx.toAddrs.length() < 1)
             return;
+
         if (c == "USD") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalUSDString());
-            
-              }  else if (c == "EUR") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalEURString());
-               } else if 
-                (c == "BTC") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalBTCString());
-                 }  else if (c == "CNY") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCNYString());
-               } else if 
-                (c == "RUB") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalRUBString());
-                 }  else if (c == "CAD") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCADString());
-               } else if 
-                (c == "SGD") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalSGDString());
-                 }  else if (c == "CHF") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCHFString());
-               } else if 
-                (c == "INR") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalINRString());
-                 }  else if (c == "GBP") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalGBPString());
-               } else if 
-                (c == "AUD") {
-            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalAUDString());
         }
-        
         else {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalString());
         }
@@ -277,7 +205,7 @@ void Recurring::updateInfoWithTx(RecurringPaymentInfo* r, Tx tx) {
     r->fromAddr = tx.fromAddr;
     if (r->currency.isEmpty() || r->currency == "USD") {
         r->currency = "USD";
-        r->amt = tx.toAddrs[0].amount.toqint64() * Settings::getInstance()->getZECPrice();
+        r->amt = tx.toAddrs[0].amount.toqint64() * Settings::getInstance()->getSAFEPrice();
     }
     else {
         r->currency = Settings::getTokenName();
@@ -319,7 +247,7 @@ QString Recurring::writeableFile() {
     auto filename = QStringLiteral("recurringpayments.json");
 
     auto dir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
-    if (dir.exists())
+    if (!dir.exists())
         QDir().mkpath(dir.absolutePath());
 
     if (Settings::getInstance()->isTestnet()) {
@@ -353,9 +281,6 @@ void Recurring::removeRecurringInfo(QString hash) {
 
 
 void Recurring::readFromStorage() {
-
-    if (writeableFile().isEmpty())
-    {
     QFile file(writeableFile());
     file.open(QIODevice::ReadOnly);
 
@@ -368,14 +293,10 @@ void Recurring::readFromStorage() {
         auto p = RecurringPaymentInfo::fromJson(k.toObject());
         payments.insert(p.getHash(), p);
     }
-    }else{}
 }
 
 
 void Recurring::writeToStorage() {
-
-     if (writeableFile().isEmpty())
-    {
     QFile file(writeableFile());
     file.open(QIODevice::ReadWrite | QIODevice::Truncate);
 
@@ -388,7 +309,6 @@ void Recurring::writeToStorage() {
     out << QJsonDocument(arr).toJson();
 
     file.close();
-}else{}
 }
 
 /**
@@ -541,23 +461,21 @@ void Recurring::processMultiplePending(RecurringPaymentInfo rpi, MainWindow* mai
 }
 
 void Recurring::executeRecurringPayment(MainWindow* main, RecurringPaymentInfo rpi, QList<int> paymentNumbers) {
-    // Amount is in USD or Safacoin?
+    // Amount is in USD or Safecoin?
     double amount = rpi.amt;
     if (rpi.currency == "USD") {
         // If there is no price, then fail the payment
-        if (Settings::getInstance()->getZECPrice() == 0) {
+        if (Settings::getInstance()->getSAFEPrice() == 0) {
             for (auto paymentNumber: paymentNumbers) {
                 updatePaymentItem(rpi.getHash(), paymentNumber, 
-                    "", QObject::tr("No safacoin price was available to convert from USD"),
+                    "", QObject::tr("No Safecoin price was available to convert from USD"),
                     PaymentStatus::ERROR);
             }
             return;
-        
-      
         }
         
-        // Translate it into safacoin
-        amount = rpi.amt / Settings::getInstance()->getZECPrice();
+        // Translate it into Safecoin
+        amount = rpi.amt / Settings::getInstance()->getSAFEPrice();
     }
 
     // Build a Tx

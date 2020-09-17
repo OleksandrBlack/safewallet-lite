@@ -147,15 +147,15 @@ public:
 
         // Command line parser
         QCommandLineParser parser;
-        parser.setApplicationDescription("Shielded desktop light wallet for safecoin");
+        parser.setApplicationDescription("Shielded desktop light wallet for Safecoin");
         parser.addHelpOption();
 
-        // Positional argument will specify a safecoin payment URI
-        parser.addPositionalArgument("safecoinURI", "An optional safecoin URI to pay");
+        // Positional argument will specify a safe payment URI
+        parser.addPositionalArgument("SafecoinURI", "An optional safe URI to pay");
 
         parser.process(a);
 
-        // Check for a positional argument indicating a safecoin payment URI
+        // Check for a positional argument indicating a safe payment URI
         if (a.isSecondary()) {
             if (parser.positionalArguments().length() > 0) {
                 a.sendMessage(parser.positionalArguments()[0].toUtf8());    
@@ -164,8 +164,8 @@ public:
             return 0;            
         } 
 
-        QCoreApplication::setOrganizationName("Safecoin");
-        QCoreApplication::setApplicationName("SafecoinWalletLite");
+        QCoreApplication::setOrganizationName("safecoin-org");
+        QCoreApplication::setApplicationName("SafeWalletLite");
 
         QString locale = QLocale::system().name();
         locale.truncate(locale.lastIndexOf('_'));   // Get the language code
@@ -205,19 +205,19 @@ public:
         
 
         w = new MainWindow();
-        w->setWindowTitle("SacoinWalletLite v" + QString(APP_VERSION));
+        w->setWindowTitle("SafeWallet Lite v" + QString(APP_VERSION));
 
         // If there was a payment URI on the command line, pay it
         if (parser.positionalArguments().length() > 0) {
-            w->paysafecoinURI(parser.positionalArguments()[0]);
+            w->paySafecoinURI(parser.positionalArguments()[0]);
         }
 
-        // Listen for any secondary instances telling us about a safecoin payment URI
+        // Listen for any secondary instances telling us about a safe payment URI
         QObject::connect(&a, &SingleApplication::receivedMessage, [=] (quint32, QByteArray msg) {
             QString uri(msg);
 
             // We need to execute this async, otherwise the app seems to crash for some reason.
-            QTimer::singleShot(1, [=]() { w->paysafecoinURI(uri); });            
+            QTimer::singleShot(1, [=]() { w->paySafecoinURI(uri); });            
         });   
 
         // For MacOS, we have an event filter

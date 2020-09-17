@@ -17,7 +17,7 @@ public:
     explicit RequestDialog(QWidget *parent = nullptr);
     ~RequestDialog();
 
-    static void showRequestsafecoin(MainWindow* main);
+    static void showRequestSafecoin(MainWindow* main);
     static void showPaymentConfirmation(MainWindow* main, QString paymentURI);
     static void setupDialog(MainWindow* main, QDialog* d, Ui_RequestDialog* req);
 private:

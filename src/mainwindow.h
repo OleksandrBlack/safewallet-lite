@@ -5,17 +5,14 @@
 
 #include "logger.h"
 #include "recurring.h"
-#include "firsttimewizard.h"
-
-using json = nlohmann::json;
 
 // Forward declare to break circular dependency.
 class Controller;
 class Settings;
 class WSServer;
 class WormholeClient;
-class ChatModel;
 
+using json = nlohmann::json;
 
 // Struct used to hold destination info when sending a Tx. 
 struct ToFields {
@@ -50,38 +47,18 @@ public:
     QRegExpValidator*   getAmountValidator() { return amtValidator; }
 
     QString doSendTxValidations(Tx tx);
-    QString doSendChatTxValidations(Tx tx);
-    QString doSendChatMoneyTxValidations(Tx tx);
-    QString doSendRequestTxValidations(Tx tx);
-    QString doSendChatMoneyRequestTxValidations(Tx tx);
-    QString getCid();
-    QString getAmt();
-    QString getMoneyMemo();
-    QString getPassword();
-    std::map<QString, QString> pubkeyMap;
-    QString getPubkeyByAddress(QString requestZaddr);
-    void setPassword(QString Password);
-    void setAmt(QString Amt);
-    void setMoneyMemo(QString MoneyMemo);
-    void addPubkey(QString requestZaddr, QString pubkey);
-    
-    
-    
 
     void replaceWormholeClient(WormholeClient* newClient);
     bool isWebsocketListening();
     void createWebsocket(QString wormholecode);
     void stopWebsocket();
-    void saveContact();
-    void saveandsendContact();
-    void showRequestsafecoin();
-  
+
     void balancesReady();
-    void paysafecoinURI(QString uri = "", QString myAddr = "");
+    void paySafecoinURI(QString uri = "", QString myAddr = "");
 
     void updateLabels();
     void updateTAddrCombo(bool checked);
-    
+
     // Disable recurring on mainnet
     void disableRecurring();
 
@@ -94,74 +71,36 @@ public:
     QLabel*             statusIcon;
     QLabel*             loadingLabel;
     QWidget*            safecoindtab;
-    //ChatItem* currentChatItem;
-    
 
     Logger*      logger;
 
     void doClose();
-    void doClosePw();
-    QString createHeaderMemo(QString type, QString cid, QString zaddr,QString headerbytes,QString publickey, int version, int headerNumber);
 
 public slots:
     void slot_change_theme(const QString& themeName);
-    void slot_change_currency(const QString& currencyName);
-    
-     
-private slots:
-    
 
-    void on_givemeZaddr_clicked();
-
-    void on_emojiButton_clicked();
-private:
-
-    bool fileExists(QString path);
+private:    
     void closeEvent(QCloseEvent* event);
-    void closeEventpw(QCloseEvent* event);
-    QString _password;
-    QString _amt;
-    QString _moneymemo;
-
 
     void setupSendTab();
     void setupTransactionsTab();
     void setupReceiveTab();
     void setupBalancesTab();
-    void setupsafecoindTab();
-    void setupchatTab();
-    void renderContactRequest();
-    
-    void updateContacts();
-    void updateChat();
+    void setupSafecoindTab();
 
     void setupSettingsModal();
     void setupStatusBar();
     
     void clearSendForm();
-    
 
     Tx   createTxFromSendPage();
     bool confirmTx(Tx tx, RecurringPaymentInfo* rpi);
 
-    Tx   createTxFromChatPage();
-    Tx   createTxForSafeContactRequest();
-    Tx   createTxFromSendChatPage();
-    Tx   createTxFromSendRequestChatPage();
-
     void encryptWallet();
     void removeWalletEncryption();
-    void removeWalletEncryptionStartUp();
 
     void cancelButton();
     void sendButton();
-    void sendChat();
-    void sendMoneyChat();
-    void sendMoneyRequestChat();
-    void addContact();
-    void ContactRequest();
-    
-    
     void addAddressSection();
     void maxAmountChecked(int checked);
 
@@ -177,8 +116,6 @@ private:
     void setMemoEnabled(int number, bool enabled);
     
     void donate();
-    void discord();
-    void website();
     void addressBook();
     void importPrivKey();
     void exportAllKeys();
@@ -191,18 +128,13 @@ private:
     void restoreSavedStates();
     bool eventFilter(QObject *object, QEvent *event);
 
-  
-
-
     bool            uiPaymentsReady    = false;
     QString         pendingURIPayment;
 
     WSServer*       wsserver = nullptr;
     WormholeClient* wormhole = nullptr;
 
-
     Controller*         rpc             = nullptr;
-    
     QCompleter*         labelCompleter  = nullptr;
     QRegExpValidator*   amtValidator    = nullptr;
     QRegExpValidator*   feesValidator   = nullptr;
@@ -211,38 +143,5 @@ private:
 
     QMovie*      loadingMovie;
 };
-
-class ChatMemoEdit : public QTextEdit
-{
-public:
-    ChatMemoEdit(QWidget* parent);
-
-    void setMaxLenChat(int len);
-    void setLenDisplayLabelChat(QLabel* label);
-    void SetSendChatButton(QPushButton* button);
-    void updateDisplayChat();
-
-private:
-    int             maxlenchat             = 235;
-    QLabel*         lenDisplayLabelchat    = nullptr;
-    QPushButton*    sendChatButton     = nullptr;
-};
-
-class ChatMemoEditRequest : public QTextEdit
-{
-public:
-    ChatMemoEditRequest(QWidget* parent);
-
-    void setMaxLenChatRequest(int len);
-    void setLenDisplayLabelChatRequest(QLabel* label);
-    void SetSendRequestButton(QPushButton* button);
-    void updateDisplayChatRequest();
-
-private:
-    int             maxlenchatrequest             = 512;
-    QLabel*         lenDisplayLabelchatRequest   = nullptr;
-    QPushButton*    sendRequestButton     = nullptr;
-};
-
 
 #endif // MAINWINDOW_H

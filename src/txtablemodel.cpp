@@ -122,7 +122,7 @@ QVariant TxTableModel::data(const QModelIndex &index, int role) const {
             for (int i=0; i < dat.items.length(); i++) {
                 total = total + dat.items[i].amount;
             }
-            return total.toDecimalsafecoinString();
+            return total.toDecimalSAFEString();
         }
         }
     } 
@@ -136,6 +136,7 @@ QVariant TxTableModel::data(const QModelIndex &index, int role) const {
                         if (memo.startsWith("safecoin:")) {
                             return Settings::paymentURIPretty(Settings::parseURI(memo));
                         } else {
+                            // Don't render memo html in tooltip
                             return modeldata->at(index.row()).type + 
                             (memo.isEmpty() ? "" : " tx memo: \"" + memo.toHtmlEscaped() + "\"");
                         }
@@ -158,32 +159,9 @@ QVariant TxTableModel::data(const QModelIndex &index, int role) const {
             for (int i=0; i < dat.items.length(); i++) {
                 total = total + dat.items[i].amount;
             }
-        if (Settings::getInstance()->get_currency_name() == "USD") {
-                return total.toDecimalUSDString();
-        } else if (Settings::getInstance()->get_currency_name() == "EUR") {
-               return total.toDecimalEURString();
-        } else if (Settings::getInstance()->get_currency_name() == "BTC") {
-                return total.toDecimalBTCString();
-        } else if (Settings::getInstance()->get_currency_name() == "CNY") {
-                return total.toDecimalCNYString();
-        } else if (Settings::getInstance()->get_currency_name() == "RUB") {
-                return total.toDecimalRUBString();
-        } else if (Settings::getInstance()->get_currency_name() == "CAD") {
-                return total.toDecimalCADString();
-        } else if (Settings::getInstance()->get_currency_name() == "SGD") {
-                return total.toDecimalSGDString();
-        } else if (Settings::getInstance()->get_currency_name() == "CHF") {
-                return total.toDecimalCHFString();
-        } else if (Settings::getInstance()->get_currency_name() == "INR") {
-                return total.toDecimalINRString();
-        } else if (Settings::getInstance()->get_currency_name() == "GBP") {
-                return total.toDecimalGBPString();
-        } else if (Settings::getInstance()->get_currency_name() == "AUD") {
-                return total.toDecimalAUDString();
-              }
-        }
+            return total.toDecimalUSDString();
         }    
-        
+        }
     }
 
     if (role == Qt::DecorationRole && index.column() == 0) {        
@@ -200,22 +178,13 @@ QVariant TxTableModel::data(const QModelIndex &index, int role) const {
             return QVariant(icon.pixmap(16, 16));
         } else if (hasMemo) {
             // Return the info pixmap to indicate memo
-            QIcon icon(":/icons/res/mail.png");            
+            QIcon icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);            
             return QVariant(icon.pixmap(16, 16));
         } else {
-
-            if (dat.type == "Receive"){
             // Empty pixmap to make it align
             QPixmap p(16, 16);
-            QIcon icon = QApplication::style()->standardIcon(QStyle::SP_ArrowLeft); 
-            return QVariant(icon.pixmap(16, 16));
-        }
-            if (dat.type == "send"){
-            // Empty pixmap to make it align
-            QPixmap p(16, 16);
-            QIcon icon = QApplication::style()->standardIcon(QStyle::SP_ArrowForward); 
-            return QVariant(icon.pixmap(16, 16));
-        }
+            p.fill(Qt::white);
+            return QVariant(p);
         }
     }
 
