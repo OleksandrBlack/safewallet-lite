@@ -74,11 +74,11 @@ bool Settings::isTAddress(QString addr) {
     return addr.startsWith("R");
 }
 
-int Settings::getSafecoindVersion() {
+QString Settings::getSafecoindVersion() {
     return _safecoindVersion;
 }
 
-void Settings::setSafecoindVersion(int version) {
+void Settings::setSafecoindVersion(QString version) {
     _safecoindVersion = version;
 }
 
