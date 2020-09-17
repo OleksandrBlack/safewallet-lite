@@ -10,18 +10,18 @@ PWD := $(shell pwd)
 
 all: release
 
-winrelease: target/x86_64-pc-windows-gnu/release/safecoinwalletlite.lib
+winrelease: target/x86_64-pc-windows-gnu/release/safewalletlite.lib
 
-target/x86_64-pc-windows-gnu/release/safecoinwalletlite.lib: src/lib.rs Cargo.toml
+target/x86_64-pc-windows-gnu/release/safewalletlite.lib: src/lib.rs Cargo.toml
 	SODIUM_LIB_DIR="$(PWD)/libsodium-mingw/" cargo build --lib --release --target x86_64-pc-windows-gnu
 
-release: target/release/safecoinwalletlite.$(EXT)
-debug: target/debug/safecoinwalletlite.$(EXT) 
+release: target/release/safewalletlite.$(EXT)
+debug: target/debug/safewalletlite.$(EXT) 
 
-target/release/safecoinwalletlite.$(EXT): src/lib.rs Cargo.toml
+target/release/safewalletlite.$(EXT): src/lib.rs Cargo.toml
 	LIBS="" CFLAGS=$(CFLAGS) cargo build --lib --release
 
-target/debug/safecoinwalletlite.$(EXT): src/lib.rs Cargo.toml
+target/debug/safewalletlite.$(EXT): src/lib.rs Cargo.toml
 	LIBS="" CFLAGS=$(CFLAGS) cargo build --lib
 
 clean:

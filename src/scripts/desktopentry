@@ -1,13 +1,13 @@
 [Desktop Entry]
-Name=SafecoinWalletLite
+Name=Safewallet-Lite
 Comment=Lightclient UI wallet for Safecoin
 GenericName=Wallet
-Exec=/usr/local/bin/SafecoinWalletLite %u
-Icon=SafecoinWalletLite.xpm
+Exec=/usr/local/bin/safewallet-lite %u
+Icon=safewallet-lite.xpm
 Type=Application
 StartupNotify=true
-StartupWMClass=SafecoinWalletLite
+StartupWMClass=safewallet-lite
 Categories=Utility;
 MimeType=x-scheme-handler/safecoin;
-Keywords=SafecoinWalletLite;
+Keywords=safewallet;
 

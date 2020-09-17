@@ -1,8 +1,9 @@
-Package: SafecoinWalletLite
+Package: safewallet-lite
 Version: RELEASE_VERSION
 Section: base
 Priority: optional
 Architecture: amd64
-Maintainer: SafeCoin <admin@safecoin.org>
-Description: SafecoinWalletLite is a Lightwallet for safecoin. It comes with 
- full support for transparent and shielded addresses.
+Maintainer: Aditya Kulkarni <zcash@adityapk.com>
+Description: Safewallet-Lite is a lightclient UI wallet for Safecoin.
+ Zecwallet-Lite is a lightclient UI wallet for Safecoin. It comes with 
+ full support for shielded addresses, transparent addresses and memos for Safecoin.

@@ -5,11 +5,10 @@ authors = ["SafeWallet"]
 edition = "2018"
 
 [lib]
-name = "safecoinwalletlite"
+name = "safewalletlite"
 crate-type = ["staticlib"]
 
 [dependencies]
 libc = "0.2.58"
 lazy_static = "1.4.0"
-blake3 = "0.3.4"
-safecoinwalletlitelib = { git = "https://github.com/OleksandrBlack/safewallet-light-cli", rev = "90629eba44182c621e045a307a1d8787c28c1815" }
+safewalletlitelib = { git = "https://github.com/OleksandrBlack/safewallet-light-cli", rev = "90629eba44182c621e045a307a1d8787c28c1815" }
