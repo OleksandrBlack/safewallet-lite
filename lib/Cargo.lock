@@ -1177,7 +1177,7 @@ version = "0.1.0"
 dependencies = [
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.66 (registry+https://github.com/rust-lang/crates.io-index)",
- "safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=79dd157c245c956e00866533e154023d93dbb287)",
+ "safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=bbda811f59c76632b1d798d90bbd65478b12d36e)",
 ]
 
 [[package]]
@@ -2396,7 +2396,7 @@ dependencies = [
 [[package]]
 name = "safewalletlitelib"
 version = "0.1.0"
-source = "git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=79dd157c245c956e00866533e154023d93dbb287#79dd157c245c956e00866533e154023d93dbb287"
+source = "git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=bbda811f59c76632b1d798d90bbd65478b12d36e#bbda811f59c76632b1d798d90bbd65478b12d36e"
 dependencies = [
  "base58 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellman 0.1.0 (git+https://github.com/OleksandrBlack/safecoin-librustzcash.git?rev=e179a82fec4a49398f60af1c6abc20cd99017037)",
@@ -2708,4 +2708,4 @@ dependencies = [
 "checksum zcash_client_backend 0.0.0 (git+https://github.com/OleksandrBlack/safecoin-librustzcash.git?rev=e179a82fec4a49398f60af1c6abc20cd99017037)" = "<none>"
 "checksum zcash_primitives 0.0.0 (git+https://github.com/OleksandrBlack/safecoin-librustzcash.git?rev=e179a82fec4a49398f60af1c6abc20cd99017037)" = "<none>"
 "checksum zcash_proofs 0.0.0 (git+https://github.com/OleksandrBlack/safecoin-librustzcash.git?rev=e179a82fec4a49398f60af1c6abc20cd99017037)" = "<none>"
-"checksum safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=79dd157c245c956e00866533e154023d93dbb287)" = "<none>"
+"checksum safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=bbda811f59c76632b1d798d90bbd65478b12d36e)" = "<none>"
