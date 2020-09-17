@@ -19,7 +19,7 @@ Config Settings::getSettings() {
     // Load from the QT Settings. 
     QSettings s;
     
-    auto server        = s.value("connection/lightwalletdserver").toString();
+    auto server        = s.value("connection/server").toString();
     if (server.trimmed().isEmpty()) {
         server = Settings::getDefaultServer();
     }
@@ -30,7 +30,7 @@ Config Settings::getSettings() {
 void Settings::saveSettings(const QString& server) {
     QSettings s;
 
-    s.setValue("connection/lightwalletdserver", server);
+    s.setValue("connection/server", server);
     s.sync();
 
     // re-init to load correct settings
@@ -50,7 +50,7 @@ bool Settings::isSaplingAddress(QString addr) {
         return false;
 
     return ( isTestnet() && addr.startsWith("ztestsapling")) ||
-           (!isTestnet() && addr.startsWith("safe"));
+           (!isTestnet() && addr.startsWith("safe1"));
 }
 
 bool Settings::isSproutAddress(QString addr) {
@@ -217,8 +217,6 @@ bool Settings::isValidAddress(QString addr) {
     QRegExp texp("^R[a-z0-9]{33}$", Qt::CaseInsensitive);
 
     return  texp.exactMatch(addr) || ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
-    return  texp.exactMatch(addr) || 
-            ztsexp.exactMatch(addr) || zsexp.exactMatch(addr);
 }
 
 // Get a pretty string representation of this Payment URI
@@ -251,7 +249,7 @@ PaymentURI Settings::parseURI(QString uri) {
         ans.error = "Could not understand address";
         return ans;
     }
-    uri = uri.right(uri.length() - ans.addr.length()-1);  // swallow '?'
+  uri = uri.right(uri.length() - ans.addr.length()-1);  // swallow '?'
     QUrlQuery query(uri);
 
     // parse out amt / amount
