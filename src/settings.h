@@ -42,8 +42,8 @@ public:
     bool    isSyncing();
     void    setSyncing(bool syncing);
 
-    QString getSafecoindVersion();
-    void    setSafecoindVersion(QString version);
+    QString getsafecoindVersion();
+    void    setsafecoindVersion(QString version);
     
     void    setUseEmbedded(bool r) { _useEmbedded = r; }
     bool    useEmbedded() { return _useEmbedded; }

@@ -149,7 +149,7 @@ void Controller::processInfo(const json& info) {
 
 
     QString version = QString::fromStdString(info["version"].get<json::string_t>());
-    Settings::getInstance()->setSafecoindVersion(version);
+    Settings::getInstance()->setsafecoindVersion(version);
 
     // Recurring pamynets are testnet only
     if (!Settings::getInstance()->isTestnet())
@@ -169,7 +169,12 @@ void Controller::getInfoThenRefresh(bool force) {
         bool doUpdate = force || (model->getLatestBlock() != curBlock);
         model->setLatestBlock(curBlock);
 
-        main->logger->write(QString("Refresh. curblock ") % QString::number(curBlock) % ", update=" % (doUpdate ? "true" : "false") );
+        ui->Version->setText(QString::fromStdString(reply["version"].get<json::string_t>())); 
+        ui->Vendor->setText(QString::fromStdString(reply["vendor"].get<json::string_t>()));
+
+        main->logger->write(
+			QString("Refresh. curblock ") % QString::number(curBlock) % ", update=" % (doUpdate ? "true" : "false")
+		);
 
         // Connected, so display checkmark.
         auto tooltip = Settings::getInstance()->getSettings().server + "\n" + 
@@ -181,12 +186,6 @@ void Controller::getInfoThenRefresh(bool force) {
         main->statusLabel->setToolTip(tooltip);
         main->statusIcon->setPixmap(i.pixmap(16, 16));
         main->statusIcon->setToolTip(tooltip);
-
-        //int version = reply["version"].get<json::string_t>();
-        int version = 1;
-        Settings::getInstance()->setSafecoindVersion(version);
-       ui->Version->setText(QString::fromStdString(reply["version"].get<json::string_t>())); 
-       ui->Vendor->setText(QString::fromStdString(reply["vendor"].get<json::string_t>()));
 
         // See if recurring payments needs anything
         Recurring::getInstance()->processPending(main);
