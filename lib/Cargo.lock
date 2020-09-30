@@ -1192,7 +1192,7 @@ dependencies = [
  "blake3 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.66 (registry+https://github.com/rust-lang/crates.io-index)",
- "safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=bbda811f59c76632b1d798d90bbd65478b12d36e)",
+ "safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=80f7cb746d160f0f8717db0db8d79491a2d4e3ad)",
 ]
 
 [[package]]
@@ -1655,7 +1655,7 @@ dependencies = [
 [[package]]
 name = "safewalletlitelib"
 version = "0.1.0"
-source = "git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=bbda811f59c76632b1d798d90bbd65478b12d36e#bbda811f59c76632b1d798d90bbd65478b12d36e"
+source = "git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=80f7cb746d160f0f8717db0db8d79491a2d4e3ad#80f7cb746d160f0f8717db0db8d79491a2d4e3ad"
 dependencies = [
  "base58 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bellman 0.1.0 (git+https://github.com/OleksandrBlack/safecoin-librustzcash.git?rev=e179a82fec4a49398f60af1c6abc20cd99017037)",
@@ -2671,7 +2671,7 @@ dependencies = [
 "checksum serde_yaml 0.8.11 (registry+https://github.com/rust-lang/crates.io-index)" = "691b17f19fc1ec9d94ec0b5864859290dff279dbd7b03f017afda54eb36c3c35"
 "checksum sha2 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "27044adfd2e1f077f649f59deb9490d3941d674002f7d062870a60ebe9bd47a0"
 "checksum signal-hook-registry 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "94f478ede9f64724c5d173d7bb56099ec3e2d9fc2774aac65d34b8b890405f41"
-"checksum safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=bbda811f59c76632b1d798d90bbd65478b12d36e)" = "<none>"
+"checksum safewalletlitelib 0.1.0 (git+https://github.com/OleksandrBlack/safewallet-light-cli?rev=80f7cb746d160f0f8717db0db8d79491a2d4e3ad)" = "<none>"
 "checksum slab 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 "checksum smallvec 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)" = "f7b0758c52e15a8b5e3691eae6cc559f08eee9406e548a4477ba4e67770a82b6"
 "checksum socket2 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)" = "e8b74de517221a2cb01a53349cf54182acdc31a074727d3079068448c0676d85"
