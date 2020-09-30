@@ -15,11 +15,15 @@
     <qresource prefix="/translations">
     <file>res/safewalletlite_de.qm</file>
     <file>res/safewalletlite_es.qm</file>
-    <file>res/safewalletlite_fr.qm</file>
-    <file>res/safewalletlite_pt.qm</file>
-    <file>res/safewalletlite_it.qm</file>
-    <file>res/safewalletlite_hr.qm</file>
     <file>res/safewalletlite_fa.qm</file>
+    <file>res/safewalletlite_fr.qm</file>
+    <file>res/safewalletlite_hr.qm</file>
+    <file>res/safewalletlite_it.qm</file>
+    <file>res/safewalletlite_pt.qm</file>
+    <file>res/safewalletlite_sr.qm</file>
+    <file>res/safewalletlite_tr.qm</file>
+    <file>res/safewalletlite_uk.qm</file>
+    <file>res/safewalletlite_zh.qm</file>
     </qresource>
     <qresource prefix="/css">
         <file>res/css/blue.css</file>
