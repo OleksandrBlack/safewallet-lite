@@ -42,6 +42,14 @@ void LiteInterface::createNewZaddr(bool, const std::function<void(json)>& cb) {
     conn->doRPCWithDefaultErrorHandling("new", "safe", cb);
 }
 
+void LiteInterface::createNewSietchZaddr(const std::function<void(json)>& cb) {
+      if (conn == nullptr)
+        return;
+
+     conn->doRPCWithDefaultErrorHandling("sietch", "safe", cb);
+      
+}
+
 void LiteInterface::createNewTaddr(const std::function<void(json)>& cb) {
     if (conn == nullptr)
         return;
@@ -135,6 +143,13 @@ void LiteInterface::fetchInfo(const std::function<void(json)>& cb,
         return;
 
     conn->doRPC("info", "", cb, err);
+}
+
+void LiteInterface::fetchSupply(const std::function<void(json)>& cb) {
+    if (conn == nullptr)
+        return;
+
+    conn->doRPCWithDefaultErrorHandling("coinsupply", "", cb);
 }
 
 

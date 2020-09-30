@@ -54,7 +54,7 @@ public:
     void stopWebsocket();
 
     void balancesReady();
-    void paySafecoinURI(QString uri = "", QString myAddr = "");
+    void paysafecoinURI(QString uri = "", QString myAddr = "");
 
     void updateLabels();
     void updateTAddrCombo(bool checked);
@@ -78,7 +78,8 @@ public:
 
 public slots:
     void slot_change_theme(const QString& themeName);
-
+    void slot_change_currency(const QString& currencyName);
+     
 private:    
     void closeEvent(QCloseEvent* event);
 
@@ -86,7 +87,7 @@ private:
     void setupTransactionsTab();
     void setupReceiveTab();
     void setupBalancesTab();
-    void setupSafecoindTab();
+    void setupsafecoindTab();
 
     void setupSettingsModal();
     void setupStatusBar();
@@ -116,6 +117,8 @@ private:
     void setMemoEnabled(int number, bool enabled);
     
     void donate();
+    void discord();
+    void website();
     void addressBook();
     void importPrivKey();
     void exportAllKeys();

@@ -45,7 +45,7 @@ if [ -z $QT_PATH ]; then
     exit 1; 
 fi
 
-if [ -z "$CERTIFICATE" ]; then 
+if [ -z "$CERTIFICATE" ]; then  
     echo "CERTIFICATE is not set. Please set it the name of the MacOS developer certificate to sign the binary with"; 
     exit 1; 
 fi
@@ -75,15 +75,14 @@ export PATH=$PATH:/usr/local/bin
 #Clean
 echo -n "Cleaning..............."
 make distclean >/dev/null 2>&1
-rm -f artifacts/macOS-safewallet-v$APP_VERSION.dmg 
-rm -rf Safewallet-Lite.app/ safewallet-lite.app/
+rm -f artifacts/macOS-SafecoinWalletLite-v$APP_VERSION.dmg
 echo "[OK]"
 
 
 echo -n "Configuring............"
 # Build
 QT_STATIC=$QT_PATH src/scripts/dotranslations.sh >/dev/null
-$QT_PATH/bin/qmake safewallet-lite.pro CONFIG+=release >/dev/null
+$QT_PATH/bin/qmake safecoinwallet-lite.pro CONFIG+=release >/dev/null
 echo "[OK]"
 
 
@@ -94,26 +93,18 @@ echo "[OK]"
 #Qt deploy
 echo -n "Deploying.............."
 mkdir artifacts >/dev/null 2>&1
-rm -f artifcats/safewallet-lite.dmg >/dev/null 2>&1
+rm -f artifcats/SafecoinWalletLite.dmg >/dev/null 2>&1
 rm -f artifacts/rw* >/dev/null 2>&1
-mv safewallet-lite.app Safewallet-Lite.app
-$QT_PATH/bin/macdeployqt Safewallet-Lite.app 
-codesign --deep --force --verify --verbose -s "$CERTIFICATE" --options runtime --timestamp Safewallet-Lite.app
+$QT_PATH/bin/macdeployqt SafecoinWalletLite.app 
+codesign --deep --force --verify --verbose -s "$CERTIFICATE" --options runtime --timestamp SafecoinWalletLite.app
 echo "[OK]"
 
 
-# Code Signing Note:
-# On MacOS, you still need to run these 3 commands:
-# xcrun altool --notarize-app -t osx -f macOS-safewallet-lite-v1.0.0.dmg --primary-bundle-id="com.yourcompany.safewallet-lite" -u "apple developer id@email.com" -p "one time password" 
-# xcrun altool --notarization-info <output from pervious command> -u "apple developer id@email.com" -p "one time password" 
-#...wait for the notarization to finish...
-# xcrun stapler staple macOS-safewallet-lite-v1.0.0.dmg
-
 echo -n "Building dmg..........."
+mv SafecoinWalletLite.app SafecoinWalletLite.app
+create-dmg --volname "SafecoinWalletLite-v$APP_VERSION" --volicon "res/logo.icns" --window-pos 200 120 --icon "SafecoinWalletLite.app" 200 190 --icon-size 100 --app-drop-link 600 185 --hide-extension "SafecoinWalletLite.app"  --window-size 800 400 --hdiutil-quiet --background res/dmgbg.png  artifacts/macOS-SafecoinWalletLite-v$APP_VERSION.dmg SafecoinWalletLite.app >/dev/null 2>&1
 
-create-dmg --volname "Safewallet-Lite-v$APP_VERSION" --volicon "res/logo.icns" --window-pos 200 120 --icon "Safewallet-Lite.app" 200 190  --icon-size 100 --app-drop-link 600 185 --hide-extension "Safewallet-Lite.app"  --window-size 800 400 --hdiutil-quiet --background res/dmgbg.png  artifacts/macOS-safewallet-lite-v$APP_VERSION.dmg Safewallet-Lite.app >/dev/null 2>&1
-
-if [ ! -f artifacts/macOS-safewallet-lite-v$APP_VERSION.dmg ]; then
+if [ ! -f artifacts/macOS-SafecoinWalletLite-v$APP_VERSION.dmg ]; then
     echo "[ERROR]"
     exit 1
 fi
@@ -121,5 +112,5 @@ echo  "[OK]"
 
 # Submit to Apple for notarization
 echo -n "Apple notarization....."
-xcrun altool --notarize-app -t osx -f artifacts/macOS-safewallet-lite-v$APP_VERSION.dmg --primary-bundle-id="com.yourcompany.safewallet-lite" -u "$APPLE_USERNAME" -p "$APPLE_PASSWORD" 
-echo  "[OK]"
+xcrun altool --notarize-app -t osx -f artifacts/macOS-SafecoinWalletLite-v$APP_VERSION.dmg --primary-bundle-id="com.MySafecoin.SafecoinWalletLite" -u "$APPLE_USERNAME" -p "$APPLE_PASSWORD" 
+echo  "[OK]" 

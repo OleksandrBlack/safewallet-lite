@@ -1,10 +1,11 @@
 #include "controller.h"
-
+#include "mainwindow.h"
 #include "addressbook.h"
 #include "settings.h"
 #include "version.h"
 #include "camount.h"
 #include "websockets.h"
+
 
 using json = nlohmann::json;
 
@@ -28,10 +29,11 @@ Controller::Controller(MainWindow* main) {
     // Set up timer to refresh Price
     priceTimer = new QTimer(main);
     QObject::connect(priceTimer, &QTimer::timeout, [=]() {
-        if (Settings::getInstance()->getAllowFetchPrices())
-            refreshSAFEPrice();
+        if (Settings::getInstance()->getAllowFetchPrices()) 
+            refreshZECPrice();          
+        
     });
-    priceTimer->start(Settings::priceRefreshSpeed);  // Every hour
+    priceTimer->start(Settings::priceRefreshSpeed);  // Every 5 Min
 
     // Set up a timer to refresh the UI every few seconds
     timer = new QTimer(main);
@@ -43,7 +45,7 @@ Controller::Controller(MainWindow* main) {
     // Create the data model
     model = new DataModel();
 
-    // Crate the SafecoindRPC 
+    // Crate the safecoindRPC 
     zrpc = new LiteInterface();
 }
 
@@ -57,21 +59,19 @@ Controller::~Controller() {
     delete model;
     delete zrpc;
 }
-
-
+ 
+   
 // Called when a connection to safecoind is available. 
 void Controller::setConnection(Connection* c) {
     if (c == nullptr) return;
 
     this->zrpc->setConnection(c);
 
-    ui->statusBar->showMessage("Ready!");
-
-    processInfo(c->getInfo());
+    ui->statusBar->showMessage("");
 
     // If we're allowed to get the Safecoin Price, get the prices
     if (Settings::getInstance()->getAllowFetchPrices())
-        refreshSAFEPrice();
+        refreshZECPrice();
 
     // If we're allowed to check for updates, check for a new release
     if (Settings::getInstance()->getCheckForUpdates())
@@ -80,28 +80,472 @@ void Controller::setConnection(Connection* c) {
     // Force update, because this might be coming from a settings update
     // where we need to immediately refresh
     refresh(true);
-}
 
+// Create Sietch zdust addr at startup.
+ zrpc->createNewSietchZaddr( [=] (json reply)  {    
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+  
+ } );
+
+zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch1.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch2.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch3.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch4.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch5.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch6.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch7.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch8.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+   zrpc->createNewSietchZaddr( [=] (json reply)  {
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch9.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+}
 
 // Build the RPC JSON Parameters for this tx
 void Controller::fillTxJsonParams(json& allRecepients, Tx tx) {   
     Q_ASSERT(allRecepients.is_array());
 
-    // For each addr/amt/memo, construct the JSON and also build the confirm dialog box    
-    for (int i=0; i < tx.toAddrs.size(); i++) {
-        auto toAddr = tx.toAddrs[i];
-
         // Construct the JSON params
         json rec = json::object();
+        json dust = json::object();
+        json dust1 = json::object();
+        json dust2 = json::object();
+        json dust3 = json::object();
+        json dust4 = json::object();
+        json dust5 = json::object();
+        json dust6 = json::object();
+        json dust7 = json::object();
+        json dust8 = json::object();
+        json dust9 = json::object();
+
+// Create Sietch zdust addr again to not use it twice.
+ zrpc->createNewSietchZaddr( [=] (json reply)  {
+     
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }  
+ } );
+
+zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch1.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+ } );
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch2.txt");
+ QFile file(path);
+QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch3.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+ } );
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch4.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch5.txt");
+ QFile file(path);
+QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+
+ } );
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch6.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+ } );
+
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch7.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+ } );
+  zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch8.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+ if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    } 
+ } );
+   zrpc->createNewSietchZaddr( [=] (json reply)  {
+
+ QString path= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch9.txt");
+ QFile file(path);
+ QString zdust = QString::fromStdString(reply.get<json::array_t>()[0]);   
+if(!file.open(QIODevice::WriteOnly)){
+        file.close();
+    } else {
+        QTextStream out(&file); out << zdust.toUtf8();
+        file.close();
+    }
+ } );
+
+// Set sietch zdust addr to json.
+
+ QString path= (QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)) + QString("/Sietch.txt");
+ QFile inputFile(path);       
+ if (inputFile.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust["address"] = line.toStdString();
+   }
+   inputFile.close();
+}
+
+
+QString path1= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch1.txt");
+QFile inputFile1(path1);
+if (inputFile1.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile1);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+               QString zdust = line;
+
+      dust1["address"] = zdust.toStdString();
+   }
+   inputFile1.close();
+}
+
+ QString path2= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch2.txt");
+ QFile inputFile2(path2);
+if (inputFile2.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile2);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust2["address"] = line.toStdString();
+   }
+   inputFile2.close();
+}
+
+QString path3= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch3.txt");
+QFile inputFile3(path3);
+if (inputFile3.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile3);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust3["address"] = line.toStdString();
+   }
+   inputFile3.close();
+}
+
+ QString path4= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch4.txt");
+ QFile inputFile4(path4);
+ if (inputFile4.open(QIODevice::ReadOnly))
+ {
+   QTextStream in(&inputFile4);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust4["address"] = line.toStdString();
+   }
+   inputFile4.close();
+ }
+
+QString path5= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch5.txt");
+QFile inputFile5(path5);
+if (inputFile5.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile5);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust5["address"] = line.toStdString();
+   }
+   inputFile5.close();
+}
+
+QString path6= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch6.txt");
+QFile inputFile6(path6);
+if (inputFile6.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile6);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust6["address"] = line.toStdString();
+   }
+   inputFile6.close();
+}
+
+QString path7= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch7.txt");
+QFile inputFile7(path7);
+if (inputFile7.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile7);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust7["address"] = line.toStdString();
+   }
+   inputFile7.close();
+}
+
+ QString path8= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch8.txt");
+ QFile inputFile8(path8);
+ if (inputFile8.open(QIODevice::ReadOnly))
+ {
+   QTextStream in(&inputFile8);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust8["address"] = line.toStdString();
+   }
+   inputFile.close();
+ }
+
+ QString path9= QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QString("/Sietch9.txt");
+ QFile inputFile9(path9);
+ if (inputFile9.open(QIODevice::ReadOnly))
+{
+   QTextStream in(&inputFile9);
+   while (!in.atEnd())
+   {
+      QString line = in.readLine();
+      dust9["address"] = line.toStdString();
+   }
+   inputFile9.close();
+}
+
+// Dust amt/memo, construct the JSON 
+        dust["amount"]      = 0;
+        dust["memo"]     = "";
+        dust1["amount"]      = 0;
+        dust1["memo"]     = "";
+        dust2["amount"]      = 0;
+        dust2["memo"]     = "";
+        dust3["amount"]      = 0;
+        dust3["memo"]     = "";
+        dust4["amount"]      = 0;
+        dust4["memo"]     = "";
+        dust5["amount"]      = 0;
+        dust5["memo"]     = "";
+        dust6["amount"]      = 0;
+        dust6["memo"]     = "";
+        dust7["amount"]      = 0;
+        dust7["memo"]     = "";
+        dust8["amount"]      = 0;
+        dust8["memo"]     = "";
+        dust9["amount"]      = 0;
+        dust9["memo"]     = "";
+
+// For each addr/amt/memo, construct the JSON and also build the confirm dialog box   
+
+  for (int i=0; i < tx.toAddrs.size(); i++) {
+        auto toAddr = tx.toAddrs[i];
+
         rec["address"]      = toAddr.addr.toStdString();
         rec["amount"]       = toAddr.amount.toqint64();
         if (Settings::isZAddress(toAddr.addr) && !toAddr.memo.trimmed().isEmpty())
-            rec["memo"]     = toAddr.memo.toStdString();
+        rec["memo"]     = toAddr.memo.toStdString();
 
-        allRecepients.push_back(rec);
+    allRecepients.push_back(rec) ;
     }
-}
 
+      int decider = qrand() % ((100 + 1)-1)+ 1;// random int between 1 and 100
+               
+      //50% chance of adding another zdust, shuffle.
+       
+            
+            if(decider % 4 == 3) {
+       allRecepients.insert(std::begin(allRecepients),{dust,dust1,dust2,dust3,dust4,dust5,dust6,dust7,dust8}) ;
+    //   std::shuffle(allRecepients.begin(),allRecepients.end(),std::random_device());         
+       
+       }else {
+        allRecepients.insert(std::begin(allRecepients),{dust,dust1,dust2,dust3,dust4,dust5,dust6,dust7,dust8,dust9}) ;
+      //  std::shuffle(allRecepients.begin(),allRecepients.end(),std::random_device());
+        }
+     
+            
+    
+    
+}
 
 void Controller::noConnection() {    
     QIcon i = QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
@@ -162,19 +606,41 @@ void Controller::getInfoThenRefresh(bool force) {
 
     static bool prevCallSucceeded = false;
 
-    zrpc->fetchLatestBlock([=] (const json& reply) {   
+    zrpc->fetchInfo([=] (const json& reply) {   
         prevCallSucceeded = true;       
 
-        int curBlock  = reply["height"].get<json::number_integer_t>();
+        int curBlock  = reply["latest_block_height"].get<json::number_integer_t>();
+        int longestchain = reply["longestchain"].get<json::number_integer_t>();
+        int notarized = reply["notarized"].get<json::number_integer_t>();
+        int difficulty = reply["difficulty"].get<json::number_integer_t>();
+        int blocks_until_halving= 340000 - curBlock;
+        int halving_days =
+         (blocks_until_halving * 150) / (60*60*24) ;
         bool doUpdate = force || (model->getLatestBlock() != curBlock);
         model->setLatestBlock(curBlock);
 
+        if (Settings::getInstance()->get_currency_name() == "EUR" || Settings::getInstance()->get_currency_name() == "CHF" || Settings::getInstance()->get_currency_name() == "RUB") {
+        ui->blockHeight->setText("Block: " + QLocale(QLocale::German).toString(curBlock));
+        ui->last_notarized->setText("Block: " + QLocale(QLocale::German).toString(notarized));
+        ui->longestchain->setText("Block: " + QLocale(QLocale::German).toString(longestchain));
+        ui->difficulty->setText(QLocale(QLocale::German).toString(difficulty));
+        ui->halvingTime->setText((QLocale(QLocale::German).toString(blocks_until_halving)) + " Blocks or , " + (QLocale(QLocale::German).toString(halving_days)  + " days" ));
+        }
+        else {
+        ui->blockHeight->setText("Block: " + QLocale(QLocale::English).toString(curBlock));
+        ui->last_notarized->setText("Block: " + QLocale(QLocale::English).toString(notarized));
+        ui->longestchain->setText("Block: " + QLocale(QLocale::English).toString(longestchain));
+        ui->difficulty->setText(QLocale(QLocale::English).toString(difficulty));
+        ui->halvingTime->setText((QLocale(QLocale::English).toString(blocks_until_halving)) + " Blocks or , " + (QLocale(QLocale::English).toString(halving_days)  + " days" ));
+
+        }
+
+        
         ui->Version->setText(QString::fromStdString(reply["version"].get<json::string_t>())); 
         ui->Vendor->setText(QString::fromStdString(reply["vendor"].get<json::string_t>()));
+        
 
-        main->logger->write(
-			QString("Refresh. curblock ") % QString::number(curBlock) % ", update=" % (doUpdate ? "true" : "false")
-		);
+        main->logger->write(QString("Refresh. curblock ") % QString::number(curBlock) % ", update=" % (doUpdate ? "true" : "false") );
 
         // Connected, so display checkmark.
         auto tooltip = Settings::getInstance()->getSettings().server + "\n" + 
@@ -182,11 +648,105 @@ void Controller::getInfoThenRefresh(bool force) {
         QIcon i(":/icons/res/connected.gif");
         QString chainName = Settings::getInstance()->isTestnet() ? "test" : "main";
         main->statusLabel->setText(chainName + "(" + QString::number(curBlock) + ")");
-        main->statusLabel->setText(" SAFE/USD=$" + QString::number( (double) Settings::getInstance()->getSAFEPrice() ));
+
+        // use currency ComboBox as input 
+
+        if (Settings::getInstance()->get_currency_name() == "USD") {
+        double price = Settings::getInstance()->getZECPrice();
+        double volume = Settings::getInstance()->getUSDVolume();
+        double cap =  Settings::getInstance()->getUSDCAP();
+        main->statusLabel->setText(" SAFECOIN/USD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
+
+    }   else if (Settings::getInstance()->get_currency_name() == "EUR") {
+        double price = Settings::getInstance()->getEURPrice();
+        double volume = Settings::getInstance()->getEURVolume();
+        double cap =  Settings::getInstance()->getEURCAP();
+        main->statusLabel->setText("SAFECOIN/EUR "+(QLocale(QLocale::German).toString(price,'f', 2))+ " €");
+        ui->volumeExchange->setText(QLocale(QLocale::German).toString(volume,'f', 2)+ " €");
+        ui->marketcapTab->setText(QLocale(QLocale::German).toString(cap,'f', 2)+ " €");
+
+    }   else if  (Settings::getInstance()->get_currency_name() == "BTC") {
+        double price = Settings::getInstance()->getBTCPrice();
+        double volume = Settings::getInstance()->getBTCVolume();
+        double cap =  Settings::getInstance()->getBTCCAP();
+        main->statusLabel->setText(" SAFECOIN/BTC=BTC " + (QLocale(QLocale::English).toString(price, 'f',8)));
+        ui->volumeExchange->setText(" BTC " + (QLocale(QLocale::English).toString(volume, 'f',8)));
+        ui->marketcapTab->setText(" BTC " + (QLocale(QLocale::English).toString(cap, 'f',8)));
+
+    }   else if (Settings::getInstance()->get_currency_name() == "CNY") {
+        double price = Settings::getInstance()->getCNYPrice();
+        double volume = Settings::getInstance()->getCNYVolume();
+        double cap =  Settings::getInstance()->getCNYCAP();
+        main->statusLabel->setText(" SAFECOIN/CNY=¥ /元 " + (QLocale(QLocale::Chinese).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" ¥ /元  " + (QLocale(QLocale::Chinese).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" ¥ /元  " + (QLocale(QLocale::Chinese).toString(cap,'f', 2)));
+
+    }   else if  (Settings::getInstance()->get_currency_name() == "RUB") {
+        double price = Settings::getInstance()->getRUBPrice();
+        double volume = Settings::getInstance()->getRUBVolume();
+        double cap =  Settings::getInstance()->getRUBCAP();
+        main->statusLabel->setText(" SAFECOIN/RUB=₽ " + (QLocale(QLocale::German).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" ₽  " + (QLocale(QLocale::German).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" ₽  " + (QLocale(QLocale::German).toString(cap,'f', 2)));
+
+    }   else if (Settings::getInstance()->get_currency_name() == "CAD") {
+        double price = Settings::getInstance()->getCADPrice();
+        double volume = Settings::getInstance()->getCADVolume();
+        double cap =  Settings::getInstance()->getCADCAP();
+        main->statusLabel->setText(" SAFECOIN/CAD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
+
+    }   else if  (Settings::getInstance()->get_currency_name() == "SGD") {
+        double price = Settings::getInstance()->getSGDPrice();
+        double volume = Settings::getInstance()->getSGDVolume();
+        double cap =  Settings::getInstance()->getSGDCAP();
+        main->statusLabel->setText(" SAFECOIN/SGD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
+
+    }   else if  (Settings::getInstance()->get_currency_name() == "CHF") {
+        double price = Settings::getInstance()->getCHFPrice();
+        double volume = Settings::getInstance()->getCHFVolume();
+        double cap =  Settings::getInstance()->getCHFCAP();
+        main->statusLabel->setText(" SAFECOIN/CHF= " + (QLocale(QLocale::German).toString(price,'f', 2))+ " CHF");
+        ui->volumeExchange->setText(QLocale(QLocale::German).toString(volume,'f', 2)+ " CHF");
+        ui->marketcapTab->setText(QLocale(QLocale::German).toString(cap,'f', 2)+ " CHF");
+
+    }   else if (Settings::getInstance()->get_currency_name() == "INR") {
+        double price = Settings::getInstance()->getINRPrice();
+        double volume = Settings::getInstance()->getINRVolume();
+        double cap =  Settings::getInstance()->getINRCAP();
+        main->statusLabel->setText(" SAFECOIN/INR=₹ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" ₹  " + (QLocale(QLocale::English).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" ₹  " + (QLocale(QLocale::English).toString(cap,'f', 2)));
+
+    }   else if  (Settings::getInstance()->get_currency_name() == "GBP") {
+        double price = Settings::getInstance()->getGBPPrice();
+        double volume = Settings::getInstance()->getGBPVolume();
+        double cap =  Settings::getInstance()->getGBPCAP();
+        main->statusLabel->setText(" SAFECOIN/GBP=£ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" £  " + (QLocale(QLocale::English).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" £  " + (QLocale(QLocale::English).toString(cap,'f', 2)));
+
+        }else if  (Settings::getInstance()->get_currency_name() == "AUD") {
+        double price = Settings::getInstance()->getAUDPrice();
+        double volume = Settings::getInstance()->getAUDVolume();
+        double cap =  Settings::getInstance()->getAUDCAP();
+        main->statusLabel->setText(" SAFECOIN/AUD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
+        
+    } else {
+    main->statusLabel->setText(" SAFECOIN/USD=$" + QString::number(Settings::getInstance()->getZECPrice(),'f',2 ));
+    ui->volumeExchange->setText(" $  " + QString::number((double)  Settings::getInstance()->getUSDVolume() ,'f',2));
+    ui->marketcapTab->setText(" $  " + QString::number((double)  Settings::getInstance()->getUSDCAP() ,'f',2));
+    }
         main->statusLabel->setToolTip(tooltip);
         main->statusIcon->setPixmap(i.pixmap(16, 16));
         main->statusIcon->setToolTip(tooltip);
-
         // See if recurring payments needs anything
         Recurring::getInstance()->processPending(main);
 
@@ -197,6 +757,24 @@ void Controller::getInfoThenRefresh(bool force) {
 
             model->setEncryptionStatus(isEncrypted, isLocked);
         });
+          // Get the total supply and render it with thousand decimal
+        zrpc->fetchSupply([=] (const json& reply) {   
+        
+        int supply  = reply["supply"].get<json::number_integer_t>();
+        int zfunds = reply["zfunds"].get<json::number_integer_t>();
+        int total = reply["total"].get<json::number_integer_t>();
+
+        if (Settings::getInstance()->get_currency_name() == "EUR" || Settings::getInstance()->get_currency_name() == "CHF" || Settings::getInstance()->get_currency_name() == "RUB") {
+        ui->supply_taddr->setText((QLocale(QLocale::German).toString(supply)+ " Safecoin"));
+        ui->supply_zaddr->setText((QLocale(QLocale::German).toString(zfunds)+ " Safecoin"));
+        ui->supply_total->setText((QLocale(QLocale::German).toString(total)+ " Safecoin"));}
+        else{
+        ui->supply_taddr->setText("Safecoin " + (QLocale(QLocale::English).toString(supply)));
+        ui->supply_zaddr->setText("Safecoin " +(QLocale(QLocale::English).toString(zfunds)));
+        ui->supply_total->setText("Safecoin " +(QLocale(QLocale::English).toString(total)));}
+
+    
+     });
 
         if ( doUpdate ) {
             // Something changed, so refresh everything.
@@ -227,6 +805,7 @@ void Controller::refreshAddresses() {
     
     auto newzaddresses = new QList<QString>();
     auto newtaddresses = new QList<QString>();
+
 
     zrpc->fetchAddresses([=] (json reply) {
         auto zaddrs = reply["z_addresses"].get<json::array_t>();
@@ -294,27 +873,112 @@ void Controller::updateUIBalances() {
     // Reduce the BalanceZ by the pending outgoing amount. We're adding
     // here because totalPending is already negative for outgoing txns.
     balZ = balZ + getModel()->getTotalPending();
+
+    CAmount balTotal     = balT + balZ;
+    CAmount balAvailable = balT + balVerified;
     if (balZ < 0) {
         balZ = CAmount::fromqint64(0);
     }
 
-    CAmount balTotal     = balT + balZ;
-    CAmount balAvailable = balT + balVerified;
-
     // Balances table
-    ui->balSheilded   ->setText(balZ.toDecimalSAFEString());
-    ui->balVerified   ->setText(balVerified.toDecimalSAFEString());
-    ui->balTransparent->setText(balT.toDecimalSAFEString());
-    ui->balTotal      ->setText(balTotal.toDecimalSAFEString());
+    ui->balSheilded   ->setText(balZ.toDecimalsafecoinString());
+    ui->balVerified   ->setText(balVerified.toDecimalsafecoinString());
+    ui->balTransparent->setText(balT.toDecimalsafecoinString());
+    ui->balTotal      ->setText(balTotal.toDecimalsafecoinString());
 
+    if (Settings::getInstance()->get_currency_name() == "USD") {
     ui->balSheilded   ->setToolTip(balZ.toDecimalUSDString());
     ui->balVerified   ->setToolTip(balVerified.toDecimalUSDString());
     ui->balTransparent->setToolTip(balT.toDecimalUSDString());
     ui->balTotal      ->setToolTip(balTotal.toDecimalUSDString());
 
+   } else if (Settings::getInstance()->get_currency_name() == "EUR") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalEURString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalEURString());
+    ui->balTransparent->setToolTip(balT.toDecimalEURString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalEURString());
+    
+
+    } else if (Settings::getInstance()->get_currency_name() == "BTC") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalBTCString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalBTCString());
+    ui->balTransparent->setToolTip(balT.toDecimalBTCString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalBTCString()); 
+    
+     } else if (Settings::getInstance()->get_currency_name() == "CNY") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalCNYString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalCNYString());
+    ui->balTransparent->setToolTip(balT.toDecimalCNYString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalCNYString()); 
+
+    } else if (Settings::getInstance()->get_currency_name() == "RUB") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalRUBString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalRUBString());
+    ui->balTransparent->setToolTip(balT.toDecimalRUBString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalRUBString()); 
+
+    } else if (Settings::getInstance()->get_currency_name() == "CAD") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalCADString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalCADString());
+    ui->balTransparent->setToolTip(balT.toDecimalCADString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalCADString()); 
+
+    } else if (Settings::getInstance()->get_currency_name() == "SGD") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalSGDString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalSGDString());
+    ui->balTransparent->setToolTip(balT.toDecimalSGDString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalSGDString()); 
+
+    } else if (Settings::getInstance()->get_currency_name() == "CHF") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalCHFString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalCHFString());
+    ui->balTransparent->setToolTip(balT.toDecimalCHFString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalCHFString()); 
+
+    } else if (Settings::getInstance()->get_currency_name() == "INR") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalINRString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalINRString());
+    ui->balTransparent->setToolTip(balT.toDecimalINRString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalINRString()); 
+
+    } else if (Settings::getInstance()->get_currency_name() == "GBP") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalGBPString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalGBPString());
+    ui->balTransparent->setToolTip(balT.toDecimalGBPString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalGBPString()); 
+
+    } else if (Settings::getInstance()->get_currency_name() == "AUD") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalAUDString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalAUDString());
+    ui->balTransparent->setToolTip(balT.toDecimalAUDString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalAUDString()); 
+    }
     // Send tab
-    ui->txtAvailableSAFE->setText(balAvailable.toDecimalSAFEString());
-    ui->txtAvailableUSD->setText(balAvailable.toDecimalUSDString());
+    ui->txtAvailablesafecoin->setText(balAvailable.toDecimalsafecoinString());
+
+    if (Settings::getInstance()->get_currency_name() == "USD") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalUSDString());
+   } else if (Settings::getInstance()->get_currency_name() == "EUR") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalEURString()); 
+    } else if (Settings::getInstance()->get_currency_name() == "BTC") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalBTCString()); 
+     } else if (Settings::getInstance()->get_currency_name() == "CNY") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalCNYString()); 
+    } else if (Settings::getInstance()->get_currency_name() == "RUB") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalRUBString()); 
+     } else if (Settings::getInstance()->get_currency_name() == "CAD") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalCADString()); 
+    } else if (Settings::getInstance()->get_currency_name() == "SGD") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalSGDString()); 
+     } else if (Settings::getInstance()->get_currency_name() == "CHF") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalCHFString()); 
+    } else if (Settings::getInstance()->get_currency_name() == "INR") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalINRString()); 
+    } else if (Settings::getInstance()->get_currency_name() == "GBP") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalGBPString()); 
+    } else if (Settings::getInstance()->get_currency_name() == "AUD") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalAUDString()); 
+    }
 }
 
 void Controller::refreshBalances() {    
@@ -392,31 +1056,44 @@ void Controller::refreshTransactions() {
             if (!it["outgoing_metadata"].is_null()) {
             
                 for (auto o: it["outgoing_metadata"].get<json::array_t>()) {
-                    QString address = QString::fromStdString(o["address"]);
                     
+                     QString address;
+              
+                    address = QString::fromStdString(o["address"]);
+                
                     // Sent items are -ve
-                    CAmount amount = CAmount::fromqint64(-1 * o["value"].get<json::number_unsigned_t>()); 
+                    CAmount amount = CAmount::fromqint64(-1* o["value"].get<json::number_unsigned_t>()); 
                     
+                   // Check for Memos
+                   
                     QString memo;
                     if (!o["memo"].is_null()) {
                         memo = QString::fromStdString(o["memo"]);
-                    }
-
+                     }
+                    
                     items.push_back(TransactionItemDetail{address, amount, memo});
                     total_amount = total_amount + amount;
                 }
 
                 {
                     // Concat all the addresses
+                  
                     QList<QString> addresses;
                     for (auto item : items) {
-                        addresses.push_back(item.address);
-                    }
-                    address = addresses.join(",");
+  
+                 if (item.amount == 0 ) {
+               
+                  } else {
+                   addresses.push_back(item.address);
+                  
+                  address = addresses.join(",");   }
+                
+                  }
+                
                 }
-
+ 
                 txdata.push_back(TransactionItem{
-                   "Sent", datetime, address, txid,confirmations, items
+                   "send", datetime, address, txid,confirmations, items
                 });
             } else {
                 // Incoming Transaction
@@ -434,6 +1111,7 @@ void Controller::refreshTransactions() {
                     memo
                 });
 
+  
                 TransactionItem tx{
                     "Receive", datetime, address, txid,confirmations, items
                 };
@@ -552,7 +1230,7 @@ void Controller::checkForUpdate(bool silent) {
     if (!zrpc->haveConnection()) 
         return noConnection();
 
-    QUrl cmcURL("https://api.github.com/repos/OleksandrBlack/safewallet-lite/releases");
+    QUrl cmcURL("https://api.github.com/repos/MySafecoin/SafecoinWalletLite/releases");
 
     QNetworkRequest req;
     req.setUrl(cmcURL);
@@ -600,7 +1278,7 @@ void Controller::checkForUpdate(bool silent) {
                             .arg(currentVersion.toString()),
                         QMessageBox::Yes, QMessageBox::Cancel);
                     if (ans == QMessageBox::Yes) {
-                        QDesktopServices::openUrl(QUrl("https://github.com/OleksandrBlack/safewallet-lite/releases"));
+                        QDesktopServices::openUrl(QUrl("https://github.com/MySafecoin/SafecoinWalletLite/releases"));
                     } else {
                         // If the user selects cancel, don't bother them again for this version
                         s.setValue("update/lastversion", maxVersion.toString());
@@ -621,16 +1299,17 @@ void Controller::checkForUpdate(bool silent) {
     });
 }
 
-// Get the SAFE->USD price from coinmarketcap using their API
-void Controller::refreshSAFEPrice() {
+// Get the safecoin->USD price from coinmarketcap using their API
+void Controller::refreshZECPrice() {
     if (!zrpc->haveConnection()) 
         return noConnection();
 
-    QUrl cmcURL("https://api.coinmarketcap.com/v1/ticker/");
-
+       // TODO: use/render all this data
+    QUrl cmcURL("https://api.coingecko.com/api/v3/simple/price?ids=safecoin&vs_currencies=btc%2Cusd%2Ceur%2Ceth%2Cgbp%2Ccny%2Cjpy%2Crub%2Ccad%2Csgd%2Cchf%2Cinr%2Caud%2Cinr&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true");
+   
     QNetworkRequest req;
     req.setUrl(cmcURL);
-    
+
     QNetworkAccessManager *manager = new QNetworkAccessManager(this->main);
     QNetworkReply *reply = manager->get(req);
 
@@ -642,49 +1321,343 @@ void Controller::refreshSAFEPrice() {
             if (reply->error() != QNetworkReply::NoError) {
                 auto parsed = json::parse(reply->readAll(), nullptr, false);
                 if (!parsed.is_discarded() && !parsed["error"]["message"].is_null()) {
-                    qDebug() << QString::fromStdString(parsed["error"]["message"]);    
+                    qDebug() << QString::fromStdString(parsed["error"]["message"]);
                 } else {
                     qDebug() << reply->errorString();
                 }
-                Settings::getInstance()->setSAFEPrice(0);
+                Settings::getInstance()->setZECPrice(0);
+                Settings::getInstance()->setEURPrice(0);
+                Settings::getInstance()->setBTCPrice(0);
+                Settings::getInstance()->setCNYPrice(0);
+                Settings::getInstance()->setRUBPrice(0);
+                Settings::getInstance()->setCADPrice(0);
+                Settings::getInstance()->setSGDPrice(0);
+                Settings::getInstance()->setCHFPrice(0);
+                Settings::getInstance()->setGBPPrice(0);
+                Settings::getInstance()->setAUDPrice(0);
+                Settings::getInstance()->setINRPrice(0);
+                Settings::getInstance()->setUSDVolume(0);
+                Settings::getInstance()->setEURVolume(0);
+                Settings::getInstance()->setBTCVolume(0);
+                Settings::getInstance()->setCNYVolume(0);
+                Settings::getInstance()->setRUBVolume(0);
+                Settings::getInstance()->setCADVolume(0);
+                Settings::getInstance()->setINRVolume(0);
+                Settings::getInstance()->setSGDVolume(0);
+                Settings::getInstance()->setCHFVolume(0);
+                Settings::getInstance()->setGBPVolume(0);
+                Settings::getInstance()->setAUDVolume(0);
+                Settings::getInstance()->setUSDCAP(0);
+                Settings::getInstance()->setEURCAP(0);
+                Settings::getInstance()->setBTCCAP(0);
+                Settings::getInstance()->setCNYCAP(0);
+                Settings::getInstance()->setRUBCAP(0);
+                Settings::getInstance()->setCADCAP(0);
+                Settings::getInstance()->setINRCAP(0);
+                Settings::getInstance()->setSGDCAP(0);
+                Settings::getInstance()->setCHFCAP(0);
+                Settings::getInstance()->setGBPCAP(0);
+                Settings::getInstance()->setAUDCAP(0);
+               
                 return;
-            } 
+            }
+
+            qDebug() << "No network errors";
 
             auto all = reply->readAll();
-            
             auto parsed = json::parse(all, nullptr, false);
             if (parsed.is_discarded()) {
-                Settings::getInstance()->setSAFEPrice(0);
+                Settings::getInstance()->setZECPrice(0);
+                Settings::getInstance()->setEURPrice(0);
+                Settings::getInstance()->setBTCPrice(0);
+                Settings::getInstance()->setCNYPrice(0);
+                Settings::getInstance()->setRUBPrice(0);
+                Settings::getInstance()->setCADPrice(0);
+                Settings::getInstance()->setSGDPrice(0);
+                Settings::getInstance()->setCHFPrice(0);
+                Settings::getInstance()->setGBPPrice(0);
+                Settings::getInstance()->setAUDPrice(0);
+                Settings::getInstance()->setINRPrice(0);
+                Settings::getInstance()->setUSDVolume(0);
+                Settings::getInstance()->setEURVolume(0);
+                Settings::getInstance()->setBTCVolume(0);
+                Settings::getInstance()->setCNYVolume(0);
+                Settings::getInstance()->setRUBVolume(0);
+                Settings::getInstance()->setCADVolume(0);
+                Settings::getInstance()->setINRVolume(0);
+                Settings::getInstance()->setSGDVolume(0);
+                Settings::getInstance()->setCHFVolume(0);
+                Settings::getInstance()->setGBPVolume(0);
+                Settings::getInstance()->setAUDVolume(0);
+                Settings::getInstance()->setUSDCAP(0);
+                Settings::getInstance()->setEURCAP(0);
+                Settings::getInstance()->setBTCCAP(0);
+                Settings::getInstance()->setCNYCAP(0);
+                Settings::getInstance()->setRUBCAP(0);
+                Settings::getInstance()->setCADCAP(0);
+                Settings::getInstance()->setINRCAP(0);
+                Settings::getInstance()->setSGDCAP(0);
+                Settings::getInstance()->setCHFCAP(0);
+                Settings::getInstance()->setGBPCAP(0);
+                Settings::getInstance()->setAUDCAP(0);
                 return;
             }
 
-            for (const json& item : parsed.get<json::array_t>()) {
-                if (item["symbol"].get<json::string_t>() == Settings::getTokenName().toStdString()) {
-                    QString price = QString::fromStdString(item["price_usd"].get<json::string_t>());
-                    qDebug() << Settings::getTokenName() << " Price=" << price;
-                    Settings::getInstance()->setSAFEPrice(price.toDouble());
+            qDebug() << "Parsed JSON";
 
-                    return;
-                }
+            const json& item  = parsed.get<json::object_t>();
+            const json& safecoin  = item["safecoin"].get<json::object_t>();
+
+            if (safecoin["usd"] >= 0) {
+                qDebug() << "Found safecoin key in price json";
+                
+                qDebug() << "SAFECOIN = $" << QString::number((double)safecoin["usd"]);
+                Settings::getInstance()->setZECPrice( safecoin["usd"] );
             }
-        } catch (...) {
+            if (safecoin["eur"] >= 0)
+            {
+               
+                qDebug() << "SAFECOIN = €" << QString::number((double)safecoin["eur"]);
+                Settings::getInstance()->setEURPrice(safecoin["eur"]);
+            }
+            if (safecoin["btc"] >= 0)
+            {
+            
+                qDebug() << "SAFECOIN = BTC" << QString::number((double)safecoin["btc"]);
+                Settings::getInstance()->setBTCPrice( safecoin["btc"]);
+            }
+            if (safecoin["cny"] >= 0)
+              
+            {
+                qDebug() << "SAFECOIN = CNY" << QString::number((double)safecoin["cny"]);
+                Settings::getInstance()->setCNYPrice( safecoin["cny"]);
+            }
+            if (safecoin["rub"] >= 0)
+            {
+                qDebug() << "SAFECOIN = RUB" << QString::number((double)safecoin["rub"]);
+                Settings::getInstance()->setRUBPrice( safecoin["rub"]);
+            }
+             if (safecoin["cad"] >= 0)
+            
+            {
+                qDebug() << "SAFECOIN = CAD" << QString::number((double)safecoin["cad"]);
+                Settings::getInstance()->setCADPrice( safecoin["cad"]);
+            }
+            if (safecoin["sgd"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = SGD" << QString::number((double)safecoin["sgd"]);
+                Settings::getInstance()->setSGDPrice( safecoin["sgd"]);
+            }
+            if (safecoin["chf"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = CHF" << QString::number((double)safecoin["chf"]);
+                Settings::getInstance()->setCHFPrice( safecoin["chf"]);
+            }
+            if (safecoin["inr"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = INR" << QString::number((double)safecoin["inr"]);
+                Settings::getInstance()->setINRPrice( safecoin["inr"]);
+            }
+            if (safecoin["gbp"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = GBP" << QString::number((double)safecoin["gbp"]);
+                Settings::getInstance()->setGBPPrice( safecoin["gbp"]);
+            }
+            if (safecoin["aud"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = AUD" << QString::number((double)safecoin["aud"]);
+                Settings::getInstance()->setAUDPrice( safecoin["aud"]);
+            }
+             if (safecoin["btc_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = usd_24h_vol" << QString::number((double)safecoin["usd_24h_vol"]);
+                Settings::getInstance()->setUSDVolume( safecoin["usd_24h_vol"]);
+            }
+                if (safecoin["btc_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = euro_24h_vol" << QString::number((double)safecoin["eur_24h_vol"]);
+                Settings::getInstance()->setEURVolume( safecoin["eur_24h_vol"]);
+            }
+                if (safecoin["btc_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = btc_24h_vol" << QString::number((double)safecoin["btc_24h_vol"]);
+                Settings::getInstance()->setBTCVolume( safecoin["btc_24h_vol"]);
+            }
+                if (safecoin["cny_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = cny_24h_vol" << QString::number((double)safecoin["cny_24h_vol"]);
+                Settings::getInstance()->setCNYVolume( safecoin["cny_24h_vol"]);
+            }
+                if (safecoin["rub_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = rub_24h_vol" << QString::number((double)safecoin["rub_24h_vol"]);
+                Settings::getInstance()->setRUBVolume( safecoin["rub_24h_vol"]);
+            }
+                if (safecoin["cad_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = cad_24h_vol" << QString::number((double)safecoin["cad_24h_vol"]);
+                Settings::getInstance()->setCADVolume( safecoin["cad_24h_vol"]);
+            }
+                if (safecoin["sgd_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = sgd_24h_vol" << QString::number((double)safecoin["sgd_24h_vol"]);
+                Settings::getInstance()->setSGDVolume( safecoin["sgd_24h_vol"]);
+            }
+                if (safecoin["chf_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = chf_24h_vol" << QString::number((double)safecoin["chf_24h_vol"]);
+                Settings::getInstance()->setCHFVolume( safecoin["chf_24h_vol"]);
+            }
+             if (safecoin["inr_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = inr_24h_vol" << QString::number((double)safecoin["inr_24h_vol"]);
+                Settings::getInstance()->setINRVolume( safecoin["inr_24h_vol"]);
+            }
+                if (safecoin["gbp_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = gbp_24h_vol" << QString::number((double)safecoin["gbp_24h_vol"]);
+                Settings::getInstance()->setGBPVolume( safecoin["gbp_24h_vol"]);
+            }
+                if (safecoin["aud_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = aud_24h_vol" << QString::number((double)safecoin["aud_24h_vol"]);
+                Settings::getInstance()->setAUDVolume( safecoin["aud_24h_vol"]);
+            }
+             if (safecoin["usd_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = usd_market_cap" << QString::number((double)safecoin["usd_market_cap"]);
+                Settings::getInstance()->setUSDCAP( safecoin["usd_market_cap"]);
+            }
+                if (safecoin["eur_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = eur_market_cap" << QString::number((double)safecoin["eur_market_cap"]);
+                Settings::getInstance()->setEURCAP( safecoin["eur_market_cap"]);
+            }
+                if (safecoin["btc_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = btc_market_cap" << QString::number((double)safecoin["btc_market_cap"]);
+                Settings::getInstance()->setBTCCAP( safecoin["btc_market_cap"]);
+            }
+                if (safecoin["cny_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = cny_market_cap" << QString::number((double)safecoin["cny_market_cap"]);
+                Settings::getInstance()->setCNYCAP( safecoin["cny_market_cap"]);
+            }
+                if (safecoin["rub_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = rub_market_cap" << QString::number((double)safecoin["rub_market_cap"]);
+                Settings::getInstance()->setRUBCAP( safecoin["rub_market_cap"]);
+            }
+                if (safecoin["cad_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = cad_market_cap" << QString::number((double)safecoin["cad_market_cap"]);
+                Settings::getInstance()->setCADCAP( safecoin["cad_market_cap"]);
+            }
+                if (safecoin["sgd_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = sgd_market_cap" << QString::number((double)safecoin["sgd_market_cap"]);
+                Settings::getInstance()->setSGDCAP( safecoin["sgd_market_cap"]);
+            }
+                if (safecoin["chf_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = chf_market_cap" << QString::number((double)safecoin["chf_market_cap"]);
+                Settings::getInstance()->setCHFCAP( safecoin["chf_market_cap"]);
+            }
+             if (safecoin["inr_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = inr_market_cap" << QString::number((double)safecoin["inr_market_cap"]);
+                Settings::getInstance()->setINRCAP( safecoin["inr_market_cap"]);
+            }
+                if (safecoin["gbp_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = gbp_market_cap" << QString::number((double)safecoin["gbp_market_cap"]);
+                Settings::getInstance()->setGBPCAP( safecoin["gbp_market_cap"]);
+            }
+                if (safecoin["aud_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFECOIN = aud_market_cap" << QString::number((double)safecoin["aud_market_cap"]);
+                Settings::getInstance()->setAUDCAP( safecoin["aud_market_cap"]);
+            }
+            return;
+         } catch (const std::exception& e) {
             // If anything at all goes wrong, just set the price to 0 and move on.
-            qDebug() << QString("Caught something nasty");
+            qDebug() << QString("Caught something nasty: ") << e.what();
         }
 
         // If nothing, then set the price to 0;
-        Settings::getInstance()->setSAFEPrice(0);
+                Settings::getInstance()->setZECPrice(0);
+                Settings::getInstance()->setEURPrice(0);
+                Settings::getInstance()->setBTCPrice(0);
+                Settings::getInstance()->setCNYPrice(0);
+                Settings::getInstance()->setRUBPrice(0);
+                Settings::getInstance()->setCADPrice(0);
+                Settings::getInstance()->setSGDPrice(0);
+                Settings::getInstance()->setCHFPrice(0);
+                Settings::getInstance()->setGBPPrice(0);
+                Settings::getInstance()->setAUDPrice(0);
+                Settings::getInstance()->setINRPrice(0);
+                Settings::getInstance()->setBTCVolume(0);
+                Settings::getInstance()->setUSDVolume(0);
+                Settings::getInstance()->setEURVolume(0);
+                Settings::getInstance()->setBTCVolume(0);
+                Settings::getInstance()->setCNYVolume(0);
+                Settings::getInstance()->setRUBVolume(0);
+                Settings::getInstance()->setCADVolume(0);
+                Settings::getInstance()->setINRVolume(0);
+                Settings::getInstance()->setSGDVolume(0);
+                Settings::getInstance()->setCHFVolume(0);
+                Settings::getInstance()->setGBPVolume(0);
+                Settings::getInstance()->setAUDVolume(0);
+                Settings::getInstance()->setUSDCAP(0);
+                Settings::getInstance()->setEURCAP(0);
+                Settings::getInstance()->setBTCCAP(0);
+                Settings::getInstance()->setCNYCAP(0);
+                Settings::getInstance()->setRUBCAP(0);
+                Settings::getInstance()->setCADCAP(0);
+                Settings::getInstance()->setINRCAP(0);
+                Settings::getInstance()->setSGDCAP(0);
+                Settings::getInstance()->setCHFCAP(0);
+                Settings::getInstance()->setGBPCAP(0);
+                Settings::getInstance()->setAUDCAP(0);
     });
+
 }
 
-void Controller::shutdownSafecoind() {
+void Controller::shutdownsafecoind() {
     // Save the wallet and exit the lightclient library cleanly.
     if (zrpc->haveConnection()) {
         QDialog d(main);
         Ui_ConnectionDialog connD;
         connD.setupUi(&d);
         connD.topIcon->setBasePixmap(QIcon(":/icons/res/icon.ico").pixmap(256, 256));
-        connD.status->setText(QObject::tr("Please wait for SafeWallet to exit"));
+        connD.status->setText(QObject::tr("Please wait for SafecoinWalletLite to exit"));
         connD.statusDetail->setText(QObject::tr("Waiting for safecoind to exit"));
 
         bool finished = false;
@@ -718,3 +1691,7 @@ QString Controller::getDefaultTAddress() {
     else 
         return QString();
 }
+
+
+
+

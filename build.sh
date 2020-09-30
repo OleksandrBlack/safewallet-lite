@@ -1,5 +1,4 @@
 #!/bin/bash
-# Copyright 2019 The Hush Developers
 # Copyright 2019 The Safecoin Developers
 
 UNAME=$(uname)
@@ -15,8 +14,8 @@ else
 fi
 
 VERSION=$(cat src/version.h |cut -d\" -f2)
-echo "Compiling SafeWalletLite $VERSION with $JOBS threads..."
-CONF=safewallet-lite.pro
+echo "Compiling SafecoinWalletLite $VERSION with $JOBS threads..."
+CONF=safecoinwallet-lite.pro
 
 set -e
 qbuild () {

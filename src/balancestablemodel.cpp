@@ -3,7 +3,6 @@
 #include "settings.h"
 #include "camount.h"
 
-
 BalancesTableModel::BalancesTableModel(QObject *parent)
     : QAbstractTableModel(parent) {    
 }
@@ -30,7 +29,7 @@ void BalancesTableModel::setNewData(const QList<QString> zaddrs, const QList<QSt
     modeldata = new QList<std::tuple<QString, CAmount>>();
     std::for_each(balances.keyBegin(), balances.keyEnd(), [=, &anyz, &anyt] (auto keyIt) {
         modeldata->push_back(std::make_tuple(keyIt, balances.value(keyIt)));
-        if (Settings::isZAddress(keyIt)) {
+         if (Settings::isZAddress(keyIt)) {
             anyz = true;
         } else if (Settings::isTAddress(keyIt)) {
             anyt = true;
@@ -42,7 +41,7 @@ void BalancesTableModel::setNewData(const QList<QString> zaddrs, const QList<QSt
         modeldata->push_back(std::make_tuple(zaddrs[0], CAmount::fromqint64(0)));
     }
 
-    if (!anyt && taddrs.length() > 0) {
+   if (!anyt && taddrs.length() > 0) {
         modeldata->push_back(std::make_tuple(taddrs[0], CAmount::fromqint64(0)));
     }
 
@@ -107,14 +106,14 @@ QVariant BalancesTableModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case 0: return AddressBook::addLabelToAddress(std::get<0>(modeldata->at(index.row())));
-        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalSAFEString();
+        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalsafecoinString();
         }
     }
 
     if(role == Qt::ToolTipRole) {
         switch (index.column()) {
         case 0: return AddressBook::addLabelToAddress(std::get<0>(modeldata->at(index.row())));
-        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalSAFEString();
+        case 1: return std::get<1>(modeldata->at(index.row())).toDecimalsafecoinString();
         }
     }
     

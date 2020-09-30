@@ -26,7 +26,7 @@ public:
     void loadConnection();
 
 private:
-    std::shared_ptr<ConnectionConfig> autoDetectSafecoinConf();
+    std::shared_ptr<ConnectionConfig> autoDetectsafecoinConf();
     std::shared_ptr<ConnectionConfig> loadFromSettings();
 
     Connection* makeConnection(std::shared_ptr<ConnectionConfig> config);

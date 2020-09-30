@@ -27,13 +27,13 @@ void AddressCombo::setCurrentText(const QString& text) {
 void AddressCombo::addItem(const QString& text, CAmount bal) {
     QString txt = AddressBook::addLabelToAddress(text);
     if (bal.toqint64() > 0)
-        txt = txt % "(" % bal.toDecimalSAFEString() % ")";
+        txt = txt % "(" % bal.toDecimalsafecoinString() % ")";
         
     QComboBox::addItem(txt);
 }
 
 void AddressCombo::insertItem(int index, const QString& text, CAmount bal) {
     QString txt = AddressBook::addLabelToAddress(text) % 
-                    "(" % bal.toDecimalSAFEString() % ")";
+                    "(" % bal.toDecimalsafecoinString() % ")";
     QComboBox::insertItem(index, txt);
 }

@@ -42,7 +42,7 @@ void ConnectionLoader::doAutoConnect() {
     qDebug() << "Doing autoconnect";
 
     auto config = std::shared_ptr<ConnectionConfig>(new ConnectionConfig());
-    config->dangerous = false;
+    config->dangerous = true;
     config->server = Settings::getInstance()->getSettings().server;
 
     // Initialize the library
@@ -141,6 +141,7 @@ Connection* ConnectionLoader::makeConnection(std::shared_ptr<ConnectionConfig> c
 void ConnectionLoader::showInformation(QString info, QString detail) {
     connD->status->setText(info);
     connD->statusDetail->setText(detail);
+    
 }
 
 /**

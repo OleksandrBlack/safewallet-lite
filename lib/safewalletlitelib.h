@@ -1,5 +1,5 @@
-#ifndef _ZEC_PAPER_RUST_H
-#define _ZEC_PAPER_RUST_H
+#ifndef _safecoin_PAPER_RUST_H
+#define _safecoin_PAPER_RUST_H
 
 #ifdef __cplusplus
 extern "C" {

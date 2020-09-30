@@ -13,7 +13,7 @@ PRECOMPILED_HEADER = src/precompiled.h
 QT += widgets
 QT += websockets
 
-TARGET = safewallet-lite
+TARGET = SafecoinWalletLite
 
 TEMPLATE = app
 
@@ -120,16 +120,18 @@ FORMS += \
     src/recurringmultiple.ui 
 
 
-TRANSLATIONS = res/safe_qt_wallet_es.ts \
-               res/safe_qt_wallet_fr.ts \
-               res/safe_qt_wallet_de.ts \
-               res/safe_qt_wallet_pt.ts \
-               res/safe_qt_wallet_it.ts \
-               res/safe_qt_wallet_zh.ts \
-               res/safe_qt_wallet_ru.ts \
-               res/safe_qt_wallet_uk.ts \
-               res/safe_qt_wallet_tr.ts
-
+TRANSLATIONS = res/safewalletlite_es.ts \
+               res/safewalletlite_fr.ts \
+               res/safewalletlite_de.ts \
+               res/safewalletlite_pt.ts \
+               res/safewalletlite_it.ts \
+               res/safewalletlite_zh.ts \
+               res/safewalletlite_hr.ts \
+               res/safewalletlite_sr.ts \
+               res/safewalletlite_fa.ts \
+               res/safewalletlite_uk.ts \
+               res/safewalletlite_tr.ts 
+             
 include(singleapplication/singleapplication.pri)
 DEFINES += QAPPLICATION_CLASS=QApplication
 
@@ -162,7 +164,7 @@ distclean.depends += librustclean
 QMAKE_EXTRA_TARGETS += librust libsodium librustclean distclean
 QMAKE_CLEAN += $$PWD/lib/target/release/libsafewalletlite.a res/libsodium.a
 
-win32: LIBS += -L$$PWD/lib/target/x86_64-pc-windows-gnu/release -lsafewalletlite -L$$PWD/res/ -llibsodium  -lsecur32 -lcrypt32 -lncrypt
+win32: LIBS += -L$$PWD/lib/target/x86_64-pc-windows-gnu/release -lsafewalletlite -L$$PWD/res/ -llibsodium -lsecur32 -lcrypt32 -lncrypt
 else:macx: LIBS += -L$$PWD/lib/target/release -lsafewalletlite -framework Security -framework Foundation -L$$PWD/res/ -lsodium
 else:unix: LIBS += -L$$PWD/lib/target/release -lsafewalletlite -ldl -L$$PWD/res/ -lsodium
 

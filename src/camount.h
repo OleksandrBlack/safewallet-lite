@@ -27,8 +27,29 @@ public:
     double  toDecimalDouble() const;
     QString toDecimalString() const;
     QString toDecimalUSDString() const;
-    QString toDecimalSAFEString() const;
-    QString toDecimalSAFEUSDString() const;
+    QString toDecimalEURString() const;
+    QString toDecimalBTCString() const;
+    QString toDecimalCNYString() const;
+    QString toDecimalRUBString() const;
+    QString toDecimalCADString() const;
+    QString toDecimalSGDString() const;
+    QString toDecimalCHFString() const;
+    QString toDecimalINRString() const;
+    QString toDecimalGBPString() const;
+    QString toDecimalAUDString() const;
+    QString toDecimalsafecoinString() const;
+    QString toDecimalsafecoinUSDString() const;
+    QString toDecimalsafecoinEURString() const;
+    QString toDecimalsafecoinBTCString() const;
+    QString toDecimalsafecoinCNYString() const;
+    QString toDecimalsafecoinRUBString() const;
+    QString toDecimalsafecoinCADString() const;
+    QString toDecimalsafecoinSGDString() const;
+    QString toDecimalsafecoinCHFString() const;
+    QString toDecimalsafecoinINRString() const;
+    QString toDecimalsafecoinGBPString() const;
+    QString toDecimalsafecoinAUDString() const;
+    
     qint64  toqint64() const { return amount; };
 
     CAmount operator+ (const CAmount& other) const {
@@ -50,7 +71,6 @@ public:
     bool operator> (const CAmount& other) const {
         return this->amount > other.amount;
     }
-
     bool operator== (const qint64 other) const {
         return this->amount == other;
     }

@@ -37,9 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->slot_change_theme(theme_name);
 
-	    
+ 
     ui->setupUi(this);
-    logger = new Logger(this, QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safe-qt-wallet-lite.log"));
+    logger = new Logger(this, QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("safewalletlite-wallet.log"));
 
     // Status Bar
     setupStatusBar();
@@ -50,8 +50,12 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set up exit action
     QObject::connect(ui->actionExit, &QAction::triggered, this, &MainWindow::close);
 
-    // Set up donate action
+    // Set up Feedback action
     QObject::connect(ui->actionDonate, &QAction::triggered, this, &MainWindow::donate);
+
+    QObject::connect(ui->actionDiscord, &QAction::triggered, this, &MainWindow::discord);
+
+    QObject::connect(ui->actionWebsite, &QAction::triggered, this, &MainWindow::website);
 
     // File a bug
     QObject::connect(ui->actionFile_a_bug, &QAction::triggered, [=]() {
@@ -71,12 +75,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Request safecoin
     QObject::connect(ui->actionRequest_safecoin, &QAction::triggered, [=]() {
-        RequestDialog::showRequestSafecoin(this);
+        RequestDialog::showRequestsafecoin(this);
     });
 
-    // Pay Safecoin URI
+    // Pay safecoin URI
     QObject::connect(ui->actionPay_URI, &QAction::triggered, [=] () {
-        paySafecoinURI();
+        paysafecoinURI();
     });
 
     // Wallet encryption
@@ -109,7 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionRescan, &QAction::triggered, [=]() {
         // To rescan, we clear the wallet state, and then reload the connection
         // This will start a sync, and show the scanning status. 
-        this->getRPC()->clearWallet([=] (auto) {
+       this->getRPC()->clearWallet([=] (auto) {
             // Save the wallet
             this->getRPC()->saveWallet([=] (auto) {
                 // Then reload the connection. The ConnectionLoader deletes itself.
@@ -140,14 +144,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // The safecoind tab is hidden by default, and only later added in if the embedded safecoind is started
-    safecoindtab = ui->tabWidget->widget(4);
-    ui->tabWidget->removeTab(4);
+    //safecoindtab = ui->tabWidget->widget(4);
+    //ui->tabWidget->removeTab(4);
 
     setupSendTab();
     setupTransactionsTab();
     setupReceiveTab();
     setupBalancesTab();
-    setupSafecoindTab();
+    setupsafecoindTab();
 
     rpc = new Controller(this);
 
@@ -227,7 +231,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
     s.sync();
 
     // Let the RPC know to shut down any running service.
-    rpc->shutdownSafecoind();
+    rpc->shutdownsafecoind();
 
     // Bubble up
     if (event)
@@ -379,6 +383,11 @@ void MainWindow::setupStatusBar() {
             menu.addAction(tr("Copy txid"), [=]() {
                 QGuiApplication::clipboard()->setText(txid);
             });
+            menu.addAction(tr("Copy block explorer link"), [=]() {
+               // auto explorer = Settings::getInstance()->getExplorer();
+             QGuiApplication::clipboard()->setText("https://explorer.safecoin.org/tx/" + txid);
+            });
+
             menu.addAction(tr("View tx on block explorer"), [=]() {
                 Settings::openTxInExplorer(txid);
             });
@@ -405,6 +414,23 @@ void MainWindow::setupSettingsModal() {
         Ui_Settings settings;
         settings.setupUi(&settingsDialog);
         Settings::saveRestore(&settingsDialog);
+    
+     // Include currencies 
+
+    QString currency_name;
+    try
+    {
+       currency_name = Settings::getInstance()->get_currency_name();
+    }
+    catch (...)
+    {
+        currency_name = "USD";
+    }
+
+    this->slot_change_currency(currency_name);
+
+    ;
+
 
         // Setup theme combo
         int theme_index = settings.comboBoxTheme->findText(Settings::getInstance()->get_theme_name(), Qt::MatchExactly);
@@ -413,9 +439,22 @@ void MainWindow::setupSettingsModal() {
         QObject::connect(settings.comboBoxTheme, &QComboBox::currentTextChanged, [=] (QString theme_name) {
             this->slot_change_theme(theme_name);
             // Tell the user to restart
-            QMessageBox::information(this, tr("Restart"), tr("Please restart SafeWallet to have the theme apply"), QMessageBox::Ok);
+            QMessageBox::information(this, tr("Restart"), tr("Please restart SafecoinWalletLite to have the theme apply"), QMessageBox::Ok);
         });
 
+        // Get Currency Data
+       
+        int currency_index = settings.comboBoxCurrency->findText(Settings::getInstance()->get_currency_name(), Qt::MatchExactly);
+        settings.comboBoxCurrency->setCurrentIndex(currency_index);
+        
+       QObject::connect(settings.comboBoxCurrency, &QComboBox::currentTextChanged, [=] (QString currency_name) {
+            this->slot_change_currency(currency_name);
+            rpc->refresh(true);
+            
+             // Tell the user to restart
+            QMessageBox::information(this, tr("Currency Change"), tr("This change can take a few seconds."), QMessageBox::Ok);  
+             });
+      
         // Check for updates
         settings.chkCheckUpdates->setChecked(Settings::getInstance()->getCheckForUpdates());
 
@@ -476,17 +515,26 @@ void MainWindow::addressBook() {
     AddressBook::open(this);
 }
 
+void MainWindow::discord() {
+    QString url = "https://discord.gg/c6hWAkQ";
+    QDesktopServices::openUrl(QUrl(url));
+}
+
+void MainWindow::website() {
+    QString url = "https://safecoin.org";
+    QDesktopServices::openUrl(QUrl(url));
+}
+
 
 void MainWindow::donate() {
     // Set up a donation to me :)
-    clearSendForm();
 
     ui->Address1->setText(Settings::getDonationAddr());
     ui->Address1->setCursorPosition(0);
-    ui->Amount1->setText("0.01");
-    ui->MemoTxt1->setText(tr("Thanks for supporting SafeWallet!"));
+    ui->Amount1->setText("0.00");
+    ui->MemoTxt1->setText(tr("Some feedback about SafecoinWalletlite or Safecoin..."));
 
-    ui->statusBar->showMessage(tr("Donate 0.01 ") % Settings::getTokenName() % tr(" to support SafeWallet"));
+    ui->statusBar->showMessage(tr("Send DenioD some private and shielded feedback about") % Settings::getTokenName() % tr(" or SafecoinWalletLite"));
 
     // And switch to the send tab.
     ui->tabWidget->setCurrentIndex(1);
@@ -531,8 +579,8 @@ void MainWindow::balancesReady() {
     // There is a pending URI payment (from the command line, or from a secondary instance),
     // process it.
     if (!pendingURIPayment.isEmpty()) {
-        qDebug() << "Paying Safecoin URI";
-        paySafecoinURI(pendingURIPayment);
+        qDebug() << "Paying safecoin URI";
+        paysafecoinURI(pendingURIPayment);
         pendingURIPayment = "";
     }
 
@@ -545,7 +593,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::FileOpen) {
         QFileOpenEvent *fileEvent = static_cast<QFileOpenEvent*>(event);
         if (!fileEvent->url().isEmpty())
-            paySafecoinURI(fileEvent->url().toString());
+            paysafecoinURI(fileEvent->url().toString());
 
         return true;
     }
@@ -554,10 +602,10 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
 }
 
 
-// Pay the Safecoin URI by showing a confirmation window. If the URI parameter is empty, the UI
+// Pay the safecoin URI by showing a confirmation window. If the URI parameter is empty, the UI
 // will prompt for one. If the myAddr is empty, then the default from address is used to send
 // the transaction.
-void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
+void MainWindow::paysafecoinURI(QString uri, QString myAddr) {
     // If the Payments UI is not ready (i.e, all balances have not loaded), defer the payment URI
     if (!isPaymentsReady()) {
         qDebug() << "Payment UI not ready, waiting for UI to pay URI";
@@ -567,8 +615,8 @@ void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
 
     // If there was no URI passed, ask the user for one.
     if (uri.isEmpty()) {
-        uri = QInputDialog::getText(this, tr("Paste SAFE URI"),
-            "SAFE URI" + QString(" ").repeated(180));
+        uri = QInputDialog::getText(this, tr("Paste SAFECOIN URI"),
+            "SAFECOIN URI" + QString(" ").repeated(180));
     }
 
     // If there's no URI, just exit
@@ -579,7 +627,7 @@ void MainWindow::paySafecoinURI(QString uri, QString myAddr) {
     qDebug() << "Received URI " << uri;
     PaymentURI paymentInfo = Settings::parseURI(uri);
     if (!paymentInfo.error.isEmpty()) {
-        QMessageBox::critical(this, tr("Error paying SAFE URI"), 
+        QMessageBox::critical(this, tr("Error paying SAFECOIN URI"), 
                 tr("URI should be of the form 'safecoin:<addr>?amt=x&memo=y") + "\n" + paymentInfo.error);
         return;
     }
@@ -702,7 +750,7 @@ void MainWindow::exportSeed() {
         // Wire up save button
         QObject::connect(pui.buttonBox->button(QDialogButtonBox::Save), &QPushButton::clicked, [=] () {
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                            "safecoin-seed.txt");
+                            "Safecoin-seed.txt");
             QFile file(fileName);
             if (!file.open(QIODevice::WriteOnly)) {
                 QMessageBox::information(this, tr("Unable to open file"), file.errorString());
@@ -763,7 +811,7 @@ void MainWindow::exportKeys(QString addr) {
         // Wire up save button
         QObject::connect(pui.buttonBox->button(QDialogButtonBox::Save), &QPushButton::clicked, [=] () {
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                            allKeys ? "safecoin-all-privatekeys.txt" : "safecoin-privatekey.txt");
+                            allKeys ? "Safecoin-all-privatekeys.txt" : "Safecoin-privatekey.txt");
             QFile file(fileName);
             if (!file.open(QIODevice::WriteOnly)) {
                 QMessageBox::information(this, tr("Unable to open file"), file.errorString());
@@ -831,7 +879,7 @@ void MainWindow::setupBalancesTab() {
     });
 }
 
-void MainWindow::setupSafecoindTab() {    
+void MainWindow::setupsafecoindTab() {    
     ui->safecoindlogo->setBasePixmap(QPixmap(":/img/res/safecoindlogo.gif"));
 }
 
@@ -843,8 +891,6 @@ void MainWindow::setupTransactionsTab() {
 
         if (!memo.isEmpty()) {
             QMessageBox mb(QMessageBox::Information, tr("Memo"), memo, QMessageBox::Ok, this);
-            // Don't render html in the memo to avoid phishing-type attacks
-            // revist this in the future once the design of how to best handle memo based applications exists.
             mb.setTextFormat(Qt::PlainText);
             mb.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
             mb.exec();
@@ -878,6 +924,10 @@ void MainWindow::setupTransactionsTab() {
                 ui->statusBar->showMessage(tr("Copied to clipboard"), 3 * 1000);
             });
         }
+           menu.addAction(tr("Copy block explorer link"), [=]() {
+               // auto explorer = Settings::getInstance()->getExplorer();
+             QGuiApplication::clipboard()->setText("https://explorer.safecoin.org/tx/" + txid);
+            });
 
         menu.addAction(tr("View on block explorer"), [=] () {
             Settings::openTxInExplorer(txid);
@@ -894,8 +944,6 @@ void MainWindow::setupTransactionsTab() {
         if (!memo.isEmpty()) {
             menu.addAction(tr("View Memo"), [=] () {               
                 QMessageBox mb(QMessageBox::Information, tr("Memo"), memo, QMessageBox::Ok, this);
-                // Don't render html in the memo to avoid phishing-type attacks
-                // revist this in the future once the design of how to best handle memo based applications exists.
                 mb.setTextFormat(Qt::PlainText);
                 mb.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
                 mb.exec();
@@ -1008,6 +1056,8 @@ void MainWindow::setupReceiveTab() {
         if (checked) { 
             updateTAddrCombo(checked);
         } 
+
+
     });
 
     // View all addresses goes to "View all private keys"
@@ -1023,7 +1073,7 @@ void MainWindow::setupReceiveTab() {
         Settings::saveRestoreTableHeader(viewaddrs.tblAddresses, &d, "viewalladdressestable");
         viewaddrs.tblAddresses->horizontalHeader()->setStretchLastSection(true);
 
-        QList<QString> allAddresses;
+         QList<QString> allAddresses;
         if (ui->rdioTAddr->isChecked()) {
             allAddresses = getRPC()->getModel()->getAllTAddresses();
         } else {
@@ -1065,8 +1115,8 @@ void MainWindow::setupReceiveTab() {
     QObject::connect(ui->btnReceiveNewAddr, &QPushButton::clicked, [=] () {
         if (!rpc->getConnection())
             return;
-
-        // Go over the dropdown and just select the next address that has:
+        
+                // Go over the dropdown and just select the next address that has:
         // 0 balance and has no labels
         for (int i=ui->listReceiveAddresses->currentIndex()+1; i < ui->listReceiveAddresses->count(); i++) {
             QString item = ui->listReceiveAddresses->itemText(i);
@@ -1092,6 +1142,7 @@ void MainWindow::setupReceiveTab() {
         if (tab == 2) {
             // Switched to receive tab, select the z-addr radio button
             ui->rdioZSAddr->setChecked(true);
+            
             
             // And then select the first one
             ui->listReceiveAddresses->setCurrentIndex(0);
@@ -1125,7 +1176,30 @@ void MainWindow::setupReceiveTab() {
         }
         
         ui->rcvLabel->setText(label);
-        ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalSAFEUSDString());
+        if (Settings::getInstance()->get_currency_name() == "USD") {
+             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinUSDString());
+        } else if (Settings::getInstance()->get_currency_name() == "EUR") {
+             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinEURString());
+        } else if (Settings::getInstance()->get_currency_name() == "BTC") {
+             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinBTCString());
+        } else if (Settings::getInstance()->get_currency_name() == "CNY") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinCNYString());
+        } else if (Settings::getInstance()->get_currency_name() == "RUB") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinRUBString());
+        } else if (Settings::getInstance()->get_currency_name() == "CAD") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinCADString());
+        } else if (Settings::getInstance()->get_currency_name() == "SGD") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinSGDString());
+        } else if (Settings::getInstance()->get_currency_name() == "CHF") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinCHFString());
+        } else if (Settings::getInstance()->get_currency_name() == "INR") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinINRString());
+        } else if (Settings::getInstance()->get_currency_name() == "GBP") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinGBPString());
+        } else if (Settings::getInstance()->get_currency_name() == "AUD") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinAUDString());
+            }
+        
         ui->txtReceive->setPlainText(addr);       
         ui->qrcodeDisplay->setQrcodeString(addr);
         if (rpc->getModel()->getUsedAddresses().value(addr, false)) {
@@ -1267,9 +1341,32 @@ void MainWindow::updateLabels() {
     updateLabelsAutoComplete();
 }
 
+void MainWindow::slot_change_currency(const QString& currency_name)
+
+{
+    
+    Settings::getInstance()->set_currency_name(currency_name);
+
+    // Include currency
+
+    QString saved_currency_name;
+    try
+    {
+       saved_currency_name = Settings::getInstance()->get_currency_name();
+       
+    }
+    catch (...)
+    {
+        saved_currency_name = "USD";
+        
+    }
+}
+
 void MainWindow::slot_change_theme(const QString& theme_name)
+
 {
     Settings::getInstance()->set_theme_name(theme_name);
+    
 
     // Include css
     QString saved_theme_name;

@@ -103,9 +103,106 @@ bool Settings::isSaplingActive() {
            (!isTestnet() && getBlockNumber() > 547422);
 }
 
-double Settings::getSAFEPrice() { 
-    return SAFEPrice; 
+double Settings::getZECPrice() { 
+    return ZECPrice; 
 }
+double Settings::getEURPrice() { 
+    return EURPrice; 
+}
+double Settings::getBTCPrice() { 
+    return BTCPrice; 
+}
+double Settings::getCNYPrice() { 
+    return CNYPrice; 
+}
+double Settings::getRUBPrice() { 
+    return RUBPrice; 
+}
+double Settings::getCADPrice() { 
+    return CADPrice; 
+}
+double Settings::getSGDPrice() { 
+    return SGDPrice; 
+}
+double Settings::getCHFPrice() { 
+    return CHFPrice; 
+}
+double Settings::getINRPrice() { 
+    return INRPrice; 
+}
+double Settings::getGBPPrice() { 
+    return GBPPrice; 
+}
+double Settings::getAUDPrice() { 
+    return AUDPrice; 
+}
+double Settings::getUSDVolume() { 
+    return USDVolume; 
+}
+double Settings::getEURVolume() { 
+    return EURVolume; 
+}
+double Settings::getBTCVolume() { 
+    return BTCVolume; 
+}
+double Settings::getCNYVolume() { 
+    return CNYVolume; 
+}
+double Settings::getRUBVolume() { 
+    return RUBVolume; 
+}
+double Settings::getCADVolume() { 
+    return CADVolume; 
+}
+double Settings::getSGDVolume() { 
+    return SGDVolume; 
+}
+double Settings::getCHFVolume() { 
+    return CHFVolume; 
+}
+double Settings::getINRVolume() { 
+    return INRVolume; 
+}
+double Settings::getGBPVolume() { 
+    return GBPVolume; 
+}
+double Settings::getAUDVolume() { 
+    return AUDVolume; 
+}
+double Settings::getUSDCAP() { 
+    return USDCAP; 
+}
+double Settings::getEURCAP() { 
+    return EURCAP; 
+}
+double Settings::getBTCCAP() { 
+    return BTCCAP; 
+}
+double Settings::getCNYCAP() { 
+    return CNYCAP; 
+}
+double Settings::getRUBCAP() { 
+    return RUBCAP; 
+}
+double Settings::getCADCAP() { 
+    return CADCAP; 
+}
+double Settings::getSGDCAP() { 
+    return SGDCAP; 
+}
+double Settings::getCHFCAP() { 
+    return CHFCAP; 
+}
+double Settings::getINRCAP() { 
+    return INRCAP; 
+}
+double Settings::getGBPCAP() { 
+    return GBPCAP; 
+}
+double Settings::getAUDCAP() { 
+    return AUDCAP; 
+}
+
 
 bool Settings::getCheckForUpdates() {
     return QSettings().value("options/allowcheckupdates", true).toBool();
@@ -122,6 +219,19 @@ bool Settings::getAllowFetchPrices() {
 void Settings::setAllowFetchPrices(bool allow) {
      QSettings().setValue("options/allowfetchprices", allow);
 }
+
+QString Settings::get_currency_name() {
+    // Load from the QT Settings.
+    return QSettings().value("options/currency_name", false).toString();
+}
+
+void Settings::set_currency_name(QString currency_name) {
+    QSettings().setValue("options/currency_name", currency_name);
+
+  
+    
+}
+
 
 QString Settings::get_theme_name() {
     // Load from the QT Settings.
@@ -179,19 +289,20 @@ void Settings::openTxInExplorer(QString txid) {
 }
 
 
+
 const QString Settings::txidStatusMessage = QString(QObject::tr("Tx submitted (right click to copy) txid:"));
 
 QString Settings::getTokenName() {
     if (Settings::getInstance()->isTestnet()) {
-        return "SAFET";
+        return "SAFECOINT";
     } else {
-        return "SAFE";
+        return "SAFECOIN";
     }
 }
 
 QString Settings::getDonationAddr() {
     if (Settings::getInstance()->isTestnet()) 
-            return "ztestsapling1wn6889vznyu42wzmkakl2effhllhpe4azhu696edg2x6me4kfsnmqwpglaxzs7tmqsq7kudemp5";
+            return "ztestsaplingXXX";
     else 
             return "RtU6tF2d1YE6hw9DHMAyNRb2uUk4PwSCZr";
 
@@ -222,7 +333,7 @@ bool Settings::isValidAddress(QString addr) {
 // Get a pretty string representation of this Payment URI
 QString Settings::paymentURIPretty(PaymentURI uri) {
     CAmount amount = CAmount::fromDecimalString(uri.amt);
-    return QString() + "Payment Request\n" + "Pay: " + uri.addr + "\nAmount: " + amount.toDecimalSAFEString() 
+    return QString() + "Payment Request\n" + "Pay: " + uri.addr + "\nAmount: " + amount.toDecimalsafecoinString() 
         + "\nMemo:" + QUrl::fromPercentEncoding(uri.memo.toUtf8());
 }
 
@@ -231,7 +342,7 @@ PaymentURI Settings::parseURI(QString uri) {
     PaymentURI ans;
 
     if (!uri.startsWith("safecoin:")) {
-        ans.error = "Not a Safecoin payment URI";
+        ans.error = "Not a SAFECOIN payment URI";
         return ans;
     }
 

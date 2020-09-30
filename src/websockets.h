@@ -101,6 +101,7 @@ public:
     void          updateUIWithNewQRCode(MainWindow* mainwindow);
 
     void          processSendTx(QJsonObject sendTx, MainWindow* mainwindow, std::shared_ptr<ClientWebSocket> pClient);
+    void          processSendManyTx(QJsonObject sendmanyTx, MainWindow* mainwindow, std::shared_ptr<ClientWebSocket> pClient);
     void          processMessage(QString message, MainWindow* mainWindow, std::shared_ptr<ClientWebSocket> pClient, AppConnectionType connType);
     void          processGetInfo(QJsonObject jobj, MainWindow* mainWindow, std::shared_ptr<ClientWebSocket> pClient);
     void          processDecryptedMessage(QString message, MainWindow* mainWindow, std::shared_ptr<ClientWebSocket> pClient);
