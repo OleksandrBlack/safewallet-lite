@@ -140,6 +140,8 @@ void RequestDialog::showRequestsafecoin(MainWindow* main) {
         req.txtAmountUSD->setText(amount.toDecimalINRString());
     } else if (Settings::getInstance()->get_currency_name() == "GBP") {
         req.txtAmountUSD->setText(amount.toDecimalGBPString());
+    } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+        req.txtAmountUSD->setText(amount.toDecimalUAHString());
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
         req.txtAmountUSD->setText(amount.toDecimalBTCString());
         }
@@ -165,6 +167,8 @@ void RequestDialog::showRequestsafecoin(MainWindow* main) {
         req.txtAmountUSD->setText(amount.toDecimalINRString());
     } else if (Settings::getInstance()->get_currency_name() == "GBP") {
         req.txtAmountUSD->setText(amount.toDecimalGBPString());
+    } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+        req.txtAmountUSD->setText(amount.toDecimalUAHString());
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
         req.txtAmountUSD->setText(amount.toDecimalBTCString());
         }

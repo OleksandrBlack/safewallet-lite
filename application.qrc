@@ -19,10 +19,12 @@
     <file>res/safewalletlite_fr.qm</file>
     <file>res/safewalletlite_hr.qm</file>
     <file>res/safewalletlite_it.qm</file>
+    <file>res/safewalletlite_pot.qm</file>
     <file>res/safewalletlite_pt.qm</file>
     <file>res/safewalletlite_sr.qm</file>
     <file>res/safewalletlite_tr.qm</file>
     <file>res/safewalletlite_uk.qm</file>
+    <file>res/safewalletlite_ru.qm</file>
     <file>res/safewalletlite_zh.qm</file>
     </qresource>
     <qresource prefix="/css">

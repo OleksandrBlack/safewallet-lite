@@ -94,6 +94,12 @@ QString CAmount::toDecimalGBPString() const {
 
     return "£ " + QLocale(QLocale::English).toString(dblAmount*price, 'f', 2);
 }
+QString CAmount::toDecimalUAHString() const {
+    double uahAmount = static_cast<double>(this->amount) / COIN;
+    double price = Settings::getInstance()->getUAHPrice();
+
+    return "₴ " + QLocale(QLocale::English).toString(uahAmount*price, 'f', 2);
+}
 QString CAmount::toDecimalAUDString() const {
     double dblAmount = static_cast<double>(this->amount) / COIN;
     double price = Settings::getInstance()->getAUDPrice();
@@ -182,6 +188,14 @@ QString CAmount::toDecimalsafecoinGBPString() const {
     auto gbpString = this->toDecimalGBPString();
     if (!gbpString.isEmpty())
         return this->toDecimalsafecoinString() % " (" % gbpString % ")";
+    else
+        return this->toDecimalsafecoinString();
+}
+
+QString CAmount::toDecimalsafecoinUAHString() const {
+    auto uahString = this->toDecimalUAHString();
+    if (!uahString.isEmpty())
+        return this->toDecimalsafecoinString() % " (" % uahString % ")";
     else
         return this->toDecimalsafecoinString();
 }

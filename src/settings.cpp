@@ -133,6 +133,9 @@ double Settings::getINRPrice() {
 double Settings::getGBPPrice() { 
     return GBPPrice; 
 }
+double Settings::getUAHPrice() { 
+    return UAHPrice; 
+}
 double Settings::getAUDPrice() { 
     return AUDPrice; 
 }
@@ -166,6 +169,9 @@ double Settings::getINRVolume() {
 double Settings::getGBPVolume() { 
     return GBPVolume; 
 }
+double Settings::getUAHVolume() { 
+    return UAHVolume; 
+}
 double Settings::getAUDVolume() { 
     return AUDVolume; 
 }
@@ -198,6 +204,9 @@ double Settings::getINRCAP() {
 }
 double Settings::getGBPCAP() { 
     return GBPCAP; 
+}
+double Settings::getUAHCAP() { 
+    return UAHCAP; 
 }
 double Settings::getAUDCAP() { 
     return AUDCAP; 
@@ -294,9 +303,9 @@ const QString Settings::txidStatusMessage = QString(QObject::tr("Tx submitted (r
 
 QString Settings::getTokenName() {
     if (Settings::getInstance()->isTestnet()) {
-        return "SAFECOINT";
+        return "SAFET";
     } else {
-        return "SAFECOIN";
+        return "SAFE";
     }
 }
 

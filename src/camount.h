@@ -36,6 +36,7 @@ public:
     QString toDecimalCHFString() const;
     QString toDecimalINRString() const;
     QString toDecimalGBPString() const;
+    QString toDecimalUAHString() const;
     QString toDecimalAUDString() const;
     QString toDecimalsafecoinString() const;
     QString toDecimalsafecoinUSDString() const;
@@ -48,6 +49,7 @@ public:
     QString toDecimalsafecoinCHFString() const;
     QString toDecimalsafecoinINRString() const;
     QString toDecimalsafecoinGBPString() const;
+    QString toDecimalsafecoinUAHString() const;
     QString toDecimalsafecoinAUDString() const;
     
     qint64  toqint64() const { return amount; };

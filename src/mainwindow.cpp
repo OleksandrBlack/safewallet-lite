@@ -1196,6 +1196,8 @@ void MainWindow::setupReceiveTab() {
             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinINRString());
         } else if (Settings::getInstance()->get_currency_name() == "GBP") {
             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinGBPString());
+        } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+            ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinUAHString());
         } else if (Settings::getInstance()->get_currency_name() == "AUD") {
             ui->rcvBal->setText(rpc->getModel()->getAllBalances().value(addr).toDecimalsafecoinAUDString());
             }

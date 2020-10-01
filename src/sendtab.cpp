@@ -80,6 +80,8 @@ void MainWindow::setupSendTab() {
         ui->lblMinerFeeUSD->setText(fee.toDecimalINRString());
      } else if (Settings::getInstance()->get_currency_name() == "GBP") {
         ui->lblMinerFeeUSD->setText(fee.toDecimalGBPString());
+     } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+        ui->lblMinerFeeUSD->setText(fee.toDecimalUAHString());
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
         ui->lblMinerFeeUSD->setText(fee.toDecimalAUDString());
     }
@@ -119,6 +121,9 @@ void MainWindow::setupSendTab() {
             ui->lblMinerFeeUSD->setText(feeUSD);
     } else if (Settings::getInstance()->get_currency_name() == "GBP") {
             QString feeUSD = CAmount::fromDecimalString(txt).toDecimalGBPString();
+            ui->lblMinerFeeUSD->setText(feeUSD);
+    } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+            QString feeUSD = CAmount::fromDecimalString(txt).toDecimalUAHString();
             ui->lblMinerFeeUSD->setText(feeUSD);
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
             QString feeUSD = CAmount::fromDecimalString(txt).toDecimalAUDString();
@@ -353,6 +358,8 @@ void MainWindow::amountChanged(int item, const QString& text) {
     usd->setText(amt.toDecimalINRString());
       } else if (Settings::getInstance()->get_currency_name() == "GBP") {
     usd->setText(amt.toDecimalGBPString());
+      } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+    usd->setText(amt.toDecimalUAHString());
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
     usd->setText(amt.toDecimalAUDString());
     }
@@ -704,6 +711,14 @@ bool MainWindow::confirmTx(Tx tx, RecurringPaymentInfo* rpi) {
             AmtUSD->setObjectName(QString("AmtUSD") % QString::number(i + 1));
             AmtUSD->setText(toAddr.amount.toDecimalGBPString());
             AmtUSD->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+            confirm.gridLayout->addWidget(AmtUSD, row, 2, 1, 1);
+			
+              // Amount (UAH)
+             } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+            auto AmtUSD = new QLabel(confirm.sendToAddrs);
+            AmtUSD->setObjectName(QString("AmtUSD") % QString::number(i + 1));
+            AmtUSD->setText(toAddr.amount.toDecimalUAHString());
+            AmtUSD->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
             confirm.gridLayout->addWidget(AmtUSD, row, 2, 1, 1);  
 
               // Amount (AUD)
@@ -781,6 +796,8 @@ bool MainWindow::confirmTx(Tx tx, RecurringPaymentInfo* rpi) {
           minerFeeUSD->setText(tx.fee.toDecimalINRString());
     } else if (Settings::getInstance()->get_currency_name() == "GBP") {
           minerFeeUSD->setText(tx.fee.toDecimalGBPString());
+    } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+          minerFeeUSD->setText(tx.fee.toDecimalUAHString());
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
               minerFeeUSD->setText(tx.fee.toDecimalAUDString());
     }

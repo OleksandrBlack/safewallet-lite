@@ -178,6 +178,8 @@ QVariant TxTableModel::data(const QModelIndex &index, int role) const {
                 return total.toDecimalINRString();
         } else if (Settings::getInstance()->get_currency_name() == "GBP") {
                 return total.toDecimalGBPString();
+        } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+                return total.toDecimalUAHString();
         } else if (Settings::getInstance()->get_currency_name() == "AUD") {
                 return total.toDecimalAUDString();
               }

@@ -46,6 +46,7 @@ public:
     void refreshCHFPrice();
     void refreshINRPrice();
     void refreshGBPPrice();
+    void refreshUAHPrice();
     void refreshAUDPrice();
     void refreshUSDVolume();
     void refreshEURVolume();
@@ -57,6 +58,7 @@ public:
     void refreshCHFVolume();
     void refreshINRVolume();
     void refreshGBPVolume();
+    void refreshUAHVolume();
     void refreshAUDVolume();
     void refreshUSDCAP();
     void refreshEURCAP();
@@ -68,6 +70,7 @@ public:
     void refreshCHFCAP();
     void refreshINRCAP();
     void refreshGBPCAP();
+    void refreshUAHCAP();
     void refreshAUDCAP();
     
     

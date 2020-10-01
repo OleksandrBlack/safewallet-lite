@@ -296,6 +296,11 @@
          <string>USD</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>UAH</string>
+        </property>
+       </item>
       </widget>
      </widget>
     </widget>

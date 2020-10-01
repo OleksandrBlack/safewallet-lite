@@ -79,6 +79,7 @@ public:
     void    setCHFPrice(double p) { CHFPrice = p; }
     void    setINRPrice(double p) { INRPrice = p; }
     void    setGBPPrice(double p) { GBPPrice = p; }
+    void    setUAHPrice(double p) { UAHPrice = p; }
     void    setAUDPrice(double p) { AUDPrice = p; }
     void    setUSDVolume(double p) { USDVolume = p; }
     void    setEURVolume(double p) { EURVolume = p; }
@@ -90,6 +91,7 @@ public:
     void    setCHFVolume(double p) { CHFVolume = p; }
     void    setINRVolume(double p) { INRVolume = p; }
     void    setGBPVolume(double p) { GBPVolume = p; }
+    void    setUAHVolume(double p) { UAHVolume = p; }
     void    setAUDVolume(double p) { AUDVolume = p; }
     void    setUSDCAP(double p) { USDCAP = p; }
     void    setEURCAP(double p) { EURCAP = p; }
@@ -101,6 +103,7 @@ public:
     void    setCHFCAP(double p) { CHFCAP = p; }
     void    setINRCAP(double p) { INRCAP = p; }
     void    setGBPCAP(double p) { GBPCAP = p; }
+    void    setUAHCAP(double p) { UAHCAP = p; }
     void    setAUDCAP(double p) { AUDCAP = p; }
     double  getZECPrice();
     double  getEURPrice();
@@ -112,6 +115,7 @@ public:
     double  getCHFPrice();
     double  getINRPrice();
     double  getGBPPrice();
+    double  getUAHPrice();
     double  getAUDPrice();
     double  getUSDVolume();
     double  getEURVolume();
@@ -123,6 +127,7 @@ public:
     double  getCHFVolume();
     double  getINRVolume();
     double  getGBPVolume();
+    double  getUAHVolume();
     double  getAUDVolume();
     double  getUSDCAP();
     double  getEURCAP();
@@ -134,6 +139,7 @@ public:
     double  getCHFCAP();
     double  getINRCAP();
     double  getGBPCAP();
+    double  getUAHCAP();
     double  getAUDCAP();
     
 
@@ -197,6 +203,7 @@ private:
     double  CHFPrice          = 0.0;
     double  INRPrice          = 0.0;
     double  GBPPrice          = 0.0;
+    double  UAHPrice          = 0.0;
     double  AUDPrice          = 0.0;
     double  USDVolume          = 0.0;
     double  EURVolume          = 0.0;
@@ -208,6 +215,7 @@ private:
     double  CHFVolume          = 0.0;
     double  INRVolume          = 0.0;
     double  GBPVolume          = 0.0;
+    double  UAHVolume          = 0.0;
     double  AUDVolume          = 0.0;
     double  USDCAP          = 0.0;
     double  EURCAP          = 0.0;
@@ -219,6 +227,7 @@ private:
     double  CHFCAP          = 0.0;
     double  INRCAP          = 0.0;
     double  GBPCAP          = 0.0;
+    double  UAHCAP          = 0.0;
     double  AUDCAP          = 0.0;
 };
 

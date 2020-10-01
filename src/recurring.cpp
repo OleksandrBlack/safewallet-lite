@@ -103,6 +103,8 @@ QString RecurringPaymentInfo::getAmountPretty() const {
     return currency == "INR" ? amount.toDecimalINRString() : amount.toDecimalsafecoinString();
      } else if (Settings::getInstance()->get_currency_name() == "GBP") {
     return currency == "GBP" ? amount.toDecimalGBPString() : amount.toDecimalsafecoinString();
+     } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+    return currency == "UAH" ? amount.toDecimalUAHString() : amount.toDecimalsafecoinString();
   } else if (Settings::getInstance()->get_currency_name() == "AUD") {
     return currency == "AUD" ? amount.toDecimalAUDString() : amount.toDecimalsafecoinString();
 }
@@ -180,6 +182,8 @@ RecurringPaymentInfo* Recurring::getNewRecurringFromTx(QWidget* parent, MainWind
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalINRString());
          } else if (Settings::getInstance()->get_currency_name() == "GBP") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalGBPString());
+         } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalUAHString());
          } else if (Settings::getInstance()->get_currency_name() == "AUD") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalAUDString());
             
@@ -196,33 +200,29 @@ RecurringPaymentInfo* Recurring::getNewRecurringFromTx(QWidget* parent, MainWind
         if (c == "USD") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalUSDString());
             
-              }  else if (c == "EUR") {
+              }	else if (c == "EUR") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalEURString());
-               } else if 
-                (c == "BTC") {
+              }	else if (c == "BTC") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalBTCString());
-                 }  else if (c == "CNY") {
+              }	else if (c == "CNY") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCNYString());
-               } else if 
-                (c == "RUB") {
+              }	else if (c == "RUB") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalRUBString());
-                 }  else if (c == "CAD") {
+              }	else if (c == "CAD") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCADString());
-               } else if 
-                (c == "SGD") {
+              }	else if	(c == "SGD") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalSGDString());
-                 }  else if (c == "CHF") {
+              }	else if	(c == "CHF") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalCHFString());
-               } else if 
-                (c == "INR") {
+              }	else if	(c == "INR") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalINRString());
-                 }  else if (c == "GBP") {
+              }	else if (c == "GBP") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalGBPString());
-               } else if 
-                (c == "AUD") {
+              }	else if (c == "UAH") {
+            ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalUAHString());
+              }	else if	(c == "AUD") {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalAUDString());
-        }
-        
+              }
         else {
             ui.lblAmt->setText(tx.toAddrs[0].amount.toDecimalString());
         }

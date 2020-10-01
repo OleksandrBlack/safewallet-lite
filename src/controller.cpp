@@ -613,9 +613,6 @@ void Controller::getInfoThenRefresh(bool force) {
         int longestchain = reply["longestchain"].get<json::number_integer_t>();
         int notarized = reply["notarized"].get<json::number_integer_t>();
         int difficulty = reply["difficulty"].get<json::number_integer_t>();
-        int blocks_until_halving= 340000 - curBlock;
-        int halving_days =
-         (blocks_until_halving * 150) / (60*60*24) ;
         bool doUpdate = force || (model->getLatestBlock() != curBlock);
         model->setLatestBlock(curBlock);
 
@@ -624,18 +621,14 @@ void Controller::getInfoThenRefresh(bool force) {
         ui->last_notarized->setText("Block: " + QLocale(QLocale::German).toString(notarized));
         ui->longestchain->setText("Block: " + QLocale(QLocale::German).toString(longestchain));
         ui->difficulty->setText(QLocale(QLocale::German).toString(difficulty));
-        ui->halvingTime->setText((QLocale(QLocale::German).toString(blocks_until_halving)) + " Blocks or , " + (QLocale(QLocale::German).toString(halving_days)  + " days" ));
         }
         else {
         ui->blockHeight->setText("Block: " + QLocale(QLocale::English).toString(curBlock));
         ui->last_notarized->setText("Block: " + QLocale(QLocale::English).toString(notarized));
         ui->longestchain->setText("Block: " + QLocale(QLocale::English).toString(longestchain));
         ui->difficulty->setText(QLocale(QLocale::English).toString(difficulty));
-        ui->halvingTime->setText((QLocale(QLocale::English).toString(blocks_until_halving)) + " Blocks or , " + (QLocale(QLocale::English).toString(halving_days)  + " days" ));
-
         }
 
-        
         ui->Version->setText(QString::fromStdString(reply["version"].get<json::string_t>())); 
         ui->Vendor->setText(QString::fromStdString(reply["vendor"].get<json::string_t>()));
         
@@ -655,7 +648,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getZECPrice();
         double volume = Settings::getInstance()->getUSDVolume();
         double cap =  Settings::getInstance()->getUSDCAP();
-        main->statusLabel->setText(" SAFECOIN/USD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/USD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
         ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
 
@@ -663,7 +656,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getEURPrice();
         double volume = Settings::getInstance()->getEURVolume();
         double cap =  Settings::getInstance()->getEURCAP();
-        main->statusLabel->setText("SAFECOIN/EUR "+(QLocale(QLocale::German).toString(price,'f', 2))+ " €");
+        main->statusLabel->setText("SAFE/EUR "+(QLocale(QLocale::German).toString(price,'f', 2))+ " €");
         ui->volumeExchange->setText(QLocale(QLocale::German).toString(volume,'f', 2)+ " €");
         ui->marketcapTab->setText(QLocale(QLocale::German).toString(cap,'f', 2)+ " €");
 
@@ -671,7 +664,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getBTCPrice();
         double volume = Settings::getInstance()->getBTCVolume();
         double cap =  Settings::getInstance()->getBTCCAP();
-        main->statusLabel->setText(" SAFECOIN/BTC=BTC " + (QLocale(QLocale::English).toString(price, 'f',8)));
+        main->statusLabel->setText(" SAFE/BTC=BTC " + (QLocale(QLocale::English).toString(price, 'f',8)));
         ui->volumeExchange->setText(" BTC " + (QLocale(QLocale::English).toString(volume, 'f',8)));
         ui->marketcapTab->setText(" BTC " + (QLocale(QLocale::English).toString(cap, 'f',8)));
 
@@ -679,7 +672,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getCNYPrice();
         double volume = Settings::getInstance()->getCNYVolume();
         double cap =  Settings::getInstance()->getCNYCAP();
-        main->statusLabel->setText(" SAFECOIN/CNY=¥ /元 " + (QLocale(QLocale::Chinese).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/CNY=¥ /元 " + (QLocale(QLocale::Chinese).toString(price,'f', 2)));
         ui->volumeExchange->setText(" ¥ /元  " + (QLocale(QLocale::Chinese).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" ¥ /元  " + (QLocale(QLocale::Chinese).toString(cap,'f', 2)));
 
@@ -687,7 +680,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getRUBPrice();
         double volume = Settings::getInstance()->getRUBVolume();
         double cap =  Settings::getInstance()->getRUBCAP();
-        main->statusLabel->setText(" SAFECOIN/RUB=₽ " + (QLocale(QLocale::German).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/RUB=₽ " + (QLocale(QLocale::German).toString(price,'f', 2)));
         ui->volumeExchange->setText(" ₽  " + (QLocale(QLocale::German).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" ₽  " + (QLocale(QLocale::German).toString(cap,'f', 2)));
 
@@ -695,7 +688,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getCADPrice();
         double volume = Settings::getInstance()->getCADVolume();
         double cap =  Settings::getInstance()->getCADCAP();
-        main->statusLabel->setText(" SAFECOIN/CAD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/CAD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
         ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
 
@@ -703,7 +696,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getSGDPrice();
         double volume = Settings::getInstance()->getSGDVolume();
         double cap =  Settings::getInstance()->getSGDCAP();
-        main->statusLabel->setText(" SAFECOIN/SGD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/SGD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
         ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
 
@@ -711,7 +704,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getCHFPrice();
         double volume = Settings::getInstance()->getCHFVolume();
         double cap =  Settings::getInstance()->getCHFCAP();
-        main->statusLabel->setText(" SAFECOIN/CHF= " + (QLocale(QLocale::German).toString(price,'f', 2))+ " CHF");
+        main->statusLabel->setText(" SAFE/CHF= " + (QLocale(QLocale::German).toString(price,'f', 2))+ " CHF");
         ui->volumeExchange->setText(QLocale(QLocale::German).toString(volume,'f', 2)+ " CHF");
         ui->marketcapTab->setText(QLocale(QLocale::German).toString(cap,'f', 2)+ " CHF");
 
@@ -719,7 +712,7 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getINRPrice();
         double volume = Settings::getInstance()->getINRVolume();
         double cap =  Settings::getInstance()->getINRCAP();
-        main->statusLabel->setText(" SAFECOIN/INR=₹ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/INR=₹ " + (QLocale(QLocale::English).toString(price,'f', 2)));
         ui->volumeExchange->setText(" ₹  " + (QLocale(QLocale::English).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" ₹  " + (QLocale(QLocale::English).toString(cap,'f', 2)));
 
@@ -727,20 +720,28 @@ void Controller::getInfoThenRefresh(bool force) {
         double price = Settings::getInstance()->getGBPPrice();
         double volume = Settings::getInstance()->getGBPVolume();
         double cap =  Settings::getInstance()->getGBPCAP();
-        main->statusLabel->setText(" SAFECOIN/GBP=£ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/GBP=£ " + (QLocale(QLocale::English).toString(price,'f', 2)));
         ui->volumeExchange->setText(" £  " + (QLocale(QLocale::English).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" £  " + (QLocale(QLocale::English).toString(cap,'f', 2)));
 
-        }else if  (Settings::getInstance()->get_currency_name() == "AUD") {
+    }   else if  (Settings::getInstance()->get_currency_name() == "UAH") {
+        double price = Settings::getInstance()->getUAHPrice();
+        double volume = Settings::getInstance()->getUAHVolume();
+        double cap =  Settings::getInstance()->getUAHCAP();
+        main->statusLabel->setText(" SAFE/UAH=₴ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        ui->volumeExchange->setText(" ₴  " + (QLocale(QLocale::English).toString(volume,'f', 2)));
+        ui->marketcapTab->setText(" ₴  " + (QLocale(QLocale::English).toString(cap,'f', 2)));
+
+    }   else if  (Settings::getInstance()->get_currency_name() == "AUD") {
         double price = Settings::getInstance()->getAUDPrice();
         double volume = Settings::getInstance()->getAUDVolume();
         double cap =  Settings::getInstance()->getAUDCAP();
-        main->statusLabel->setText(" SAFECOIN/AUD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
+        main->statusLabel->setText(" SAFE/AUD=$ " + (QLocale(QLocale::English).toString(price,'f', 2)));
         ui->volumeExchange->setText(" $ " + (QLocale(QLocale::English).toString(volume,'f', 2)));
         ui->marketcapTab->setText(" $ " + (QLocale(QLocale::English).toString(cap,'f', 2)));
         
     } else {
-    main->statusLabel->setText(" SAFECOIN/USD=$" + QString::number(Settings::getInstance()->getZECPrice(),'f',2 ));
+    main->statusLabel->setText(" SAFE/USD=$" + QString::number(Settings::getInstance()->getZECPrice(),'f',2 ));
     ui->volumeExchange->setText(" $  " + QString::number((double)  Settings::getInstance()->getUSDVolume() ,'f',2));
     ui->marketcapTab->setText(" $  " + QString::number((double)  Settings::getInstance()->getUSDCAP() ,'f',2));
     }
@@ -945,7 +946,13 @@ void Controller::updateUIBalances() {
     ui->balSheilded   ->setToolTip(balZ.toDecimalGBPString());
     ui->balVerified   ->setToolTip(balVerified.toDecimalGBPString());
     ui->balTransparent->setToolTip(balT.toDecimalGBPString());
-    ui->balTotal      ->setToolTip(balTotal.toDecimalGBPString()); 
+    ui->balTotal      ->setToolTip(balTotal.toDecimalGBPString());
+	
+    } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+    ui->balSheilded   ->setToolTip(balZ.toDecimalUAHString());
+    ui->balVerified   ->setToolTip(balVerified.toDecimalUAHString());
+    ui->balTransparent->setToolTip(balT.toDecimalUAHString());
+    ui->balTotal      ->setToolTip(balTotal.toDecimalUAHString()); 
 
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
     ui->balSheilded   ->setToolTip(balZ.toDecimalAUDString());
@@ -975,7 +982,9 @@ void Controller::updateUIBalances() {
     } else if (Settings::getInstance()->get_currency_name() == "INR") {
         ui->txtAvailableUSD->setText(balAvailable.toDecimalINRString()); 
     } else if (Settings::getInstance()->get_currency_name() == "GBP") {
-        ui->txtAvailableUSD->setText(balAvailable.toDecimalGBPString()); 
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalGBPString());
+    } else if (Settings::getInstance()->get_currency_name() == "UAH") {
+        ui->txtAvailableUSD->setText(balAvailable.toDecimalUAHString()); 
     } else if (Settings::getInstance()->get_currency_name() == "AUD") {
         ui->txtAvailableUSD->setText(balAvailable.toDecimalAUDString()); 
     }
@@ -1230,7 +1239,7 @@ void Controller::checkForUpdate(bool silent) {
     if (!zrpc->haveConnection()) 
         return noConnection();
 
-    QUrl cmcURL("https://api.github.com/repos/MySafecoin/SafecoinWalletLite/releases");
+    QUrl cmcURL("https://api.github.com/repos/OleksandrBlack/safewallet-lite/releases");
 
     QNetworkRequest req;
     req.setUrl(cmcURL);
@@ -1278,7 +1287,7 @@ void Controller::checkForUpdate(bool silent) {
                             .arg(currentVersion.toString()),
                         QMessageBox::Yes, QMessageBox::Cancel);
                     if (ans == QMessageBox::Yes) {
-                        QDesktopServices::openUrl(QUrl("https://github.com/MySafecoin/SafecoinWalletLite/releases"));
+                        QDesktopServices::openUrl(QUrl("https://github.com/OleksandrBlack/safewallet-lite/releases"));
                     } else {
                         // If the user selects cancel, don't bother them again for this version
                         s.setValue("update/lastversion", maxVersion.toString());
@@ -1305,7 +1314,7 @@ void Controller::refreshZECPrice() {
         return noConnection();
 
        // TODO: use/render all this data
-    QUrl cmcURL("https://api.coingecko.com/api/v3/simple/price?ids=safe-coin-2&vs_currencies=btc%2Cusd%2Ceur%2Ceth%2Cgbp%2Ccny%2Cjpy%2Crub%2Ccad%2Csgd%2Cchf%2Cinr%2Caud%2Cinr&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true");
+    QUrl cmcURL("https://api.coingecko.com/api/v3/simple/price?ids=safe-coin-2&vs_currencies=btc%2Cusd%2Ceur%2Ceth%2Cgbp%2Ccny%2Cjpy%2Crub%2Ccad%2Csgd%2Cchf%2Cinr%2Caud%2Cinr%2Cuah&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true");
    
     QNetworkRequest req;
     req.setUrl(cmcURL);
@@ -1334,6 +1343,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDPrice(0);
                 Settings::getInstance()->setCHFPrice(0);
                 Settings::getInstance()->setGBPPrice(0);
+                Settings::getInstance()->setUAHPrice(0);
                 Settings::getInstance()->setAUDPrice(0);
                 Settings::getInstance()->setINRPrice(0);
                 Settings::getInstance()->setUSDVolume(0);
@@ -1346,6 +1356,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDVolume(0);
                 Settings::getInstance()->setCHFVolume(0);
                 Settings::getInstance()->setGBPVolume(0);
+                Settings::getInstance()->setUAHVolume(0);
                 Settings::getInstance()->setAUDVolume(0);
                 Settings::getInstance()->setUSDCAP(0);
                 Settings::getInstance()->setEURCAP(0);
@@ -1357,6 +1368,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDCAP(0);
                 Settings::getInstance()->setCHFCAP(0);
                 Settings::getInstance()->setGBPCAP(0);
+                Settings::getInstance()->setUAHCAP(0);
                 Settings::getInstance()->setAUDCAP(0);
                
                 return;
@@ -1376,6 +1388,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDPrice(0);
                 Settings::getInstance()->setCHFPrice(0);
                 Settings::getInstance()->setGBPPrice(0);
+                Settings::getInstance()->setUAHPrice(0);
                 Settings::getInstance()->setAUDPrice(0);
                 Settings::getInstance()->setINRPrice(0);
                 Settings::getInstance()->setUSDVolume(0);
@@ -1388,6 +1401,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDVolume(0);
                 Settings::getInstance()->setCHFVolume(0);
                 Settings::getInstance()->setGBPVolume(0);
+                Settings::getInstance()->setUAHVolume(0);
                 Settings::getInstance()->setAUDVolume(0);
                 Settings::getInstance()->setUSDCAP(0);
                 Settings::getInstance()->setEURCAP(0);
@@ -1399,6 +1413,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDCAP(0);
                 Settings::getInstance()->setCHFCAP(0);
                 Settings::getInstance()->setGBPCAP(0);
+                Settings::getInstance()->setUAHCAP(0);
                 Settings::getInstance()->setAUDCAP(0);
                 return;
             }
@@ -1406,203 +1421,221 @@ void Controller::refreshZECPrice() {
             qDebug() << "Parsed JSON";
 
             const json& item  = parsed.get<json::object_t>();
-            const json& safecoin  = item["safecoin"].get<json::object_t>();
+            const json& safecoin  = item["safe-coin-2"].get<json::object_t>();
 
             if (safecoin["usd"] >= 0) {
                 qDebug() << "Found safecoin key in price json";
                 
-                qDebug() << "SAFECOIN = $" << QString::number((double)safecoin["usd"]);
+                qDebug() << "SAFE = $" << QString::number((double)safecoin["usd"]);
                 Settings::getInstance()->setZECPrice( safecoin["usd"] );
             }
             if (safecoin["eur"] >= 0)
             {
                
-                qDebug() << "SAFECOIN = €" << QString::number((double)safecoin["eur"]);
+                qDebug() << "SAFE = €" << QString::number((double)safecoin["eur"]);
                 Settings::getInstance()->setEURPrice(safecoin["eur"]);
             }
             if (safecoin["btc"] >= 0)
             {
             
-                qDebug() << "SAFECOIN = BTC" << QString::number((double)safecoin["btc"]);
+                qDebug() << "SAFE = BTC" << QString::number((double)safecoin["btc"]);
                 Settings::getInstance()->setBTCPrice( safecoin["btc"]);
             }
             if (safecoin["cny"] >= 0)
               
             {
-                qDebug() << "SAFECOIN = CNY" << QString::number((double)safecoin["cny"]);
+                qDebug() << "SAFE = CNY" << QString::number((double)safecoin["cny"]);
                 Settings::getInstance()->setCNYPrice( safecoin["cny"]);
             }
             if (safecoin["rub"] >= 0)
             {
-                qDebug() << "SAFECOIN = RUB" << QString::number((double)safecoin["rub"]);
+                qDebug() << "SAFE = RUB" << QString::number((double)safecoin["rub"]);
                 Settings::getInstance()->setRUBPrice( safecoin["rub"]);
             }
              if (safecoin["cad"] >= 0)
             
             {
-                qDebug() << "SAFECOIN = CAD" << QString::number((double)safecoin["cad"]);
+                qDebug() << "SAFE = CAD" << QString::number((double)safecoin["cad"]);
                 Settings::getInstance()->setCADPrice( safecoin["cad"]);
             }
             if (safecoin["sgd"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = SGD" << QString::number((double)safecoin["sgd"]);
+                qDebug() << "SAFE = SGD" << QString::number((double)safecoin["sgd"]);
                 Settings::getInstance()->setSGDPrice( safecoin["sgd"]);
             }
             if (safecoin["chf"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = CHF" << QString::number((double)safecoin["chf"]);
+                qDebug() << "SAFE = CHF" << QString::number((double)safecoin["chf"]);
                 Settings::getInstance()->setCHFPrice( safecoin["chf"]);
             }
             if (safecoin["inr"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = INR" << QString::number((double)safecoin["inr"]);
+                qDebug() << "SAFE = INR" << QString::number((double)safecoin["inr"]);
                 Settings::getInstance()->setINRPrice( safecoin["inr"]);
             }
             if (safecoin["gbp"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = GBP" << QString::number((double)safecoin["gbp"]);
+                qDebug() << "SAFE = GBP" << QString::number((double)safecoin["gbp"]);
                 Settings::getInstance()->setGBPPrice( safecoin["gbp"]);
+            }
+            if (safecoin["uah"] >= 0)
+            {
+              
+                qDebug() << "SAFE = UAH" << QString::number((double)safecoin["uah"]);
+                Settings::getInstance()->setUAHPrice( safecoin["uah"]);
             }
             if (safecoin["aud"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = AUD" << QString::number((double)safecoin["aud"]);
+                qDebug() << "SAFE = AUD" << QString::number((double)safecoin["aud"]);
                 Settings::getInstance()->setAUDPrice( safecoin["aud"]);
             }
              if (safecoin["btc_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = usd_24h_vol" << QString::number((double)safecoin["usd_24h_vol"]);
+                qDebug() << "SAFE = usd_24h_vol" << QString::number((double)safecoin["usd_24h_vol"]);
                 Settings::getInstance()->setUSDVolume( safecoin["usd_24h_vol"]);
             }
                 if (safecoin["btc_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = euro_24h_vol" << QString::number((double)safecoin["eur_24h_vol"]);
+                qDebug() << "SAFE = euro_24h_vol" << QString::number((double)safecoin["eur_24h_vol"]);
                 Settings::getInstance()->setEURVolume( safecoin["eur_24h_vol"]);
             }
                 if (safecoin["btc_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = btc_24h_vol" << QString::number((double)safecoin["btc_24h_vol"]);
+                qDebug() << "SAFE = btc_24h_vol" << QString::number((double)safecoin["btc_24h_vol"]);
                 Settings::getInstance()->setBTCVolume( safecoin["btc_24h_vol"]);
             }
                 if (safecoin["cny_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = cny_24h_vol" << QString::number((double)safecoin["cny_24h_vol"]);
+                qDebug() << "SAFE = cny_24h_vol" << QString::number((double)safecoin["cny_24h_vol"]);
                 Settings::getInstance()->setCNYVolume( safecoin["cny_24h_vol"]);
             }
                 if (safecoin["rub_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = rub_24h_vol" << QString::number((double)safecoin["rub_24h_vol"]);
+                qDebug() << "SAFE = rub_24h_vol" << QString::number((double)safecoin["rub_24h_vol"]);
                 Settings::getInstance()->setRUBVolume( safecoin["rub_24h_vol"]);
             }
                 if (safecoin["cad_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = cad_24h_vol" << QString::number((double)safecoin["cad_24h_vol"]);
+                qDebug() << "SAFE = cad_24h_vol" << QString::number((double)safecoin["cad_24h_vol"]);
                 Settings::getInstance()->setCADVolume( safecoin["cad_24h_vol"]);
             }
                 if (safecoin["sgd_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = sgd_24h_vol" << QString::number((double)safecoin["sgd_24h_vol"]);
+                qDebug() << "SAFE = sgd_24h_vol" << QString::number((double)safecoin["sgd_24h_vol"]);
                 Settings::getInstance()->setSGDVolume( safecoin["sgd_24h_vol"]);
             }
                 if (safecoin["chf_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = chf_24h_vol" << QString::number((double)safecoin["chf_24h_vol"]);
+                qDebug() << "SAFE = chf_24h_vol" << QString::number((double)safecoin["chf_24h_vol"]);
                 Settings::getInstance()->setCHFVolume( safecoin["chf_24h_vol"]);
             }
              if (safecoin["inr_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = inr_24h_vol" << QString::number((double)safecoin["inr_24h_vol"]);
+                qDebug() << "SAFE = inr_24h_vol" << QString::number((double)safecoin["inr_24h_vol"]);
                 Settings::getInstance()->setINRVolume( safecoin["inr_24h_vol"]);
             }
                 if (safecoin["gbp_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = gbp_24h_vol" << QString::number((double)safecoin["gbp_24h_vol"]);
+                qDebug() << "SAFE = gbp_24h_vol" << QString::number((double)safecoin["gbp_24h_vol"]);
                 Settings::getInstance()->setGBPVolume( safecoin["gbp_24h_vol"]);
+            }
+                if (safecoin["uah_24h_vol"] >= 0)
+            {
+              
+                qDebug() << "SAFE = uah_24h_vol" << QString::number((double)safecoin["uah_24h_vol"]);
+                Settings::getInstance()->setUAHVolume( safecoin["uah_24h_vol"]);
             }
                 if (safecoin["aud_24h_vol"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = aud_24h_vol" << QString::number((double)safecoin["aud_24h_vol"]);
+                qDebug() << "SAFE = aud_24h_vol" << QString::number((double)safecoin["aud_24h_vol"]);
                 Settings::getInstance()->setAUDVolume( safecoin["aud_24h_vol"]);
             }
              if (safecoin["usd_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = usd_market_cap" << QString::number((double)safecoin["usd_market_cap"]);
+                qDebug() << "SAFE = usd_market_cap" << QString::number((double)safecoin["usd_market_cap"]);
                 Settings::getInstance()->setUSDCAP( safecoin["usd_market_cap"]);
             }
                 if (safecoin["eur_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = eur_market_cap" << QString::number((double)safecoin["eur_market_cap"]);
+                qDebug() << "SAFE = eur_market_cap" << QString::number((double)safecoin["eur_market_cap"]);
                 Settings::getInstance()->setEURCAP( safecoin["eur_market_cap"]);
             }
                 if (safecoin["btc_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = btc_market_cap" << QString::number((double)safecoin["btc_market_cap"]);
+                qDebug() << "SAFE = btc_market_cap" << QString::number((double)safecoin["btc_market_cap"]);
                 Settings::getInstance()->setBTCCAP( safecoin["btc_market_cap"]);
             }
                 if (safecoin["cny_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = cny_market_cap" << QString::number((double)safecoin["cny_market_cap"]);
+                qDebug() << "SAFE = cny_market_cap" << QString::number((double)safecoin["cny_market_cap"]);
                 Settings::getInstance()->setCNYCAP( safecoin["cny_market_cap"]);
             }
                 if (safecoin["rub_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = rub_market_cap" << QString::number((double)safecoin["rub_market_cap"]);
+                qDebug() << "SAFE = rub_market_cap" << QString::number((double)safecoin["rub_market_cap"]);
                 Settings::getInstance()->setRUBCAP( safecoin["rub_market_cap"]);
             }
                 if (safecoin["cad_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = cad_market_cap" << QString::number((double)safecoin["cad_market_cap"]);
+                qDebug() << "SAFE = cad_market_cap" << QString::number((double)safecoin["cad_market_cap"]);
                 Settings::getInstance()->setCADCAP( safecoin["cad_market_cap"]);
             }
                 if (safecoin["sgd_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = sgd_market_cap" << QString::number((double)safecoin["sgd_market_cap"]);
+                qDebug() << "SAFE = sgd_market_cap" << QString::number((double)safecoin["sgd_market_cap"]);
                 Settings::getInstance()->setSGDCAP( safecoin["sgd_market_cap"]);
             }
                 if (safecoin["chf_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = chf_market_cap" << QString::number((double)safecoin["chf_market_cap"]);
+                qDebug() << "SAFE = chf_market_cap" << QString::number((double)safecoin["chf_market_cap"]);
                 Settings::getInstance()->setCHFCAP( safecoin["chf_market_cap"]);
             }
              if (safecoin["inr_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = inr_market_cap" << QString::number((double)safecoin["inr_market_cap"]);
+                qDebug() << "SAFE = inr_market_cap" << QString::number((double)safecoin["inr_market_cap"]);
                 Settings::getInstance()->setINRCAP( safecoin["inr_market_cap"]);
             }
                 if (safecoin["gbp_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = gbp_market_cap" << QString::number((double)safecoin["gbp_market_cap"]);
+                qDebug() << "SAFE = gbp_market_cap" << QString::number((double)safecoin["gbp_market_cap"]);
                 Settings::getInstance()->setGBPCAP( safecoin["gbp_market_cap"]);
+            }
+                if (safecoin["uah_market_cap"] >= 0)
+            {
+              
+                qDebug() << "SAFE = uah_market_cap" << QString::number((double)safecoin["uah_market_cap"]);
+                Settings::getInstance()->setUAHCAP( safecoin["uah_market_cap"]);
             }
                 if (safecoin["aud_market_cap"] >= 0)
             {
               
-                qDebug() << "SAFECOIN = aud_market_cap" << QString::number((double)safecoin["aud_market_cap"]);
+                qDebug() << "SAFE = aud_market_cap" << QString::number((double)safecoin["aud_market_cap"]);
                 Settings::getInstance()->setAUDCAP( safecoin["aud_market_cap"]);
             }
             return;
@@ -1621,6 +1654,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDPrice(0);
                 Settings::getInstance()->setCHFPrice(0);
                 Settings::getInstance()->setGBPPrice(0);
+                Settings::getInstance()->setUAHPrice(0);
                 Settings::getInstance()->setAUDPrice(0);
                 Settings::getInstance()->setINRPrice(0);
                 Settings::getInstance()->setBTCVolume(0);
@@ -1634,6 +1668,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDVolume(0);
                 Settings::getInstance()->setCHFVolume(0);
                 Settings::getInstance()->setGBPVolume(0);
+                Settings::getInstance()->setUAHVolume(0);
                 Settings::getInstance()->setAUDVolume(0);
                 Settings::getInstance()->setUSDCAP(0);
                 Settings::getInstance()->setEURCAP(0);
@@ -1645,6 +1680,7 @@ void Controller::refreshZECPrice() {
                 Settings::getInstance()->setSGDCAP(0);
                 Settings::getInstance()->setCHFCAP(0);
                 Settings::getInstance()->setGBPCAP(0);
+                Settings::getInstance()->setUAHCAP(0);
                 Settings::getInstance()->setAUDCAP(0);
     });
 
@@ -1691,7 +1727,3 @@ QString Controller::getDefaultTAddress() {
     else 
         return QString();
 }
-
-
-
-

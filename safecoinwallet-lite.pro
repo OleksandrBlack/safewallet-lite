@@ -123,6 +123,7 @@ FORMS += \
 TRANSLATIONS = res/safewalletlite_es.ts \
                res/safewalletlite_fr.ts \
                res/safewalletlite_de.ts \
+               res/safewalletlite_pot.ts \
                res/safewalletlite_pt.ts \
                res/safewalletlite_it.ts \
                res/safewalletlite_zh.ts \
@@ -130,6 +131,7 @@ TRANSLATIONS = res/safewalletlite_es.ts \
                res/safewalletlite_sr.ts \
                res/safewalletlite_fa.ts \
                res/safewalletlite_uk.ts \
+               res/safewalletlite_ru.ts \
                res/safewalletlite_tr.ts 
              
 include(singleapplication/singleapplication.pri)
